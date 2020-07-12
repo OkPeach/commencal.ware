@@ -9,13 +9,14 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import org.lwjgl.opengl.Display;
 
 @Mod(modid = Main.MODID, name = Main.NAME, version = Main.VERSION, acceptableRemoteVersions = "*")
 public class Main {
 	
 	public static final String MODID = "commencal.ware";
 	public static final String NAME = "Commencal Ware";
-	public static final String VERSION = "0.1";
+	public static final String VERSION = "v0.1";
 	public static final String MCVERSION = "1.12.2";
 	public static int initCount = 0;
 	public static ModuleManager moduleManager;
@@ -25,7 +26,9 @@ public class Main {
 	public Main() { init(null); }
 	
 	@Mod.EventHandler
-	public void preInit(FMLPreInitializationEvent E) {}
+	public void preInit(FMLPreInitializationEvent E) {
+		Display.setTitle(NAME + " " + VERSION + " - " + MCVERSION);
+	}
 
 	@Mod.EventHandler
 	public void init(FMLInitializationEvent E) {
