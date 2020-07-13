@@ -1,0 +1,30 @@
+{
+  "KillAura": {
+    "toggled": false,
+    "key": -1
+  },
+  "AutoArmor": {
+    "toggled": false,
+    "key": -1,
+    "Enchantments": true,
+    "SwapWhileMoving": false
+  },
+  "NoRain": {
+    "toggled": false,
+    "key": -1
+  },
+  "ClickGui": {
+    "toggled": true,
+    "key": 54,
+    "Shadow": true,
+    "Rainbow": true,
+    "Red": 170.0,
+    "Green": 170.0,
+    "Blue": 170.0,
+    "Alpha": 170.0
+  },
+  "Sprint": {
+    "toggled": true,
+    "key": -1
+  }
+}

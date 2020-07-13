@@ -2,6 +2,7 @@ package ca.commencal.ware;
 
 import ca.commencal.ware.managers.FileManager;
 import ca.commencal.ware.managers.ModuleManager;
+import ca.commencal.ware.module.Module;
 import ca.commencal.ware.utils.system.EventRegister;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -38,7 +39,10 @@ public class Main {
 		eventsHandler = new EventsHandler();
 		EventRegister.register(MinecraftForge.EVENT_BUS, eventsHandler);
 		EventRegister.register(FMLCommonHandler.instance().bus(), eventsHandler);
-		initCount++; 
+		initCount++;
+		for(Module module : ModuleManager.getToggleModule()) {
+			module.onUpdate();
+		}
 	}
 
 	@Mod.EventHandler

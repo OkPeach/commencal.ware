@@ -19,6 +19,7 @@ import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.util.ArrayList;
@@ -121,8 +122,16 @@ public class ModuleManager {
 		return modules;
 	}
 
-	public static Module getToggleModule() {
-		return toggleModule;
+	public static ArrayList<Module> getToggleModule() {
+		ArrayList<Module> ToggledModules = new ArrayList<Module>();
+
+		for(Module module : modules){
+			if(module.isToggled()){
+				ToggledModules.add(module);
+			}
+		}
+
+		return ToggledModules;
 	}
 
 	public static void onKeyPressed(int key) {
