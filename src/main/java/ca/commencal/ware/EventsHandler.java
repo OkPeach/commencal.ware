@@ -3,7 +3,7 @@ package ca.commencal.ware;
 import ca.commencal.ware.gui.click.ClickGuiScreen;
 import ca.commencal.ware.managers.ModuleManager;
 import ca.commencal.ware.module.Module;
-import ca.commencal.ware.module.modules.ClickGui;
+import ca.commencal.ware.module.modules.render.ClickGui;
 import ca.commencal.ware.utils.system.Connection;
 import ca.commencal.ware.utils.system.Wrapper;
 import ca.commencal.ware.utils.visual.ChatUtils;

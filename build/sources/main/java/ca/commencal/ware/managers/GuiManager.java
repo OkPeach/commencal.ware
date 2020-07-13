@@ -26,7 +26,7 @@ public class GuiManager extends ClickGui {
         int framePosY = 20;
 
         for (ModuleCategory category : ModuleCategory.values()) {
-        	int frameHeight = 150;
+        	int frameHeight = 300;
         	int frameWidth = 95;
         	int hacksCount = 0;
                 String name = Character.toString(category.toString().toLowerCase().charAt(0)).toUpperCase() + category.toString().toLowerCase().substring(1);
@@ -119,7 +119,7 @@ public class GuiManager extends ClickGui {
                 }
                 
                 if(hacksCount < 6) {
-                	frameHeight = hacksCount * 20;
+                	frameHeight = hacksCount * 50 + 200;
                 }
                 
                 frame.setDimension(new Dimension(frameWidth, frameHeight));

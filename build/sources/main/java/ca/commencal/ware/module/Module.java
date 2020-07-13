@@ -9,6 +9,7 @@ import ca.commencal.ware.value.BooleanValue;
 import ca.commencal.ware.value.Mode;
 import ca.commencal.ware.value.ModeValue;
 import ca.commencal.ware.value.Value;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -28,6 +29,7 @@ public class Module {
 	private boolean show;
 	private int key;
 	private ArrayList<Value> values = new ArrayList<Value>();
+	public final Minecraft mc = Minecraft.getMinecraft();
 
 	public Module(String name, ModuleCategory category) {
 		this.name = name;
@@ -171,5 +173,7 @@ public class Module {
 	public void setShow(boolean show) {
 		this.show = show;
 	}
+
+	public void onUpdate() {}
 }
 

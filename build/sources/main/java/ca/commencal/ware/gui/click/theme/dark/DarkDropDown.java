@@ -5,7 +5,7 @@ import ca.commencal.ware.gui.click.base.ComponentRenderer;
 import ca.commencal.ware.gui.click.base.ComponentType;
 import ca.commencal.ware.gui.click.elements.Dropdown;
 import ca.commencal.ware.gui.click.theme.Theme;
-import ca.commencal.ware.module.modules.ClickGui;
+import ca.commencal.ware.module.modules.render.ClickGui;
 
 
 public class DarkDropDown extends ComponentRenderer {

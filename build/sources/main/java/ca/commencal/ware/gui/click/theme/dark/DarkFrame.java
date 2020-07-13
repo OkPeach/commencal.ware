@@ -5,7 +5,7 @@ import ca.commencal.ware.gui.click.base.ComponentRenderer;
 import ca.commencal.ware.gui.click.base.ComponentType;
 import ca.commencal.ware.gui.click.elements.Frame;
 import ca.commencal.ware.gui.click.theme.Theme;
-import ca.commencal.ware.module.modules.ClickGui;
+import ca.commencal.ware.module.modules.render.ClickGui;
 import ca.commencal.ware.utils.MathUtils;
 import ca.commencal.ware.utils.visual.ColorUtils;
 import ca.commencal.ware.utils.visual.GLUtils;

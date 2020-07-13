@@ -32,8 +32,8 @@ public class ClickGuiScreen extends GuiScreen {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         clickGui.render();
-        this.console.drawTextBox(ca.commencal.ware.module.modules.ClickGui.color, ColorUtils.color(0.0F, 0.0F, 0.0F, 1.0F));
-        this.console.setTextColor(ca.commencal.ware.module.modules.ClickGui.color);
+        this.console.drawTextBox(ca.commencal.ware.module.modules.render.ClickGui.color, ColorUtils.color(0.0F, 0.0F, 0.0F, 1.0F));
+        this.console.setTextColor(ca.commencal.ware.module.modules.render.ClickGui.color);
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 

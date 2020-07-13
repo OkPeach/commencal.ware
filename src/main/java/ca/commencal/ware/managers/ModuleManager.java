@@ -3,10 +3,11 @@ package ca.commencal.ware.managers;
 import ca.commencal.ware.gui.click.ClickGuiScreen;
 import ca.commencal.ware.gui.click.theme.dark.DarkTheme;
 import ca.commencal.ware.module.Module;
-import ca.commencal.ware.module.modules.AutoArmor;
-import ca.commencal.ware.module.modules.ClickGui;
-import ca.commencal.ware.module.modules.KillAura;
-import ca.commencal.ware.module.modules.NoRain;
+import ca.commencal.ware.module.modules.combat.AutoArmor;
+import ca.commencal.ware.module.modules.player.Sprint;
+import ca.commencal.ware.module.modules.render.ClickGui;
+import ca.commencal.ware.module.modules.combat.KillAura;
+import ca.commencal.ware.module.modules.render.NoRain;
 import ca.commencal.ware.utils.system.Wrapper;
 import ca.commencal.ware.value.Mode;
 import ca.commencal.ware.value.ModeValue;
@@ -38,6 +39,7 @@ public class ModuleManager {
 		addModule(new AutoArmor());
 		addModule(new NoRain());
 		addModule(new ClickGui());
+		addModule(new Sprint());
 	}
 
 	public void setGuiManager(GuiManager guiManager) {

@@ -1,6 +1,6 @@
 package ca.commencal.ware.utils.visual;
 
-import ca.commencal.ware.module.modules.ClickGui;
+import ca.commencal.ware.module.modules.render.ClickGui;
 import ca.commencal.ware.utils.TimerUtils;
 import ca.commencal.ware.utils.system.Wrapper;
 import net.minecraft.client.gui.ScaledResolution;
