@@ -27,7 +27,7 @@ public class ClickGui extends Module{
 
 	public ClickGui() {
 		super("ClickGui", ModuleCategory.GUI);
-		this.setKey(Keyboard.KEY_RSHIFT);
+		this.setKey(Keyboard.KEY_P);
 		this.setShow(false);
 
 		this.shadow = new BooleanValue("Shadow", true);
