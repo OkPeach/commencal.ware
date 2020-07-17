@@ -5,8 +5,10 @@ import ca.commencal.ware.gui.click.theme.dark.DarkTheme;
 import ca.commencal.ware.module.Module;
 import ca.commencal.ware.module.modules.combat.AutoArmor;
 import ca.commencal.ware.module.modules.player.Sprint;
+import ca.commencal.ware.module.modules.player.Strafe;
 import ca.commencal.ware.module.modules.render.ClickGui;
 import ca.commencal.ware.module.modules.combat.KillAura;
+import ca.commencal.ware.module.modules.render.FullBright;
 import ca.commencal.ware.module.modules.render.NoRain;
 import ca.commencal.ware.utils.system.Wrapper;
 import ca.commencal.ware.value.Mode;
@@ -41,6 +43,8 @@ public class ModuleManager {
 		addModule(new NoRain());
 		addModule(new ClickGui());
 		addModule(new Sprint());
+		addModule(new Strafe());
+		addModule(new FullBright());
 	}
 
 	public void setGuiManager(GuiManager guiManager) {
