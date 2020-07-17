@@ -108,6 +108,10 @@ public class RecipesMapExtending extends ShapedRecipes
         return itemstack;
     }
 
+    /**
+     * If true, this recipe does not appear in the recipe book and does not respect recipe unlocking (and the
+     * doLimitedCrafting gamerule)
+     */
     public boolean isDynamic()
     {
         return true;

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -34,16 +34,36 @@ import net.minecraftforge.common.ForgeModContainer;
 
 public class ForgeBlockModelRenderer extends BlockModelRenderer
 {
-    private final ThreadLocal<VertexLighterFlat> lighterFlat;
-    private final ThreadLocal<VertexLighterSmoothAo> lighterSmooth;
-    private final ThreadLocal<VertexBufferConsumer> consumerFlat = ThreadLocal.withInitial(VertexBufferConsumer::new);
-    private final ThreadLocal<VertexBufferConsumer> consumerSmooth = ThreadLocal.withInitial(VertexBufferConsumer::new);
+    private final ThreadLocal<VertexLighterFlat> lighterFlat = new ThreadLocal<VertexLighterFlat>()
+    {
+        @Override
+        protected VertexLighterFlat initialValue()
+        {
+            return new VertexLighterFlat(colors);
+        }
+    };
+
+    private final ThreadLocal<VertexLighterSmoothAo> lighterSmooth = new ThreadLocal<VertexLighterSmoothAo>()
+    {
+        @Override
+        protected VertexLighterSmoothAo initialValue()
+        {
+            return new VertexLighterSmoothAo(colors);
+        }
+    };
+
+    private final ThreadLocal<VertexBufferConsumer> wrFlat = new ThreadLocal<>();
+    private final ThreadLocal<VertexBufferConsumer> wrSmooth = new ThreadLocal<>();
+    private final ThreadLocal<BufferBuilder> lastRendererFlat = new ThreadLocal<>();
+    private final ThreadLocal<BufferBuilder> lastRendererSmooth = new ThreadLocal<>();
+
+    private final BlockColors colors;
 
     public ForgeBlockModelRenderer(BlockColors colors)
     {
+        // TODO Auto-generated constructor stub
         super(colors);
-        lighterFlat = ThreadLocal.withInitial(() -> new VertexLighterFlat(colors));
-        lighterSmooth = ThreadLocal.withInitial(() -> new VertexLighterSmoothAo(colors));
+        this.colors = colors;
     }
 
     @Override
@@ -51,14 +71,15 @@ public class ForgeBlockModelRenderer extends BlockModelRenderer
     {
         if(ForgeModContainer.forgeLightPipelineEnabled)
         {
-            VertexBufferConsumer consumer = consumerFlat.get();
-            consumer.setBuffer(buffer);
-            consumer.setOffset(pos);
-
-            VertexLighterFlat lighter = lighterFlat.get();
-            lighter.setParent(consumer);
-
-            return render(lighter, world, model, state, pos, buffer, checkSides, rand);
+            if(buffer != lastRendererFlat.get())
+            {
+                lastRendererFlat.set(buffer);
+                VertexBufferConsumer newCons = new VertexBufferConsumer(buffer);
+                wrFlat.set(newCons);
+                lighterFlat.get().setParent(newCons);
+            }
+            wrFlat.get().setOffset(pos);
+            return render(lighterFlat.get(), world, model, state, pos, buffer, checkSides, rand);
         }
         else
         {
@@ -71,14 +92,15 @@ public class ForgeBlockModelRenderer extends BlockModelRenderer
     {
         if(ForgeModContainer.forgeLightPipelineEnabled)
         {
-            VertexBufferConsumer consumer = consumerSmooth.get();
-            consumer.setBuffer(buffer);
-            consumer.setOffset(pos);
-
-            VertexLighterSmoothAo lighter = lighterSmooth.get();
-            lighter.setParent(consumer);
-
-            return render(lighter, world, model, state, pos, buffer, checkSides, rand);
+            if(buffer != lastRendererSmooth.get())
+            {
+                lastRendererSmooth.set(buffer);
+                VertexBufferConsumer newCons = new VertexBufferConsumer(buffer);
+                wrSmooth.set(newCons);
+                lighterSmooth.get().setParent(newCons);
+            }
+            wrSmooth.get().setOffset(pos);
+            return render(lighterSmooth.get(), world, model, state, pos, buffer, checkSides, rand);
         }
         else
         {
@@ -118,7 +140,6 @@ public class ForgeBlockModelRenderer extends BlockModelRenderer
                 }
             }
         }
-        lighter.resetBlockInfo();
         return !empty;
     }
 }

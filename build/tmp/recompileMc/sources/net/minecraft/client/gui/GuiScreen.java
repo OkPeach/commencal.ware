@@ -176,7 +176,7 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         {
             if (i == 0)
             {
-                list.set(i, p_191927_1_.getItem().getForgeRarity(p_191927_1_).getColor() + (String)list.get(i));
+                list.set(i, p_191927_1_.getRarity().color + (String)list.get(i));
             }
             else
             {
@@ -657,7 +657,12 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
     }
 
     /**
-     * Draws either a gradient over the background screen (when it exists) or a flat gradient over background.png
+     * Draws either a gradient over the background world (if there is a world), or a dirt screen if there is no world.
+     *  
+     * This method should usually be called before doing any other rendering; otherwise weird results will occur if
+     * there is no world, and the world will not be tinted if there is.
+     *  
+     * Do not call after having already done other rendering, as it will draw over it.
      */
     public void drawDefaultBackground()
     {
@@ -665,6 +670,17 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.GuiScreenEvent.BackgroundDrawnEvent(this));
     }
 
+    /**
+     * Draws either a gradient over the background world (if there is a world), or a dirt screen if there is no world.
+     *  
+     * This method should usually be called before doing any other rendering; otherwise weird results will occur if
+     * there is no world, and the world will not be tinted if there is.
+     *  
+     * Do not call after having already done other rendering, as it will draw over it.
+     *  
+     * @param tint Used to offset vertical position for the texture in options_background.png, if there is no world
+     * (i.e. if {@link #func_146278_c} is called). In vanilla, this is always 0.
+     */
     public void drawWorldBackground(int tint)
     {
         if (this.mc.world != null)
@@ -678,7 +694,10 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
     }
 
     /**
-     * Draws the background (i is always 0 as of 1.2.2)
+     * Draws a dirt background (using {@link #OPTIONS_BACKGROUND}).
+     *  
+     * @param tint Used to offset vertical position for the texture in options_background.png. In vanilla, this is
+     * always 0.
      */
     public void drawBackground(int tint)
     {

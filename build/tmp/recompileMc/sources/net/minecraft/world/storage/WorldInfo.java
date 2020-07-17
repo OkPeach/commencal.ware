@@ -125,7 +125,7 @@ public class WorldInfo
         if (nbt.hasKey("generatorName", 8))
         {
             String s1 = nbt.getString("generatorName");
-            this.terrainType = WorldType.parseWorldType(s1);
+            this.terrainType = WorldType.byName(s1);
 
             if (this.terrainType == null)
             {
@@ -216,7 +216,7 @@ public class WorldInfo
 
         if (nbt.hasKey("Difficulty", 99))
         {
-            this.difficulty = EnumDifficulty.getDifficultyEnum(nbt.getByte("Difficulty"));
+            this.difficulty = EnumDifficulty.byId(nbt.getByte("Difficulty"));
         }
 
         if (nbt.hasKey("DifficultyLocked", 1))
@@ -397,7 +397,7 @@ public class WorldInfo
 
         if (this.difficulty != null)
         {
-            nbt.setByte("Difficulty", (byte)this.difficulty.getDifficultyId());
+            nbt.setByte("Difficulty", (byte)this.difficulty.getId());
         }
 
         nbt.setBoolean("DifficultyLocked", this.difficultyLocked);
@@ -406,7 +406,7 @@ public class WorldInfo
 
         for (Entry<Integer, NBTTagCompound> entry : this.dimensionData.entrySet())
         {
-            if (entry.getValue() == null || entry.getValue().hasNoTags()) continue;
+            if (entry.getValue() != null || entry.getValue().isEmpty()) continue;
             nbttagcompound1.setTag(String.valueOf(entry.getKey()), entry.getValue());
         }
 

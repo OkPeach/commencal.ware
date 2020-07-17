@@ -92,7 +92,7 @@ public class GuiOptions extends GuiScreen
         ITextComponent itextcomponent = new TextComponentString("");
         itextcomponent.appendSibling(new TextComponentTranslation("options.difficulty", new Object[0]));
         itextcomponent.appendText(": ");
-        itextcomponent.appendSibling(new TextComponentTranslation(p_175355_1_.getDifficultyResourceKey(), new Object[0]));
+        itextcomponent.appendSibling(new TextComponentTranslation(p_175355_1_.getTranslationKey(), new Object[0]));
         return itextcomponent.getFormattedText();
     }
 
@@ -139,13 +139,13 @@ public class GuiOptions extends GuiScreen
 
             if (button.id == 108)
             {
-                this.mc.world.getWorldInfo().setDifficulty(EnumDifficulty.getDifficultyEnum(this.mc.world.getDifficulty().getDifficultyId() + 1));
+                this.mc.world.getWorldInfo().setDifficulty(EnumDifficulty.byId(this.mc.world.getDifficulty().getId() + 1));
                 this.difficultyButton.displayString = this.getDifficultyText(this.mc.world.getDifficulty());
             }
 
             if (button.id == 109)
             {
-                this.mc.displayGuiScreen(new GuiYesNo(this, (new TextComponentTranslation("difficulty.lock.title", new Object[0])).getFormattedText(), (new TextComponentTranslation("difficulty.lock.question", new Object[] {new TextComponentTranslation(this.mc.world.getWorldInfo().getDifficulty().getDifficultyResourceKey(), new Object[0])})).getFormattedText(), 109));
+                this.mc.displayGuiScreen(new GuiYesNo(this, (new TextComponentTranslation("difficulty.lock.title", new Object[0])).getFormattedText(), (new TextComponentTranslation("difficulty.lock.question", new Object[] {new TextComponentTranslation(this.mc.world.getWorldInfo().getDifficulty().getTranslationKey(), new Object[0])})).getFormattedText(), 109));
             }
 
             if (button.id == 110)

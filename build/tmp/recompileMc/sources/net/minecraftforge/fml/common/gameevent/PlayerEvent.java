@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -35,30 +35,11 @@ public class PlayerEvent extends Event {
     }
 
     public static class ItemPickupEvent extends PlayerEvent {
-        @Deprecated
         public final EntityItem pickedUp;
-        /**
-        * Original EntityItem with current remaining stack size
-        */
-        private final EntityItem originalEntity;
-        /**
-         * Clone item stack, containing the item and amount picked up
-         */
-        private final ItemStack stack;
-        public ItemPickupEvent(EntityPlayer player, EntityItem entPickedUp, ItemStack stack)
+        public ItemPickupEvent(EntityPlayer player, EntityItem pickedUp)
         {
             super(player);
-            this.originalEntity = entPickedUp;
-            this.pickedUp = entPickedUp;
-            this.stack = stack;
-        }
-
-        public ItemStack getStack() {
-            return stack;
-        }
-
-        public EntityItem getOriginalEntity() {
-            return originalEntity;
+            this.pickedUp = pickedUp;
         }
     }
 

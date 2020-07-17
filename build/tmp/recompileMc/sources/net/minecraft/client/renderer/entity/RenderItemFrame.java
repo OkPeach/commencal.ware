@@ -82,7 +82,7 @@ public class RenderItemFrame extends Render<EntityItemFrame>
         GlStateManager.translate(0.0F, 0.0F, 0.4375F);
         this.renderItem(entity);
         GlStateManager.popMatrix();
-        this.renderName(entity, x + (double)((float)entity.facingDirection.getFrontOffsetX() * 0.3F), y - 0.25D, z + (double)((float)entity.facingDirection.getFrontOffsetZ() * 0.3F));
+        this.renderName(entity, x + (double)((float)entity.facingDirection.getXOffset() * 0.3F), y - 0.25D, z + (double)((float)entity.facingDirection.getZOffset() * 0.3F));
     }
 
     /**

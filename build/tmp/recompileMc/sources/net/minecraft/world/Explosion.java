@@ -31,20 +31,20 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class Explosion
 {
     /** whether or not the explosion sets fire to blocks around it */
-    private final boolean causesFire;
+    public final boolean causesFire;
     /** whether or not this explosion spawns smoke particles */
-    private final boolean damagesTerrain;
-    private final Random random;
-    private final World world;
-    private final double x;
-    private final double y;
-    private final double z;
-    private final Entity exploder;
-    private final float size;
+    public final boolean damagesTerrain;
+    public final Random random;
+    public final World world;
+    public final double x;
+    public final double y;
+    public final double z;
+    public final Entity exploder;
+    public final float size;
     /** A list of ChunkPositions of blocks affected by this explosion */
-    private final List<BlockPos> affectedBlockPositions;
+    public final List<BlockPos> affectedBlockPositions;
     /** Maps players to the knockback vector applied by the explosion, to send to the client */
-    private final Map<EntityPlayer, Vec3d> playerKnockbackMap;
+    public final Map<EntityPlayer, Vec3d> playerKnockbackMap;
     private final Vec3d position;
 
     @SideOnly(Side.CLIENT)
@@ -60,7 +60,7 @@ public class Explosion
         this.affectedBlockPositions.addAll(affectedPositions);
     }
 
-    public Explosion(World worldIn, Entity entityIn, double x, double y, double z, float size, boolean flaming, boolean damagesTerrain)
+    public Explosion(World worldIn, Entity entityIn, double x, double y, double z, float size, boolean causesFire, boolean damagesTerrain)
     {
         this.random = new Random();
         this.affectedBlockPositions = Lists.<BlockPos>newArrayList();
@@ -71,7 +71,7 @@ public class Explosion
         this.x = x;
         this.y = y;
         this.z = z;
-        this.causesFire = flaming;
+        this.causesFire = causesFire;
         this.damagesTerrain = damagesTerrain;
         this.position = new Vec3d(this.x, this.y, this.z);
     }

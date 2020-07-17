@@ -39,7 +39,7 @@ public class EntityDataManager
 
     public static <T> DataParameter<T> createKey(Class <? extends Entity > clazz, DataSerializer<T> serializer)
     {
-        if (true || LOGGER.isDebugEnabled()) //Forge: This is very useful for mods that register keys on classes that are not their own
+        if (LOGGER.isDebugEnabled())
         {
             try
             {
@@ -47,9 +47,7 @@ public class EntityDataManager
 
                 if (!oclass.equals(clazz))
                 {
-                    //Forge: log at warn, mods should not add to classes that they don't own, and only add stacktrace when in debug is enabled as it is mostly not needed and consumes time
-                    if (LOGGER.isDebugEnabled()) LOGGER.warn("defineId called for: {} from {}", clazz, oclass, new RuntimeException());
-                    else LOGGER.warn("defineId called for: {} from {}", clazz, oclass);
+                    LOGGER.debug("defineId called for: {} from {}", clazz, oclass, new RuntimeException());
                 }
             }
             catch (ClassNotFoundException var5)

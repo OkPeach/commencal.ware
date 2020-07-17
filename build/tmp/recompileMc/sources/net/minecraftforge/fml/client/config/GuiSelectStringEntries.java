@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -219,6 +219,6 @@ public class GuiSelectStringEntries extends GuiListExtended
 
     public static interface IGuiSelectStringListEntry extends GuiListExtended.IGuiListEntry
     {
-        Object getValue();
+        public Object getValue();
     }
 }

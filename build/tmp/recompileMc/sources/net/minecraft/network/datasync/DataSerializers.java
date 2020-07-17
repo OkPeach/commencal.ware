@@ -305,21 +305,20 @@ public class DataSerializers
         }
     };
 
-    @Deprecated // Forge: ONLY FOR VANILLA - mods should use the Forge registry
     public static void registerSerializer(DataSerializer<?> serializer)
     {
-        if (REGISTRY.add(serializer) >= 256) throw new RuntimeException("Vanilla DataSerializer ID limit exceeded");
+        REGISTRY.add(serializer);
     }
 
     @Nullable
     public static DataSerializer<?> getSerializer(int id)
     {
-        return net.minecraftforge.common.ForgeHooks.getSerializer(id, REGISTRY);
+        return (DataSerializer)REGISTRY.get(id);
     }
 
     public static int getSerializerId(DataSerializer<?> serializer)
     {
-        return net.minecraftforge.common.ForgeHooks.getSerializerId(serializer, REGISTRY);
+        return REGISTRY.getId(serializer);
     }
 
     static

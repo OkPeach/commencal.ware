@@ -1014,7 +1014,7 @@ public abstract class EntityMinecart extends Entity implements IWorldNameable
     }
 
     /**
-     * Set the position and rotation values directly without any clamping.
+     * Sets a target for the client to interpolate towards over the next few ticks
      */
     @SideOnly(Side.CLIENT)
     public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean teleport)
@@ -1137,12 +1137,6 @@ public abstract class EntityMinecart extends Entity implements IWorldNameable
     {
         this.getDataManager().set(SHOW_BLOCK, Boolean.valueOf(showBlock));
     }
-    
-    @Override
-    public boolean processInitialInteract(EntityPlayer player, net.minecraft.util.EnumHand hand)
-    {
-        return net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.minecart.MinecartInteractEvent(this, player, hand));
-    }
 
     /* =================================== FORGE START ===========================================*/
     private BlockPos getCurrentRailPosition()
@@ -1192,7 +1186,6 @@ public abstract class EntityMinecart extends Entity implements IWorldNameable
      * is registered, returns null
      * @return The collision handler or null
      */
-    @Nullable
     public static net.minecraftforge.common.IMinecartCollisionHandler getCollisionHandler()
     {
         return collisionHandler;

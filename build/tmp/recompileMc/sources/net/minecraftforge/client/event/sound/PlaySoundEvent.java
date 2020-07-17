@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -38,7 +38,7 @@ public class PlaySoundEvent extends SoundEvent
     {
         super(manager);
         this.sound = sound;
-        this.name = sound.getSoundLocation().getResourcePath();
+        this.name = sound.getSoundLocation().getPath();
         this.setResultSound(sound);
     }
 

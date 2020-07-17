@@ -311,10 +311,9 @@ public class ResourcePackRepository
 
     private boolean checkHash(String p_190113_1_, File p_190113_2_)
     {
-        InputStream is = null;
         try
         {
-            String s = DigestUtils.sha1Hex(is = (InputStream)(new FileInputStream(p_190113_2_)));
+            String s = DigestUtils.sha1Hex((InputStream)(new FileInputStream(p_190113_2_)));
 
             if (p_190113_1_.isEmpty())
             {
@@ -334,7 +333,6 @@ public class ResourcePackRepository
         {
             LOGGER.warn("File {} couldn't be hashed.", p_190113_2_, ioexception);
         }
-        finally { IOUtils.closeQuietly(is); } // Forge: close stream after use
 
         return false;
     }

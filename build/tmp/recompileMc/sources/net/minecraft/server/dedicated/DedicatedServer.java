@@ -190,7 +190,7 @@ public class DedicatedServer extends MinecraftServer implements IServer
 
             try
             {
-                this.getNetworkSystem().addLanEndpoint(inetaddress, this.getServerPort());
+                this.getNetworkSystem().addEndpoint(inetaddress, this.getServerPort());
             }
             catch (IOException ioexception)
             {
@@ -250,7 +250,7 @@ public class DedicatedServer extends MinecraftServer implements IServer
                     }
                 }
 
-                WorldType worldtype = WorldType.parseWorldType(s1);
+                WorldType worldtype = WorldType.byName(s1);
 
                 if (worldtype == null)
                 {
@@ -274,7 +274,6 @@ public class DedicatedServer extends MinecraftServer implements IServer
                 long i1 = System.nanoTime() - j;
                 String s3 = String.format("%.3fs", (double)i1 / 1.0E9D);
                 LOGGER.info("Done ({})! For help, type \"help\" or \"?\"", (Object)s3);
-                this.currentTime = getCurrentTimeMillis();
 
                 if (this.settings.hasProperty("announce-player-achievements"))
                 {
@@ -367,7 +366,7 @@ public class DedicatedServer extends MinecraftServer implements IServer
      */
     public EnumDifficulty getDifficulty()
     {
-        return EnumDifficulty.getDifficultyEnum(this.settings.getIntProperty("difficulty", EnumDifficulty.NORMAL.getDifficultyId()));
+        return EnumDifficulty.byId(this.settings.getIntProperty("difficulty", EnumDifficulty.NORMAL.getId()));
     }
 
     /**

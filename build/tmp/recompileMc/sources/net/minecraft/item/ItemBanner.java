@@ -103,7 +103,7 @@ public class ItemBanner extends ItemBlock
     {
         String s = "item.banner.";
         EnumDyeColor enumdyecolor = getBaseColor(stack);
-        s = s + enumdyecolor.getUnlocalizedName() + ".name";
+        s = s + enumdyecolor.getTranslationKey() + ".name";
         return I18n.translateToLocal(s);
     }
 
@@ -124,7 +124,7 @@ public class ItemBanner extends ItemBlock
 
                 if (bannerpattern != null)
                 {
-                    p_185054_1_.add(I18n.translateToLocal("item.banner." + bannerpattern.getFileName() + "." + enumdyecolor.getUnlocalizedName()));
+                    p_185054_1_.add(I18n.translateToLocal("item.banner." + bannerpattern.getFileName() + "." + enumdyecolor.getTranslationKey()));
                 }
             }
         }
@@ -153,13 +153,13 @@ public class ItemBanner extends ItemBlock
         }
     }
 
-    public static ItemStack makeBanner(EnumDyeColor p_190910_0_, @Nullable NBTTagList p_190910_1_)
+    public static ItemStack makeBanner(EnumDyeColor color, @Nullable NBTTagList patterns)
     {
-        ItemStack itemstack = new ItemStack(Items.BANNER, 1, p_190910_0_.getDyeDamage());
+        ItemStack itemstack = new ItemStack(Items.BANNER, 1, color.getDyeDamage());
 
-        if (p_190910_1_ != null && !p_190910_1_.hasNoTags())
+        if (patterns != null && !patterns.isEmpty())
         {
-            itemstack.getOrCreateSubCompound("BlockEntityTag").setTag("Patterns", p_190910_1_.copy());
+            itemstack.getOrCreateSubCompound("BlockEntityTag").setTag("Patterns", patterns.copy());
         }
 
         return itemstack;

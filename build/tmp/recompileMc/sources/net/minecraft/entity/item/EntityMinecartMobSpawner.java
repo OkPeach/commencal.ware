@@ -34,9 +34,6 @@ public class EntityMinecartMobSpawner extends EntityMinecart
         {
             return new BlockPos(EntityMinecartMobSpawner.this);
         }
-        public net.minecraft.entity.Entity getSpawnerEntity() {
-            return EntityMinecartMobSpawner.this;
-        }
     };
 
     public EntityMinecartMobSpawner(World worldIn)

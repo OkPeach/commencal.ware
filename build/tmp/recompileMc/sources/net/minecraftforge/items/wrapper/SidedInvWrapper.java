@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,8 +24,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
-
-import java.util.Objects;
 
 import javax.annotation.Nonnull;
 
@@ -65,7 +63,7 @@ public class SidedInvWrapper implements IItemHandlerModifiable
     public int hashCode()
     {
         int result = inv.hashCode();
-        result = 31 * result + Objects.hashCode(side);
+        result = 31 * result + side.hashCode();
         return result;
     }
 
@@ -231,12 +229,5 @@ public class SidedInvWrapper implements IItemHandlerModifiable
     public int getSlotLimit(int slot)
     {
         return inv.getInventoryStackLimit();
-    }
-
-    @Override
-    public boolean isItemValid(int slot, @Nonnull ItemStack stack)
-    {
-        int slot1 = getSlot(inv, slot, side);
-        return slot1 == -1 ? false : inv.isItemValidForSlot(slot1, stack);
     }
 }

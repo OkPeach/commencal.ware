@@ -441,13 +441,13 @@ public class JsonUtils
     }
 
     @Nullable
-    public static <T> T fromJson(Gson p_193838_0_, Reader p_193838_1_, Type p_193838_2_, boolean p_193838_3_)
+    public static <T> T fromJson(Gson gson, Reader p_193838_1_, Type p_193838_2_, boolean p_193838_3_)
     {
         try
         {
             JsonReader jsonreader = new JsonReader(p_193838_1_);
             jsonreader.setLenient(p_193838_3_);
-            return (T)p_193838_0_.getAdapter(TypeToken.get(p_193838_2_)).read(jsonreader);
+            return (T)gson.getAdapter(TypeToken.get(p_193838_2_)).read(jsonreader);
         }
         catch (IOException ioexception)
         {
@@ -480,9 +480,9 @@ public class JsonUtils
     }
 
     @Nullable
-    public static <T> T fromJson(Gson p_193839_0_, Reader p_193839_1_, Class<T> p_193839_2_)
+    public static <T> T fromJson(Gson gson, Reader reader, Class<T> jsonClass)
     {
-        return (T)gsonDeserialize(p_193839_0_, p_193839_1_, p_193839_2_, false);
+        return (T)gsonDeserialize(gson, reader, jsonClass, false);
     }
 
     @Nullable

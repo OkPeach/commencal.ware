@@ -16,11 +16,11 @@ public class GuiShulkerBox extends GuiContainer
     private final IInventory inventory;
     private final InventoryPlayer playerInventory;
 
-    public GuiShulkerBox(InventoryPlayer p_i47233_1_, IInventory p_i47233_2_)
+    public GuiShulkerBox(InventoryPlayer playerInventoryIn, IInventory inventoryIn)
     {
-        super(new ContainerShulkerBox(p_i47233_1_, p_i47233_2_, Minecraft.getMinecraft().player));
-        this.playerInventory = p_i47233_1_;
-        this.inventory = p_i47233_2_;
+        super(new ContainerShulkerBox(playerInventoryIn, inventoryIn, Minecraft.getMinecraft().player));
+        this.playerInventory = playerInventoryIn;
+        this.inventory = inventoryIn;
         ++this.ySize;
     }
 

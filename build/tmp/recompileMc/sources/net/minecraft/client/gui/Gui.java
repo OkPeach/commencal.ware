@@ -203,6 +203,15 @@ public class Gui
 
     /**
      * Draws a scaled, textured, tiled modal rect at z = 0. This method isn't used anywhere in vanilla code.
+     *  
+     * @param u Texture U (or x) coordinate, in pixels
+     * @param v Texture V (or y) coordinate, in pixels
+     * @param uWidth Width of the rendered part of the texture, in pixels. Parts of the texture outside of it will wrap
+     * around
+     * @param vHeight Height of the rendered part of the texture, in pixels. Parts of the texture outside of it will
+     * wrap around
+     * @param tileWidth total width of the texture
+     * @param tileHeight total height of the texture
      */
     public static void drawScaledCustomSizeModalRect(int x, int y, float u, float v, int uWidth, int vHeight, int width, int height, float tileWidth, float tileHeight)
     {

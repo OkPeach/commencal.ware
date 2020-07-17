@@ -37,6 +37,7 @@ public class GuiEnchantment extends GuiContainer
     private final InventoryPlayer playerInventory;
     /** A Random instance for use with the enchantment gui */
     private final Random random = new Random();
+    /** The same reference as {@link GuiContainer#field_147002_h}, downcasted to {@link ContainerEnchantment}. */
     private final ContainerEnchantment container;
     public int ticks;
     public float flip;

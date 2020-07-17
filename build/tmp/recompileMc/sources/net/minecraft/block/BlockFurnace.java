@@ -89,6 +89,11 @@ public class BlockFurnace extends BlockContainer
         }
     }
 
+    /**
+     * Called periodically clientside on blocks near the player to show effects (like furnace fire particles). Note that
+     * this method is unrelated to {@link randomTick} and {@link #needsRandomTick}, and will always be called regardless
+     * of whether the block can receive random update ticks
+     */
     @SideOnly(Side.CLIENT)
     @SuppressWarnings("incomplete-switch")
     public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
@@ -231,11 +236,19 @@ public class BlockFurnace extends BlockContainer
         super.breakBlock(worldIn, pos, state);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#hasComparatorInputOverride()} whenever possible. Implementing/overriding
+     * is fine.
+     */
     public boolean hasComparatorInputOverride(IBlockState state)
     {
         return true;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getComparatorInputOverride(World,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
     {
         return Container.calcRedstone(worldIn.getTileEntity(pos));
@@ -249,6 +262,7 @@ public class BlockFurnace extends BlockContainer
     /**
      * The type of render function called. MODEL for mixed tesr and static model, MODELBLOCK_ANIMATED for TESR-only,
      * LIQUID for vanilla liquids, INVISIBLE to skip all rendering
+     * @deprecated call via {@link IBlockState#getRenderType()} whenever possible. Implementing/overriding is fine.
      */
     public EnumBlockRenderType getRenderType(IBlockState state)
     {
@@ -260,7 +274,7 @@ public class BlockFurnace extends BlockContainer
      */
     public IBlockState getStateFromMeta(int meta)
     {
-        EnumFacing enumfacing = EnumFacing.getFront(meta);
+        EnumFacing enumfacing = EnumFacing.byIndex(meta);
 
         if (enumfacing.getAxis() == EnumFacing.Axis.Y)
         {
@@ -281,6 +295,8 @@ public class BlockFurnace extends BlockContainer
     /**
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
+     * fine.
      */
     public IBlockState withRotation(IBlockState state, Rotation rot)
     {
@@ -290,6 +306,7 @@ public class BlockFurnace extends BlockContainer
     /**
      * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
     public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {

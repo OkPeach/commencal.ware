@@ -51,11 +51,18 @@ public class BlockPistonBase extends BlockDirectional
         this.setCreativeTab(CreativeTabs.REDSTONE);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#causesSuffocation()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean causesSuffocation(IBlockState state)
     {
         return !((Boolean)state.getValue(EXTENDED)).booleanValue();
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         if (((Boolean)state.getValue(EXTENDED)).booleanValue())
@@ -85,6 +92,7 @@ public class BlockPistonBase extends BlockDirectional
 
     /**
      * Determines if the block is solid enough on the top side to support other blocks, like redstone components.
+     * @deprecated prefer calling {@link IBlockState#isTopSolid()} wherever possible
      */
     public boolean isTopSolid(IBlockState state)
     {
@@ -98,6 +106,7 @@ public class BlockPistonBase extends BlockDirectional
 
     /**
      * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
      */
     public boolean isOpaqueCube(IBlockState state)
     {
@@ -202,6 +211,8 @@ public class BlockPistonBase extends BlockDirectional
      * Called on server when World#addBlockEvent is called. If server returns true, then also called on the client. On
      * the Server, this may perform additional changes to the world, like pistons replacing the block with an extended
      * base. On the client, the update may involve replacing tile entities or effects such as sounds or particles
+     * @deprecated call via {@link IBlockState#onBlockEventReceived(World,BlockPos,int,int)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public boolean eventReceived(IBlockState state, World worldIn, BlockPos pos, int id, int param)
     {
@@ -247,7 +258,7 @@ public class BlockPistonBase extends BlockDirectional
 
             if (this.isSticky)
             {
-                BlockPos blockpos = pos.add(enumfacing.getFrontOffsetX() * 2, enumfacing.getFrontOffsetY() * 2, enumfacing.getFrontOffsetZ() * 2);
+                BlockPos blockpos = pos.add(enumfacing.getXOffset() * 2, enumfacing.getYOffset() * 2, enumfacing.getZOffset() * 2);
                 IBlockState iblockstate = worldIn.getBlockState(blockpos);
                 Block block = iblockstate.getBlock();
                 boolean flag1 = false;
@@ -268,7 +279,7 @@ public class BlockPistonBase extends BlockDirectional
                     }
                 }
 
-                if (!flag1 && !iblockstate.getBlock().isAir(iblockstate, worldIn, blockpos) && canPush(iblockstate, worldIn, blockpos, enumfacing.getOpposite(), false, enumfacing) && (iblockstate.getMobilityFlag() == EnumPushReaction.NORMAL || block == Blocks.PISTON || block == Blocks.STICKY_PISTON))
+                if (!flag1 && !iblockstate.getBlock().isAir(iblockstate, worldIn, blockpos) && canPush(iblockstate, worldIn, blockpos, enumfacing.getOpposite(), false, enumfacing) && (iblockstate.getPushReaction() == EnumPushReaction.NORMAL || block == Blocks.PISTON || block == Blocks.STICKY_PISTON))
                 {
                     this.doMove(worldIn, pos, enumfacing, false);
                 }
@@ -284,6 +295,9 @@ public class BlockPistonBase extends BlockDirectional
         return true;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
@@ -293,7 +307,7 @@ public class BlockPistonBase extends BlockDirectional
     public static EnumFacing getFacing(int meta)
     {
         int i = meta & 7;
-        return i > 5 ? null : EnumFacing.getFront(i);
+        return i > 5 ? null : EnumFacing.byIndex(i);
     }
 
     /**
@@ -322,7 +336,7 @@ public class BlockPistonBase extends BlockDirectional
                         return false;
                     }
 
-                    switch (blockStateIn.getMobilityFlag())
+                    switch (blockStateIn.getPushReaction())
                     {
                         case BLOCK:
                             return false;
@@ -460,6 +474,8 @@ public class BlockPistonBase extends BlockDirectional
     /**
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
+     * fine.
      */
     public IBlockState withRotation(IBlockState state, Rotation rot)
     {
@@ -469,6 +485,7 @@ public class BlockPistonBase extends BlockDirectional
     /**
      * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
     public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
@@ -495,6 +512,8 @@ public class BlockPistonBase extends BlockDirectional
      * does not fit the other descriptions and will generally cause other things not to connect to the face.
      * 
      * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {

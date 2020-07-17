@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,6 +19,8 @@
 
 package net.minecraftforge.client.model;
 
+import javax.vecmath.Vector4f;
+
 import net.minecraftforge.common.ForgeVersion;
 
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -31,8 +33,6 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.pipeline.IVertexConsumer;
-import net.minecraftforge.client.model.pipeline.TRSRTransformer;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
@@ -110,7 +110,6 @@ public final class ItemLayerModel implements IModel
     {
         ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
         Optional<TRSRTransformation> transform = state.apply(Optional.empty());
-        boolean identity = !transform.isPresent() || transform.get().isIdentity();
         for(int i = 0; i < textures.size(); i++)
         {
             TextureAtlasSprite sprite = bakedTextureGetter.apply(textures.get(i));
@@ -118,7 +117,7 @@ public final class ItemLayerModel implements IModel
         }
         TextureAtlasSprite particle = bakedTextureGetter.apply(textures.isEmpty() ? new ResourceLocation("missingno") : textures.get(0));
         ImmutableMap<TransformType, TRSRTransformation> map = PerspectiveMapWrapper.getTransforms(state);
-        return new BakedItemModel(builder.build(), particle, map, overrides, identity);
+        return new BakedItemModel(builder.build(), particle, map, overrides);
     }
 
     public static ImmutableList<BakedQuad> getQuadsForSprite(int tint, TextureAtlasSprite sprite, VertexFormat format, Optional<TRSRTransformation> transform)
@@ -143,7 +142,7 @@ public final class ItemLayerModel implements IModel
                 for(int u = 0; u < uMax; u++)
                 {
                     int alpha = getAlpha(pixels, uMax, vMax, u, v);
-                    boolean t = alpha / 255f <= 0.1f;
+                    boolean t = alpha == 0;
 
                     if (!t && alpha < 255)
                     {
@@ -373,7 +372,7 @@ public final class ItemLayerModel implements IModel
         float v1 = 16f * (1f - y1 - dy);
 
         return buildQuad(
-            format, transform, remap(side), sprite, tint,
+            format, transform, side.getOpposite(), sprite, tint, // getOpposite is related either to the swapping of V direction, or something else
             x0, y0, z0, sprite.getInterpolatedU(u0), sprite.getInterpolatedV(v0),
             x1, y1, z0, sprite.getInterpolatedU(u1), sprite.getInterpolatedV(v1),
             x1, y1, z1, sprite.getInterpolatedU(u1), sprite.getInterpolatedV(v1),
@@ -381,13 +380,7 @@ public final class ItemLayerModel implements IModel
         );
     }
 
-    private static EnumFacing remap(EnumFacing side)
-    {
-        // getOpposite is related to the swapping of V direction
-        return side.getAxis() == EnumFacing.Axis.Y ? side.getOpposite() : side;
-    }
-
-    private static BakedQuad buildQuad(
+    private static final BakedQuad buildQuad(
         VertexFormat format, Optional<TRSRTransformation> transform, EnumFacing side, TextureAtlasSprite sprite, int tint,
         float x0, float y0, float z0, float u0, float v0,
         float x1, float y1, float z1, float u1, float v1,
@@ -395,49 +388,51 @@ public final class ItemLayerModel implements IModel
         float x3, float y3, float z3, float u3, float v3)
     {
         UnpackedBakedQuad.Builder builder = new UnpackedBakedQuad.Builder(format);
-
         builder.setQuadTint(tint);
         builder.setQuadOrientation(side);
         builder.setTexture(sprite);
-
-        boolean hasTransform = transform.isPresent() && !transform.get().isIdentity();
-        IVertexConsumer consumer = hasTransform ? new TRSRTransformer(builder, transform.get()) : builder;
-
-        putVertex(consumer, format, side, x0, y0, z0, u0, v0);
-        putVertex(consumer, format, side, x1, y1, z1, u1, v1);
-        putVertex(consumer, format, side, x2, y2, z2, u2, v2);
-        putVertex(consumer, format, side, x3, y3, z3, u3, v3);
-
+        putVertex(builder, format, transform, side, x0, y0, z0, u0, v0);
+        putVertex(builder, format, transform, side, x1, y1, z1, u1, v1);
+        putVertex(builder, format, transform, side, x2, y2, z2, u2, v2);
+        putVertex(builder, format, transform, side, x3, y3, z3, u3, v3);
         return builder.build();
     }
 
-    private static void putVertex(IVertexConsumer consumer, VertexFormat format, EnumFacing side, float x, float y, float z, float u, float v)
+    private static void putVertex(UnpackedBakedQuad.Builder builder, VertexFormat format, Optional<TRSRTransformation> transform, EnumFacing side, float x, float y, float z, float u, float v)
     {
+        Vector4f vec = new Vector4f();
         for(int e = 0; e < format.getElementCount(); e++)
         {
             switch(format.getElement(e).getUsage())
             {
             case POSITION:
-                consumer.put(e, x, y, z, 1f);
+                if(transform.isPresent())
+                {
+                    vec.x = x;
+                    vec.y = y;
+                    vec.z = z;
+                    vec.w = 1;
+                    transform.get().getMatrix().transform(vec);
+                    builder.put(e, vec.x, vec.y, vec.z, vec.w);
+                }
+                else
+                {
+                    builder.put(e, x, y, z, 1);
+                }
                 break;
             case COLOR:
-                consumer.put(e, 1f, 1f, 1f, 1f);
+                builder.put(e, 1f, 1f, 1f, 1f);
                 break;
+            case UV: if(format.getElement(e).getIndex() == 0)
+            {
+                builder.put(e, u, v, 0f, 1f);
+                break;
+            }
             case NORMAL:
-                float offX = (float) side.getFrontOffsetX();
-                float offY = (float) side.getFrontOffsetY();
-                float offZ = (float) side.getFrontOffsetZ();
-                consumer.put(e, offX, offY, offZ, 0f);
+                builder.put(e, (float)side.getXOffset(), (float)side.getYOffset(), (float)side.getZOffset(), 0f);
                 break;
-            case UV:
-                if(format.getElement(e).getIndex() == 0)
-                {
-                    consumer.put(e, u, v, 0f, 1f);
-                    break;
-                }
-                // else fallthrough to default
             default:
-                consumer.put(e);
+                builder.put(e);
                 break;
             }
         }
@@ -453,10 +448,10 @@ public final class ItemLayerModel implements IModel
         @Override
         public boolean accepts(ResourceLocation modelLocation)
         {
-            return modelLocation.getResourceDomain().equals(ForgeVersion.MOD_ID) && (
-                modelLocation.getResourcePath().equals("item-layer") ||
-                modelLocation.getResourcePath().equals("models/block/item-layer") ||
-                modelLocation.getResourcePath().equals("models/item/item-layer"));
+            return modelLocation.getNamespace().equals(ForgeVersion.MOD_ID) && (
+                modelLocation.getPath().equals("item-layer") ||
+                modelLocation.getPath().equals("models/block/item-layer") ||
+                modelLocation.getPath().equals("models/item/item-layer"));
         }
 
         @Override

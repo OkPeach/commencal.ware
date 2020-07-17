@@ -14,9 +14,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class GuiBossOverlay extends Gui
 {
-    private static final ResourceLocation GUI_BARS_TEXTURES = new ResourceLocation("textures/gui/bars.png");
-    private final Minecraft client;
-    private final Map<UUID, BossInfoClient> mapBossInfos = Maps.<UUID, BossInfoClient>newLinkedHashMap();
+    public static final ResourceLocation GUI_BARS_TEXTURES = new ResourceLocation("textures/gui/bars.png");
+    public final Minecraft client;
+    public final Map<UUID, BossInfoClient> mapBossInfos = Maps.<UUID, BossInfoClient>newLinkedHashMap();
 
     public GuiBossOverlay(Minecraft clientIn)
     {
@@ -54,7 +54,7 @@ public class GuiBossOverlay extends Gui
         }
     }
 
-    private void render(int x, int y, BossInfo info)
+    public void render(int x, int y, BossInfo info)
     {
         this.drawTexturedModalRect(x, y, 0, info.getColor().ordinal() * 5 * 2, 182, 5);
 

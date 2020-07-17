@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,23 +16,19 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
 package net.minecraftforge.fml.common.registry;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.stats.StatBase;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.fml.relauncher.ReflectionHelper.UnknownConstructorException;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -70,9 +66,6 @@ public final class EntityEntryBuilder<E extends Entity>
     private boolean eggProvided;
     private int primaryEggColor;
     private int secondaryEggColor;
-    private boolean statisticsRegistered;
-    @Nullable private StatBase killEntityStatistic;
-    @Nullable private StatBase entityKilledByStatistic;
     @Nullable private Collection<Spawn> spawns;
 
     /**
@@ -253,7 +246,7 @@ public final class EntityEntryBuilder<E extends Entity>
      * @throws IllegalStateException If the entity id has not been provided
      * @throws IllegalStateException If the entity name has not been provided
      * @throws IllegalStateException If spawns have been provided for a non {@link EntityLiving}
-     * @throws UnknownConstructorException If a {@link #factory} has not been provided
+     * @throws ReflectionHelper.UnknownConstructorException If a {@link #factory} has not been provided
      *     and {@link #entity} does not have a constructor accepting {@link World}
      */
     @Nonnull
@@ -271,23 +264,17 @@ public final class EntityEntryBuilder<E extends Entity>
             }
         };
         entry.setRegistryName(this.id);
-        if (this.eggProvided)
-        {
-            this.killEntityStatistic = new StatBase("stat.killEntity." + this.name, new TextComponentTranslation("stat.entityKill", new TextComponentTranslation("entity." + this.name + ".name")));
-            this.entityKilledByStatistic = new StatBase("stat.entityKilledBy." + this.name, new TextComponentTranslation("stat.entityKilledBy", new TextComponentTranslation("entity." + this.name + ".name")));
-            entry.setEgg(new EntityList.EntityEggInfo(this.id, this.primaryEggColor, this.secondaryEggColor, this.killEntityStatistic, this.entityKilledByStatistic));
-        }
+        if (this.eggProvided) entry.setEgg(new EntityList.EntityEggInfo(this.id, this.primaryEggColor, this.secondaryEggColor));
         return entry;
     }
 
-    private void registerStatistics()
+    @Nonnull
+    private EntityRegistry.EntityRegistration createRegistration()
     {
-        if (!this.statisticsRegistered && (this.killEntityStatistic != null && this.entityKilledByStatistic != null))
-        {
-            this.killEntityStatistic.registerStat();
-            this.entityKilledByStatistic.registerStat();
-            this.statisticsRegistered = true;
-        }
+        return EntityRegistry.instance().new EntityRegistration(
+            this.mod, this.id, this.entity, this.name, this.network,
+            this.trackingRange, this.trackingUpdateFrequency, this.trackingVelocityUpdates
+        );
     }
 
     static abstract class ConstructorFactory<E extends Entity> implements Function<World, E>
@@ -296,7 +283,7 @@ public final class EntityEntryBuilder<E extends Entity>
 
         ConstructorFactory(final Class<? extends E> entity)
         {
-            this.constructor = ObfuscationReflectionHelper.findConstructor(entity, World.class);
+            this.constructor = ReflectionHelper.findConstructor(entity, World.class);
         }
 
         @Override
@@ -330,12 +317,12 @@ public final class EntityEntryBuilder<E extends Entity>
             // NOOP - we handle this in build
         }
 
+        @SuppressWarnings("ConstantConditions")
         public final void addedToRegistry()
         {
             if (this.added) return;
             this.added = true;
-            EntityEntryBuilder.this.registerStatistics();
-            EntityRegistry.instance().insert(EntityEntryBuilder.this.entity, createRegistration());
+            EntityRegistry.instance().insert(EntityEntryBuilder.this.entity, EntityEntryBuilder.this.createRegistration());
             if (EntityEntryBuilder.this.spawns != null)
             {
                 for (final Spawn spawn : EntityEntryBuilder.this.spawns)
@@ -345,17 +332,6 @@ public final class EntityEntryBuilder<E extends Entity>
                 EntityEntryBuilder.this.spawns = null;
             }
         }
-
-        @Nonnull
-        private EntityRegistry.EntityRegistration createRegistration()
-        {
-            EntityEntryBuilder<E> builder = EntityEntryBuilder.this;
-            return EntityRegistry.instance().new EntityRegistration(
-                builder.mod, builder.id, builder.entity, builder.name, builder.network,
-                builder.trackingRange, builder.trackingUpdateFrequency, builder.trackingVelocityUpdates, this.factory
-            );
-        }
-
     }
 
     public final class Spawn

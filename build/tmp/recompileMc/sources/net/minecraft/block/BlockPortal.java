@@ -44,6 +44,10 @@ public class BlockPortal extends BlockBreakable
         this.setTickRandomly(true);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         switch ((EnumFacing.Axis)state.getValue(AXIS))
@@ -62,7 +66,7 @@ public class BlockPortal extends BlockBreakable
     {
         super.updateTick(worldIn, pos, state, rand);
 
-        if (worldIn.provider.isSurfaceWorld() && worldIn.getGameRules().getBoolean("doMobSpawning") && rand.nextInt(2000) < worldIn.getDifficulty().getDifficultyId())
+        if (worldIn.provider.isSurfaceWorld() && worldIn.getGameRules().getBoolean("doMobSpawning") && rand.nextInt(2000) < worldIn.getDifficulty().getId())
         {
             int i = pos.getY();
             BlockPos blockpos;
@@ -84,6 +88,10 @@ public class BlockPortal extends BlockBreakable
         }
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getCollisionBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     @Nullable
     public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
     {
@@ -102,6 +110,9 @@ public class BlockPortal extends BlockBreakable
         }
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
@@ -111,7 +122,7 @@ public class BlockPortal extends BlockBreakable
     {
         BlockPortal.Size blockportal$size = new BlockPortal.Size(worldIn, pos, EnumFacing.Axis.X);
 
-        if (blockportal$size.isValid() && blockportal$size.portalBlockCount == 0 && !net.minecraftforge.event.ForgeEventFactory.onTrySpawnPortal(worldIn, pos, blockportal$size))
+        if (blockportal$size.isValid() && blockportal$size.portalBlockCount == 0)
         {
             blockportal$size.placePortalBlocks();
             return true;
@@ -120,7 +131,7 @@ public class BlockPortal extends BlockBreakable
         {
             BlockPortal.Size blockportal$size1 = new BlockPortal.Size(worldIn, pos, EnumFacing.Axis.Z);
 
-            if (blockportal$size1.isValid() && blockportal$size1.portalBlockCount == 0 && !net.minecraftforge.event.ForgeEventFactory.onTrySpawnPortal(worldIn, pos, blockportal$size1))
+            if (blockportal$size1.isValid() && blockportal$size1.portalBlockCount == 0)
             {
                 blockportal$size1.placePortalBlocks();
                 return true;
@@ -161,6 +172,10 @@ public class BlockPortal extends BlockBreakable
         }
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#shouldSideBeRendered(IBlockAccess,BlockPos,EnumFacing)} whenever
+     * possible. Implementing/overriding is fine.
+     */
     @SideOnly(Side.CLIENT)
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
@@ -223,7 +238,7 @@ public class BlockPortal extends BlockBreakable
     /**
      * Called When an Entity Collided with the Block
      */
-    public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
+    public void onEntityCollision(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
     {
         if (!entityIn.isRiding() && !entityIn.isBeingRidden() && entityIn.isNonBoss())
         {
@@ -244,12 +259,21 @@ public class BlockPortal extends BlockBreakable
         return this.getDefaultState().withProperty(AXIS, (meta & 3) == 2 ? EnumFacing.Axis.Z : EnumFacing.Axis.X);
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     @SideOnly(Side.CLIENT)
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.TRANSLUCENT;
     }
 
+    /**
+     * Called periodically clientside on blocks near the player to show effects (like furnace fire particles). Note that
+     * this method is unrelated to {@link randomTick} and {@link #needsRandomTick}, and will always be called regardless
+     * of whether the block can receive random update ticks
+     */
     @SideOnly(Side.CLIENT)
     public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {
@@ -294,6 +318,8 @@ public class BlockPortal extends BlockBreakable
     /**
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
+     * fine.
      */
     public IBlockState withRotation(IBlockState state, Rotation rot)
     {
@@ -384,6 +410,8 @@ public class BlockPortal extends BlockBreakable
      * does not fit the other descriptions and will generally cause other things not to connect to the face.
      * 
      * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
@@ -536,7 +564,7 @@ public class BlockPortal extends BlockBreakable
 
             protected boolean isEmptyBlock(Block blockIn)
             {
-                return blockIn.blockMaterial == Material.AIR || blockIn == Blocks.FIRE || blockIn == Blocks.PORTAL;
+                return blockIn.material == Material.AIR || blockIn == Blocks.FIRE || blockIn == Blocks.PORTAL;
             }
 
             public boolean isValid()

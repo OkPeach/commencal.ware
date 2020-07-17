@@ -357,6 +357,9 @@ public class ChunkGeneratorEnd implements IChunkGenerator
 
     /**
      * Generate initial structures in this chunk, e.g. mineshafts, temples, lakes, and dungeons
+     *  
+     * @param x Chunk x coordinate
+     * @param z Chunk z coordinate
      */
     public void populate(int x, int z)
     {

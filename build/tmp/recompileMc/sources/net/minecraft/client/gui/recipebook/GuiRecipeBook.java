@@ -454,7 +454,7 @@ public class GuiRecipeBook extends Gui implements IRecipeUpdateListener
 
             languagemanager.setCurrentLanguage(language);
             this.mc.gameSettings.language = language.getLanguageCode();
-            net.minecraftforge.fml.client.FMLClientHandler.instance().refreshResources(net.minecraftforge.client.resource.VanillaResourceType.LANGUAGES);
+            this.mc.refreshResources();
             this.mc.fontRenderer.setUnicodeFlag(this.mc.getLanguageManager().isCurrentLocaleUnicode() || this.mc.gameSettings.forceUnicodeFont);
             this.mc.fontRenderer.setBidiFlag(languagemanager.isCurrentLanguageBidirectional());
             this.mc.gameSettings.saveOptions();
@@ -506,7 +506,7 @@ public class GuiRecipeBook extends Gui implements IRecipeUpdateListener
 
                 Ingredient ingredient = iterator.next();
 
-                if (ingredient.getMatchingStacks().length > 0)
+                if (ingredient != Ingredient.EMPTY)
                 {
                     Slot slot = p_193951_2_.get(l);
                     this.ghostRecipe.addIngredient(ingredient, slot.xPos, slot.yPos);

@@ -11,18 +11,18 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class WorldBorder
 {
-    private final List<IBorderListener> listeners = Lists.<IBorderListener>newArrayList();
-    private double centerX;
-    private double centerZ;
-    private double startDiameter = 6.0E7D;
-    private double endDiameter;
-    private long endTime;
-    private long startTime;
-    private int worldSize;
-    private double damageAmount;
-    private double damageBuffer;
-    private int warningTime;
-    private int warningDistance;
+    public final List<IBorderListener> listeners = Lists.<IBorderListener>newArrayList();
+    public double centerX;
+    public double centerZ;
+    public double startDiameter = 6.0E7D;
+    public double endDiameter;
+    public long endTime;
+    public long startTime;
+    public int worldSize;
+    public double damageAmount;
+    public double damageBuffer;
+    public int warningTime;
+    public int warningDistance;
 
     public WorldBorder()
     {
@@ -199,7 +199,7 @@ public class WorldBorder
         }
     }
 
-    protected List<IBorderListener> getListeners()
+    public List<IBorderListener> getListeners()
     {
         return Lists.newArrayList(this.listeners);
     }

@@ -5,6 +5,12 @@ import net.minecraft.item.ItemStack;
 
 public class ContainerChest extends Container
 {
+    /**
+     * On the server, this may be a {@link net.minecraft.tileentity.TileEntityChest} (corresponding to a single chest
+     * block) or an {@link net.minecraft.inventory.InventoryLargeChest} (corresponding to a large chest); chests larger
+     * than 2 chest blocks are represented by several nested InventoryLargeChests. See {@link
+     * net.minecraft.block.BlockChest#getContainer()} for more information. On the client, this is an InventoryBasic.
+     */
     private final IInventory lowerChestInventory;
     private final int numRows;
 
@@ -94,7 +100,9 @@ public class ContainerChest extends Container
     }
 
     /**
-     * Return this chest container's lower chest inventory.
+     * Gets the inventory associated with this chest container.
+     *  
+     * @see #field_75155_e
      */
     public IInventory getLowerChestInventory()
     {

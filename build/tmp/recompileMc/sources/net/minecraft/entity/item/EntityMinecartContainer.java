@@ -168,10 +168,10 @@ public abstract class EntityMinecartContainer extends EntityMinecart implements 
     }
 
     @Nullable
-    public Entity changeDimension(int dimensionIn, net.minecraftforge.common.util.ITeleporter teleporter)
+    public Entity changeDimension(int dimensionIn)
     {
         this.dropContentsWhenDead = false;
-        return super.changeDimension(dimensionIn, teleporter);
+        return super.changeDimension(dimensionIn);
     }
 
     /**
@@ -244,7 +244,7 @@ public abstract class EntityMinecartContainer extends EntityMinecart implements 
 
     public boolean processInitialInteract(EntityPlayer player, EnumHand hand)
     {
-        if (super.processInitialInteract(player, hand)) return true;
+        if(net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.minecart.MinecartInteractEvent(this, player, hand))) return true;
         if (!this.world.isRemote)
         {
             player.displayGUIChest(this);
@@ -316,11 +316,11 @@ public abstract class EntityMinecartContainer extends EntityMinecart implements 
                 random = new Random(this.lootTableSeed);
             }
 
-            LootContext.Builder lootcontext$builder = new LootContext.Builder((WorldServer)this.world).withLootedEntity(this); // Forge: add looted entity to LootContext
+            LootContext.Builder lootcontext$builder = new LootContext.Builder((WorldServer)this.world);
 
             if (player != null)
             {
-                lootcontext$builder.withLuck(player.getLuck()).withPlayer(player); // Forge: add player to LootContext
+                lootcontext$builder.withLuck(player.getLuck());
             }
 
             loottable.fillInventory(this, random, lootcontext$builder.build());

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -67,26 +67,21 @@ public @interface Config
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.FIELD, ElementType.TYPE})
-    @interface LangKey
+    public @interface LangKey
     {
         String value();
     }
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
-    @interface Comment
+    public @interface Comment
     {
         String[] value();
     }
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
-    @interface Ignore
-    {}
-
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
-    @interface RangeInt
+    public @interface RangeInt
     {
         int min() default Integer.MIN_VALUE;
         int max() default Integer.MAX_VALUE;
@@ -94,7 +89,7 @@ public @interface Config
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
-    @interface RangeDouble
+    public @interface RangeDouble
     {
         double min() default Double.MIN_VALUE;
         double max() default Double.MAX_VALUE;
@@ -102,26 +97,18 @@ public @interface Config
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
-    @interface Name
+    public @interface Name
     {
         String value();
     }
     
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.FIELD, ElementType.TYPE})
-    @interface RequiresMcRestart
+    public @interface RequiresMcRestart
     {}
     
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.FIELD, ElementType.TYPE})
-    @interface RequiresWorldRestart
-    {}
-
-    /**
-     * A field marked with this annotation (and {@link RangeInt} or {@link RangeDouble}) will have a slider control attached in the config UI
-     */
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
-    @interface SlidingOption
+    public @interface RequiresWorldRestart
     {}
 }

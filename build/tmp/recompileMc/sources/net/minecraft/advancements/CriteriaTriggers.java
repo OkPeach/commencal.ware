@@ -63,7 +63,7 @@ public class CriteriaTriggers
     public static final UsedTotemTrigger USED_TOTEM = (UsedTotemTrigger)register(new UsedTotemTrigger());
     public static final NetherTravelTrigger NETHER_TRAVEL = (NetherTravelTrigger)register(new NetherTravelTrigger());
 
-    public static <T extends ICriterionTrigger> T register(T criterion)
+    private static <T extends ICriterionTrigger> T register(T criterion)
     {
         if (REGISTRY.containsKey(criterion.getId()))
         {

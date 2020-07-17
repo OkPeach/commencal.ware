@@ -79,7 +79,7 @@ public class ModelBoat extends ModelBase implements IMultipassModel
         this.renderPaddle(entityboat, 1, scale, limbSwing);
     }
 
-    public void renderMultipass(Entity p_187054_1_, float p_187054_2_, float p_187054_3_, float p_187054_4_, float p_187054_5_, float p_187054_6_, float scale)
+    public void renderMultipass(Entity entityIn, float partialTicks, float p_187054_3_, float p_187054_4_, float p_187054_5_, float p_187054_6_, float scale)
     {
         GlStateManager.rotate(90.0F, 0.0F, 1.0F, 0.0F);
         GlStateManager.colorMask(false, false, false, false);

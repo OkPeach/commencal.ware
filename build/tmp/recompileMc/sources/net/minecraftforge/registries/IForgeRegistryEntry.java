@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,6 +22,11 @@ package net.minecraftforge.registries;
 import com.google.common.reflect.TypeToken;
 
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.FMLContainer;
+import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.common.InjectedModContainer;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 
 import javax.annotation.Nullable;
 
@@ -70,7 +75,17 @@ public interface IForgeRegistryEntry<V>
             if (getRegistryName() != null)
                 throw new IllegalStateException("Attempted to set registry name with existing registry name! New: " + name + " Old: " + getRegistryName());
 
-            this.registryName = GameData.checkPrefix(name, true);
+            int index = name.lastIndexOf(':');
+            String oldPrefix = index == -1 ? "" : name.substring(0, index);
+            name = index == -1 ? name : name.substring(index + 1);
+            ModContainer mc = Loader.instance().activeModContainer();
+            String prefix = mc == null || (mc instanceof InjectedModContainer && ((InjectedModContainer)mc).wrappedContainer instanceof FMLContainer) ? "minecraft" : mc.getModId().toLowerCase();
+            if (!oldPrefix.equals(prefix) && oldPrefix.length() > 0)
+            {
+                FMLLog.bigWarning("Dangerous alternative prefix `{}` for name `{}`, expected `{}` invalid registry invocation/invalid name?", oldPrefix, name, prefix);
+                prefix = oldPrefix;
+            }
+            this.registryName = new ResourceLocation(prefix, name);
             return (T)this;
         }
 

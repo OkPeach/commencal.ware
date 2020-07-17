@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,7 +16,6 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
 package net.minecraftforge.server.command;
 
 import javax.annotation.Nullable;
@@ -81,7 +80,7 @@ class CommandGenerate extends CommandBase
             throw new WrongUsageException("commands.forge.gen.usage");
         }
 
-        BlockPos blockpos = parseBlockPos(sender, args, 0, false);
+        BlockPos blockpos = parseBlockPos(sender, args, 1, false);
         int count = parseInt(args[3], 10);
         int dim = args.length >= 5 ? parseInt(args[4]) : sender.getEntityWorld().provider.getDimension();
         int interval = args.length >= 6 ? parseInt(args[5]) : -1;

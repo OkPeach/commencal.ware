@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -67,11 +67,11 @@ enum FMLHandshakeServerState implements IHandshakeState<FMLHandshakeServerState>
             NetworkDispatcher dispatcher = ctx.channel().attr(NetworkDispatcher.FML_DISPATCHER).get();
             dispatcher.setModList(client.modList());
             FMLLog.log.info("Client attempting to join with {} mods : {}", client.modListSize(), client.modListAsString());
-            String modRejections = FMLNetworkHandler.checkModList(client, Side.CLIENT);
-            if (modRejections != null)
+            String result = FMLNetworkHandler.checkModList(client, Side.CLIENT);
+            if (result != null)
             {
                 cons.accept(ERROR);
-                dispatcher.rejectHandshake(modRejections);
+                dispatcher.rejectHandshake(result);
                 return;
             }
             cons.accept(WAITINGCACK);

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -116,7 +116,7 @@ public class RegistryEvent<T extends IForgeRegistryEntry<T>> extends GenericEven
 
         public ImmutableList<Mapping<T>> getMappings()
         {
-            return ImmutableList.copyOf(this.mappings.stream().filter(e -> e.key.getResourceDomain().equals(this.activeMod.getModId())).collect(Collectors.toList()));
+            return ImmutableList.copyOf(this.mappings.stream().filter(e -> e.key.getNamespace().equals(this.activeMod.getModId())).collect(Collectors.toList()));
         }
 
         public ImmutableList<Mapping<T>> getAllMappings()

@@ -65,17 +65,17 @@ public class Template
     /**
      * takes blocks from the world and puts the data them into this template
      */
-    public void takeBlocksFromWorld(World worldIn, BlockPos startPos, BlockPos endPos, boolean takeEntities, @Nullable Block toIgnore)
+    public void takeBlocksFromWorld(World worldIn, BlockPos startPos, BlockPos size, boolean takeEntities, @Nullable Block toIgnore)
     {
-        if (endPos.getX() >= 1 && endPos.getY() >= 1 && endPos.getZ() >= 1)
+        if (size.getX() >= 1 && size.getY() >= 1 && size.getZ() >= 1)
         {
-            BlockPos blockpos = startPos.add(endPos).add(-1, -1, -1);
+            BlockPos blockpos = startPos.add(size).add(-1, -1, -1);
             List<Template.BlockInfo> list = Lists.<Template.BlockInfo>newArrayList();
             List<Template.BlockInfo> list1 = Lists.<Template.BlockInfo>newArrayList();
             List<Template.BlockInfo> list2 = Lists.<Template.BlockInfo>newArrayList();
             BlockPos blockpos1 = new BlockPos(Math.min(startPos.getX(), blockpos.getX()), Math.min(startPos.getY(), blockpos.getY()), Math.min(startPos.getZ(), blockpos.getZ()));
             BlockPos blockpos2 = new BlockPos(Math.max(startPos.getX(), blockpos.getX()), Math.max(startPos.getY(), blockpos.getY()), Math.max(startPos.getZ(), blockpos.getZ()));
-            this.size = endPos;
+            this.size = size;
 
             for (BlockPos.MutableBlockPos blockpos$mutableblockpos : BlockPos.getAllInBoxMutable(blockpos1, blockpos2))
             {
@@ -254,8 +254,6 @@ public class Template
             for (Template.BlockInfo template$blockinfo : this.blocks)
             {
                 BlockPos blockpos = transformedBlockPos(placementIn, template$blockinfo.pos).add(pos);
-                // Forge: skip processing blocks outside BB to prevent cascading worldgen issues
-                if (structureboundingbox != null && !structureboundingbox.isVecInside(blockpos)) continue;
                 Template.BlockInfo template$blockinfo1 = templateProcessor != null ? templateProcessor.processBlock(worldIn, blockpos, template$blockinfo) : template$blockinfo;
 
                 if (template$blockinfo1 != null)
@@ -340,7 +338,7 @@ public class Template
             {
                 NBTTagCompound nbttagcompound = template$entityinfo.entityData;
                 Vec3d vec3d = transformedVec3d(template$entityinfo.pos, mirrorIn, rotationIn);
-                Vec3d vec3d1 = vec3d.addVector((double)pos.getX(), (double)pos.getY(), (double)pos.getZ());
+                Vec3d vec3d1 = vec3d.add((double)pos.getX(), (double)pos.getY(), (double)pos.getZ());
                 NBTTagList nbttaglist = new NBTTagList();
                 nbttaglist.appendTag(new NBTTagDouble(vec3d1.x));
                 nbttaglist.appendTag(new NBTTagDouble(vec3d1.y));

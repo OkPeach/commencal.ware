@@ -50,6 +50,10 @@ public class BlockRedstoneWire extends Block
         this.setDefaultState(this.blockState.getBaseState().withProperty(NORTH, BlockRedstoneWire.EnumAttachPosition.NONE).withProperty(EAST, BlockRedstoneWire.EnumAttachPosition.NONE).withProperty(SOUTH, BlockRedstoneWire.EnumAttachPosition.NONE).withProperty(WEST, BlockRedstoneWire.EnumAttachPosition.NONE).withProperty(POWER, Integer.valueOf(0)));
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         return REDSTONE_WIRE_AABB[getAABBIndex(state.getActualState(source, pos))];
@@ -131,6 +135,10 @@ public class BlockRedstoneWire extends Block
         }
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getCollisionBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     @Nullable
     public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
     {
@@ -139,12 +147,16 @@ public class BlockRedstoneWire extends Block
 
     /**
      * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
      */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
@@ -155,8 +167,7 @@ public class BlockRedstoneWire extends Block
      */
     public boolean canPlaceBlockAt(World worldIn, BlockPos pos)
     {
-        IBlockState downState = worldIn.getBlockState(pos.down());
-        return downState.isTopSolid() || downState.getBlockFaceShape(worldIn, pos.down(), EnumFacing.UP) == BlockFaceShape.SOLID || worldIn.getBlockState(pos.down()).getBlock() == Blocks.GLOWSTONE;
+        return worldIn.getBlockState(pos.down()).isTopSolid() || worldIn.getBlockState(pos.down()).getBlock() == Blocks.GLOWSTONE;
     }
 
     private IBlockState updateSurroundingRedstone(World worldIn, BlockPos pos, IBlockState state)
@@ -180,7 +191,7 @@ public class BlockRedstoneWire extends Block
         int j = 0;
         j = this.getMaxCurrentStrength(worldIn, pos2, j);
         this.canProvidePower = false;
-        int k = worldIn.isBlockIndirectlyGettingPowered(pos1);
+        int k = worldIn.getRedstonePowerFromNeighbors(pos1);
         this.canProvidePower = true;
 
         if (k > 0 && k > j - 1)
@@ -382,11 +393,19 @@ public class BlockRedstoneWire extends Block
         return Items.REDSTONE;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getStrongPower(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public int getStrongPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
         return !this.canProvidePower ? 0 : blockState.getWeakPower(blockAccess, pos, side);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getWeakPower(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
         if (!this.canProvidePower)
@@ -488,6 +507,7 @@ public class BlockRedstoneWire extends Block
 
     /**
      * Can this block provide power. Only wire currently seems to have this change based on its state.
+     * @deprecated call via {@link IBlockState#canProvidePower()} whenever possible. Implementing/overriding is fine.
      */
     public boolean canProvidePower(IBlockState state)
     {
@@ -524,6 +544,11 @@ public class BlockRedstoneWire extends Block
         return -16777216 | i << 16 | j << 8 | k;
     }
 
+    /**
+     * Called periodically clientside on blocks near the player to show effects (like furnace fire particles). Note that
+     * this method is unrelated to {@link randomTick} and {@link #needsRandomTick}, and will always be called regardless
+     * of whether the block can receive random update ticks
+     */
     @SideOnly(Side.CLIENT)
     public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {
@@ -555,8 +580,12 @@ public class BlockRedstoneWire extends Block
         return this.getDefaultState().withProperty(POWER, Integer.valueOf(meta));
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     @SideOnly(Side.CLIENT)
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
     }
@@ -572,6 +601,8 @@ public class BlockRedstoneWire extends Block
     /**
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
+     * fine.
      */
     public IBlockState withRotation(IBlockState state, Rotation rot)
     {
@@ -591,6 +622,7 @@ public class BlockRedstoneWire extends Block
     /**
      * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
     public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
@@ -618,6 +650,8 @@ public class BlockRedstoneWire extends Block
      * does not fit the other descriptions and will generally cause other things not to connect to the face.
      * 
      * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,7 +16,6 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
 package net.minecraftforge.fml.client.config;
 
 import static net.minecraftforge.fml.client.config.GuiUtils.RESET_CHAR;
@@ -138,19 +137,9 @@ public class GuiConfigEntries extends GuiListExtended
                     else if (configElement.getType() == ConfigGuiType.BOOLEAN)
                         this.listEntries.add(new GuiConfigEntries.BooleanEntry(this.owningScreen, this, configElement));
                     else if (configElement.getType() == ConfigGuiType.INTEGER)
-                    {
-                        if(configElement.hasSlidingControl())
-                            listEntries.add(new GuiConfigEntries.NumberSliderEntry(owningScreen,this,configElement));
-                        else
-                            this.listEntries.add(new GuiConfigEntries.IntegerEntry(this.owningScreen, this, configElement));
-                    }
+                        this.listEntries.add(new GuiConfigEntries.IntegerEntry(this.owningScreen, this, configElement));
                     else if (configElement.getType() == ConfigGuiType.DOUBLE)
-                    {
-                        if(configElement.hasSlidingControl())
-                            listEntries.add(new NumberSliderEntry(owningScreen,this,configElement));
-                        else
-                            this.listEntries.add(new GuiConfigEntries.DoubleEntry(this.owningScreen, this, configElement));
-                    }
+                        this.listEntries.add(new GuiConfigEntries.DoubleEntry(this.owningScreen, this, configElement));
                     else if (configElement.getType() == ConfigGuiType.COLOR)
                     {
                         if (configElement.getValidValues() != null && configElement.getValidValues().length > 0)
@@ -492,13 +481,7 @@ public class GuiConfigEntries extends GuiListExtended
         @Override
         public void updateValueButtonText()
         {
-            this.btnValue.displayString = I18n.format(getValidValueDisplay());
-        }
-
-        protected String getValidValueDisplay()
-        {
-            String[] validValuesDisplay = configElement.getValidValuesDisplay();
-            return validValuesDisplay != null && validValuesDisplay.length > 0 ? validValuesDisplay[currentIndex] : configElement.getValidValues()[currentIndex];
+            this.btnValue.displayString = I18n.format(configElement.getValidValues()[currentIndex]);
         }
 
         @Override
@@ -586,14 +569,14 @@ public class GuiConfigEntries extends GuiListExtended
         @Override
         public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float partial)
         {
-            this.btnValue.packedFGColour = GuiUtils.getColorCode(getValidValueDisplay().charAt(0), true);
+            this.btnValue.packedFGColour = GuiUtils.getColorCode(this.configElement.getValidValues()[currentIndex].charAt(0), true);
             super.drawEntry(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isSelected, partial);
         }
 
         @Override
         public void updateValueButtonText()
         {
-            this.btnValue.displayString = I18n.format(getValidValueDisplay()) + " - " + I18n.format("fml.configgui.sampletext");
+            this.btnValue.displayString = I18n.format(configElement.getValidValues()[currentIndex]) + " - " + I18n.format("fml.configgui.sampletext");
         }
     }
 
@@ -1736,45 +1719,45 @@ public class GuiConfigEntries extends GuiListExtended
          * Gets the IConfigElement object owned by this entry.
          * @return
          */
-        IConfigElement getConfigElement();
+        public IConfigElement getConfigElement();
 
         /**
          * Gets the name of the ConfigElement owned by this entry.
          */
-        String getName();
+        public String getName();
 
         /**
          * Gets the current value of this entry.
          */
-        Object getCurrentValue();
+        public Object getCurrentValue();
 
         /**
          * Gets the current values of this list entry.
          */
-        Object[] getCurrentValues();
+        public Object[] getCurrentValues();
 
         /**
          * Is this list entry enabled?
          *
          * @return true if this entry's controls should be enabled, false otherwise.
          */
-        boolean enabled();
+        public boolean enabled();
 
         /**
          * Handles user keystrokes for any GuiTextField objects in this entry. Call {@link GuiTextField#textboxKeyTyped(char, int)} for any GuiTextField
          * objects that should receive the input provided.
          */
-        void keyTyped(char eventChar, int eventKey);
+        public void keyTyped(char eventChar, int eventKey);
 
         /**
          * Call {@link GuiTextField#updateCursorCounter()} for any GuiTextField objects in this entry.
          */
-        void updateCursorCounter();
+        public void updateCursorCounter();
 
         /**
          * Call {@link GuiTextField#mouseClicked(int, int, int)} for and GuiTextField objects in this entry.
          */
-        void mouseClicked(int x, int y, int mouseEvent);
+        public void mouseClicked(int x, int y, int mouseEvent);
 
         /**
          * Is this entry's value equal to the default value? Generally true should be returned if this entry is not a property or category
@@ -1782,50 +1765,50 @@ public class GuiConfigEntries extends GuiListExtended
          *
          * @return true if this entry's value is equal to this entry's default value.
          */
-        boolean isDefault();
+        public boolean isDefault();
 
         /**
          * Sets this entry's value to the default value.
          */
-        void setToDefault();
+        public void setToDefault();
 
         /**
          * Handles reverting any changes that have occurred to this entry.
          */
-        void undoChanges();
+        public void undoChanges();
 
         /**
          * Has the value of this entry changed?
          *
          * @return true if changes have been made to this entry's value, false otherwise.
          */
-        boolean isChanged();
+        public boolean isChanged();
 
         /**
          * Handles saving any changes that have been made to this entry back to the underlying object. It is a good practice to check
          * isChanged() before performing the save action. This method should return true if the element has changed AND REQUIRES A RESTART.
          */
-        boolean saveConfigElement();
+        public boolean saveConfigElement();
 
         /**
          * Handles drawing any tooltips that apply to this entry. This method is called after all other GUI elements have been drawn to the
          * screen, so it could also be used to draw any GUI element that needs to be drawn after all entries have had drawEntry() called.
          */
-        void drawToolTip(int mouseX, int mouseY);
+        public void drawToolTip(int mouseX, int mouseY);
 
         /**
          * Gets this entry's label width.
          */
-        int getLabelWidth();
+        public int getLabelWidth();
 
         /**
          * Gets this entry's right-hand x boundary. This value is used to control where the scroll bar is placed.
          */
-        int getEntryRightBound();
+        public int getEntryRightBound();
 
         /**
          * This method is called when the parent GUI is closed. Most handlers won't need this; it is provided for special cases.
          */
-        void onGuiClosed();
+        public void onGuiClosed();
     }
 }

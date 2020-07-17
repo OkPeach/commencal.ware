@@ -116,12 +116,12 @@ import org.apache.logging.log4j.Logger;
 
 public class EntityPlayerMP extends EntityPlayer implements IContainerListener
 {
-    private static final Logger LOGGER = LogManager.getLogger();
-    private String language = "en_US";
+    public static final Logger LOGGER = LogManager.getLogger();
+    public String language = "en_US";
     /** The NetServerHandler assigned to this player by the ServerConfigurationManager. */
     public NetHandlerPlayServer connection;
     /** Reference to the MinecraftServer object. */
-    public final MinecraftServer mcServer;
+    public final MinecraftServer server;
     /** The player interaction manager for this player */
     public final PlayerInteractionManager interactionManager;
     /** player X position as seen by PlayerManager */
@@ -132,39 +132,39 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
      * This is a queue that contains the entity IDs of entties that need to be removed on the client. Adding an entity
      * ID to this queue will cause a SPacketDestroyEntities to be sent to the client.
      */
-    private final List<Integer> entityRemoveQueue = Lists.<Integer>newLinkedList();
-    private final PlayerAdvancements advancements;
-    private final StatisticsManagerServer statsFile;
+    public final List<Integer> entityRemoveQueue = Lists.<Integer>newLinkedList();
+    public final PlayerAdvancements advancements;
+    public final StatisticsManagerServer statsFile;
     /** the total health of the player, includes actual health and absorption health. Updated every tick. */
-    private float lastHealthScore = Float.MIN_VALUE;
-    private int lastFoodScore = Integer.MIN_VALUE;
-    private int lastAirScore = Integer.MIN_VALUE;
-    private int lastArmorScore = Integer.MIN_VALUE;
-    private int lastLevelScore = Integer.MIN_VALUE;
-    private int lastExperienceScore = Integer.MIN_VALUE;
+    public float lastHealthScore = Float.MIN_VALUE;
+    public int lastFoodScore = Integer.MIN_VALUE;
+    public int lastAirScore = Integer.MIN_VALUE;
+    public int lastArmorScore = Integer.MIN_VALUE;
+    public int lastLevelScore = Integer.MIN_VALUE;
+    public int lastExperienceScore = Integer.MIN_VALUE;
     /** amount of health the client was last set to */
-    private float lastHealth = -1.0E8F;
+    public float lastHealth = -1.0E8F;
     /** set to foodStats.GetFoodLevel */
-    private int lastFoodLevel = -99999999;
+    public int lastFoodLevel = -99999999;
     /** set to foodStats.getSaturationLevel() == 0.0F each tick */
-    private boolean wasHungry = true;
+    public boolean wasHungry = true;
     /** Amount of experience the client was last set to */
-    private int lastExperience = -99999999;
-    private int respawnInvulnerabilityTicks = 60;
-    private EntityPlayer.EnumChatVisibility chatVisibility;
-    private boolean chatColours = true;
-    private long playerLastActiveTime = System.currentTimeMillis();
+    public int lastExperience = -99999999;
+    public int respawnInvulnerabilityTicks = 60;
+    public EntityPlayer.EnumChatVisibility chatVisibility;
+    public boolean chatColours = true;
+    public long playerLastActiveTime = System.currentTimeMillis();
     /** The entity the player is currently spectating through. */
-    private Entity spectatingEntity;
-    private boolean invulnerableDimensionChange;
-    private boolean seenCredits;
-    private final RecipeBookServer recipeBook = new RecipeBookServer();
+    public Entity spectatingEntity;
+    public boolean invulnerableDimensionChange;
+    public boolean seenCredits;
+    public final RecipeBookServer recipeBook = new RecipeBookServer();
     /** The position this player started levitating at. */
-    private Vec3d levitationStartPos;
+    public Vec3d levitationStartPos;
     /** The value of ticksExisted when this player started levitating. */
-    private int levitatingSince;
-    private boolean disconnected;
-    private Vec3d enteredNetherPosition;
+    public int levitatingSince;
+    public boolean disconnected;
+    public Vec3d enteredNetherPosition;
     /** The currently in use window ID. Incremented every time a window is opened. */
     public int currentWindowId;
     /**
@@ -201,7 +201,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
             blockpos = worldIn.getTopSolidOrLiquidBlock(blockpos.add(this.rand.nextInt(i * 2 + 1) - i, 0, this.rand.nextInt(i * 2 + 1) - i));
         }
 
-        this.mcServer = server;
+        this.server = server;
         this.statsFile = server.getPlayerList().getPlayerStatsFile(this);
         this.advancements = server.getPlayerList().getPlayerAdvancements(this);
         this.stepHeight = 1.0F;
@@ -393,7 +393,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
             if (entity.isEntityAlive())
             {
                 this.setPositionAndRotation(entity.posX, entity.posY, entity.posZ, entity.rotationYaw, entity.rotationPitch);
-                this.mcServer.getPlayerList().serverUpdateMovingPlayer(this);
+                this.server.getPlayerList().serverUpdateMovingPlayer(this);
 
                 if (this.isSneaking())
                 {
@@ -527,16 +527,16 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
             {
                 if (team.getDeathMessageVisibility() == Team.EnumVisible.HIDE_FOR_OTHER_TEAMS)
                 {
-                    this.mcServer.getPlayerList().sendMessageToAllTeamMembers(this, this.getCombatTracker().getDeathMessage());
+                    this.server.getPlayerList().sendMessageToAllTeamMembers(this, this.getCombatTracker().getDeathMessage());
                 }
                 else if (team.getDeathMessageVisibility() == Team.EnumVisible.HIDE_FOR_OWN_TEAM)
                 {
-                    this.mcServer.getPlayerList().sendMessageToTeamOrAllPlayers(this, this.getCombatTracker().getDeathMessage());
+                    this.server.getPlayerList().sendMessageToTeamOrAllPlayers(this, this.getCombatTracker().getDeathMessage());
                 }
             }
             else
             {
-                this.mcServer.getPlayerList().sendMessage(this.getCombatTracker().getDeathMessage());
+                this.server.getPlayerList().sendMessage(this.getCombatTracker().getDeathMessage());
             }
         }
 
@@ -661,7 +661,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         }
         else
         {
-            boolean flag = this.mcServer.isDedicatedServer() && this.canPlayersAttack() && "fall".equals(source.damageType);
+            boolean flag = this.server.isDedicatedServer() && this.canPlayersAttack() && "fall".equals(source.damageType);
 
             if (!flag && this.respawnInvulnerabilityTicks > 0 && source != DamageSource.OUT_OF_WORLD)
             {
@@ -704,11 +704,11 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
      */
     private boolean canPlayersAttack()
     {
-        return this.mcServer.isPVPEnabled();
+        return this.server.isPVPEnabled();
     }
 
     @Nullable
-    public Entity changeDimension(int dimensionIn, net.minecraftforge.common.util.ITeleporter teleporter)
+    public Entity changeDimension(int dimensionIn)
     {
         if (!net.minecraftforge.common.ForgeHooks.onTravelToDimension(this, dimensionIn)) return this;
         this.invulnerableDimensionChange = true;
@@ -722,7 +722,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
             this.enteredNetherPosition = null;
         }
 
-        if (this.dimension == 1 && dimensionIn == 1 && teleporter.isVanilla())
+        if (this.dimension == 1 && dimensionIn == 1)
         {
             this.world.removeEntity(this);
 
@@ -742,7 +742,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
                 dimensionIn = 1;
             }
 
-            this.mcServer.getPlayerList().transferPlayerToDimension(this, dimensionIn, teleporter);
+            this.server.getPlayerList().changePlayerDimension(this, dimensionIn);
             this.connection.sendPacket(new SPacketEffect(1032, BlockPos.ORIGIN, 0, false));
             this.lastExperience = -1;
             this.lastHealth = -1.0F;
@@ -1267,11 +1267,6 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
 
         this.spawnChunkMap = that.spawnChunkMap;
         this.spawnForcedMap = that.spawnForcedMap;
-        if(that.dimension != 0)
-        {
-            this.spawnPos = that.spawnPos;
-            this.spawnForced = that.spawnForced;
-        }
 
         //Copy over a section of the Entity Data from the old player.
         //Allows mods to specify data that persists after players respawn.
@@ -1403,15 +1398,15 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
      */
     public boolean canUseCommand(int permLevel, String commandName)
     {
-        if ("seed".equals(commandName) && !this.mcServer.isDedicatedServer())
+        if ("seed".equals(commandName) && !this.server.isDedicatedServer())
         {
             return true;
         }
         else if (!"tell".equals(commandName) && !"help".equals(commandName) && !"me".equals(commandName) && !"trigger".equals(commandName))
         {
-            if (this.mcServer.getPlayerList().canSendCommands(this.getGameProfile()))
+            if (this.server.getPlayerList().canSendCommands(this.getGameProfile()))
             {
-                UserListOpsEntry userlistopsentry = (UserListOpsEntry)this.mcServer.getPlayerList().getOppedPlayers().getEntry(this.getGameProfile());
+                UserListOpsEntry userlistopsentry = (UserListOpsEntry)this.server.getPlayerList().getOppedPlayers().getEntry(this.getGameProfile());
 
                 if (userlistopsentry != null)
                 {
@@ -1419,7 +1414,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
                 }
                 else
                 {
-                    return this.mcServer.getOpPermissionLevel() >= permLevel;
+                    return this.server.getOpPermissionLevel() >= permLevel;
                 }
             }
             else

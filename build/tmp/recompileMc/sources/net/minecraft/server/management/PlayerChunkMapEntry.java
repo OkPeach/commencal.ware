@@ -21,17 +21,17 @@ import org.apache.logging.log4j.Logger;
 
 public class PlayerChunkMapEntry
 {
-    private static final Logger LOGGER = LogManager.getLogger();
-    private final PlayerChunkMap playerChunkMap;
-    private final List<EntityPlayerMP> players = Lists.<EntityPlayerMP>newArrayList();
-    private final ChunkPos pos;
-    private short[] changedBlocks = new short[64];
+    public static Logger LOGGER = LogManager.getLogger();
+    public PlayerChunkMap playerChunkMap;
+    public List<EntityPlayerMP> players = Lists.<EntityPlayerMP>newArrayList();
+    public ChunkPos pos;
+    public short[] changedBlocks = new short[64];
     @Nullable
-    private Chunk chunk;
-    private int changes;
-    private int changedSectionFilter;
-    private long lastUpdateInhabitedTime;
-    private boolean sentToPlayers;
+    public Chunk chunk;
+    public int changes;
+    public int changedSectionFilter;
+    public long lastUpdateInhabitedTime;
+    public boolean sentToPlayers;
     private Runnable loadedRunnable = new Runnable()
     {
         public void run()
@@ -73,7 +73,7 @@ public class PlayerChunkMapEntry
             {
                 this.sendToPlayer(player);
                 // chunk watch event - the chunk is ready
-                net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.world.ChunkWatchEvent.Watch(this.chunk, player));
+                net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.world.ChunkWatchEvent.Watch(this.pos, player));
             }
         }
     }
@@ -103,7 +103,7 @@ public class PlayerChunkMapEntry
 
             this.players.remove(player);
 
-            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.world.ChunkWatchEvent.UnWatch(this.chunk, player));
+            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.world.ChunkWatchEvent.UnWatch(this.pos, player));
 
             if (this.players.isEmpty())
             {
@@ -165,7 +165,7 @@ public class PlayerChunkMapEntry
                 entityplayermp.connection.sendPacket(packet);
                 this.playerChunkMap.getWorldServer().getEntityTracker().sendLeashedEntitiesInChunk(entityplayermp, this.chunk);
                 // chunk watch event - delayed to here as the chunk wasn't ready in addPlayer
-                net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.world.ChunkWatchEvent.Watch(this.chunk, entityplayermp));
+                net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.world.ChunkWatchEvent.Watch(this.pos, entityplayermp));
             }
 
             return true;
@@ -289,7 +289,7 @@ public class PlayerChunkMapEntry
         }
     }
 
-    private void sendBlockEntity(@Nullable TileEntity be)
+    public void sendBlockEntity(@Nullable TileEntity be)
     {
         if (be != null)
         {
@@ -355,10 +355,5 @@ public class PlayerChunkMapEntry
         }
 
         return d0;
-    }
-
-    public List<EntityPlayerMP> getWatchingPlayers()
-    {
-        return isSentToPlayers() ? java.util.Collections.unmodifiableList(players) : java.util.Collections.emptyList();
     }
 }

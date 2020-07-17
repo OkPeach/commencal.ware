@@ -41,7 +41,7 @@ public class SPacketSpawnPainting implements Packet<INetHandlerPlayClient>
         this.uniqueId = buf.readUniqueId();
         this.title = buf.readString(EntityPainting.EnumArt.MAX_NAME_LENGTH);
         this.position = buf.readBlockPos();
-        this.facing = EnumFacing.getHorizontal(buf.readUnsignedByte());
+        this.facing = EnumFacing.byHorizontalIndex(buf.readUnsignedByte());
     }
 
     /**

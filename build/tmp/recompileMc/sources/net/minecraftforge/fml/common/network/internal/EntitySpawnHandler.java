@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -60,9 +60,7 @@ public class EntitySpawnHandler extends SimpleChannelInboundHandler<FMLMessage.E
     {
         if (msg.getClass().equals(FMLMessage.EntitySpawnMessage.class))
         {
-            FMLMessage.EntitySpawnMessage spawnMsg = (FMLMessage.EntitySpawnMessage) msg;
-            spawnEntity(spawnMsg);
-            spawnMsg.dataStream.release();
+            spawnEntity((FMLMessage.EntitySpawnMessage)msg);
         }
     }
 
@@ -76,6 +74,7 @@ public class EntitySpawnHandler extends SimpleChannelInboundHandler<FMLMessage.E
                     " at ( " + spawnMsg.rawX + "," + spawnMsg.rawY + ", " + spawnMsg.rawZ + ") Please contact mod author or server admin.");
         }
         WorldClient wc = FMLClientHandler.instance().getWorldClient();
+        Class<? extends Entity> cls = er.getEntityClass();
         try
         {
             Entity entity;
@@ -84,7 +83,7 @@ public class EntitySpawnHandler extends SimpleChannelInboundHandler<FMLMessage.E
                 entity = er.doCustomSpawning(spawnMsg);
             } else
             {
-                entity = er.newInstance(wc);
+                entity = cls.getConstructor(World.class).newInstance(wc);
 
                 int offset = spawnMsg.entityId - entity.getEntityId();
                 entity.setEntityId(spawnMsg.entityId);

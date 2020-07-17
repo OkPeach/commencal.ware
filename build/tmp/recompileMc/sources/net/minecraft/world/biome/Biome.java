@@ -705,6 +705,7 @@ public abstract class Biome extends net.minecraftforge.registries.IForgeRegistry
             public Class <? extends EntityLiving > entityClass;
             public int minGroupCount;
             public int maxGroupCount;
+            private final java.lang.reflect.Constructor<? extends EntityLiving> ctr;
 
             public SpawnListEntry(Class <? extends EntityLiving > entityclassIn, int weight, int groupCountMin, int groupCountMax)
             {
@@ -712,6 +713,15 @@ public abstract class Biome extends net.minecraftforge.registries.IForgeRegistry
                 this.entityClass = entityclassIn;
                 this.minGroupCount = groupCountMin;
                 this.maxGroupCount = groupCountMax;
+
+                try
+                {
+                    ctr = entityclassIn.getConstructor(World.class);
+                }
+                catch (NoSuchMethodException e)
+                {
+                    throw new RuntimeException(e);
+                }
             }
 
             public String toString()
@@ -721,9 +731,7 @@ public abstract class Biome extends net.minecraftforge.registries.IForgeRegistry
 
             public EntityLiving newInstance(World world) throws Exception
             {
-                net.minecraftforge.fml.common.registry.EntityEntry entry = net.minecraftforge.fml.common.registry.EntityRegistry.getEntry(this.entityClass);
-                if (entry != null) return (EntityLiving) entry.newInstance(world);
-                return this.entityClass.getConstructor(World.class).newInstance(world);
+                return ctr.newInstance(world);
             }
         }
 

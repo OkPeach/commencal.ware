@@ -36,14 +36,14 @@ public class BlockStaticLiquid extends BlockLiquid
 
     private void updateLiquid(World worldIn, BlockPos pos, IBlockState state)
     {
-        BlockDynamicLiquid blockdynamicliquid = getFlowingBlock(this.blockMaterial);
+        BlockDynamicLiquid blockdynamicliquid = getFlowingBlock(this.material);
         worldIn.setBlockState(pos, blockdynamicliquid.getDefaultState().withProperty(LEVEL, state.getValue(LEVEL)), 2);
         worldIn.scheduleUpdate(pos, blockdynamicliquid, this.tickRate(worldIn));
     }
 
     public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
     {
-        if (this.blockMaterial == Material.LAVA)
+        if (this.material == Material.LAVA)
         {
             if (worldIn.getGameRules().getBoolean("doFireTick"))
             {
@@ -68,7 +68,7 @@ public class BlockStaticLiquid extends BlockLiquid
                         {
                             if (this.isSurroundingBlockFlammable(worldIn, blockpos))
                             {
-                                worldIn.setBlockState(blockpos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(worldIn, blockpos, pos, Blocks.FIRE.getDefaultState()));
+                                worldIn.setBlockState(blockpos, Blocks.FIRE.getDefaultState());
                                 return;
                             }
                         }
@@ -91,7 +91,7 @@ public class BlockStaticLiquid extends BlockLiquid
 
                         if (worldIn.isAirBlock(blockpos1.up()) && this.getCanBlockBurn(worldIn, blockpos1))
                         {
-                            worldIn.setBlockState(blockpos1.up(), net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(worldIn, blockpos1.up(), pos, Blocks.FIRE.getDefaultState()));
+                            worldIn.setBlockState(blockpos1.up(), Blocks.FIRE.getDefaultState());
                         }
                     }
                 }

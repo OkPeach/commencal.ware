@@ -155,17 +155,17 @@ public class CraftingManager
         return flag1;
     }
 
-    private static IRecipe parseRecipeJson(JsonObject p_193376_0_)
+    private static IRecipe parseRecipeJson(JsonObject json)
     {
-        String s = JsonUtils.getString(p_193376_0_, "type");
+        String s = JsonUtils.getString(json, "type");
 
         if ("crafting_shaped".equals(s))
         {
-            return ShapedRecipes.deserialize(p_193376_0_);
+            return ShapedRecipes.deserialize(json);
         }
         else if ("crafting_shapeless".equals(s))
         {
-            return ShapelessRecipes.deserialize(p_193376_0_);
+            return ShapelessRecipes.deserialize(json);
         }
         else
         {

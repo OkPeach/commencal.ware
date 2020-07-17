@@ -27,7 +27,7 @@ public class ContainerRepair extends Container
     /** The 2slots where you put your items in that you want to merge and/or rename. */
     private final IInventory inputSlots;
     private final World world;
-    private final BlockPos selfPosition;
+    private final BlockPos pos;
     /** The maximum cost of repairing/renaming in the anvil. */
     public int maximumCost;
     /** determined by damage of input item and stackSize of repair materials */
@@ -57,7 +57,7 @@ public class ContainerRepair extends Container
                 ContainerRepair.this.onCraftMatrixChanged(this);
             }
         };
-        this.selfPosition = blockPosIn;
+        this.pos = blockPosIn;
         this.world = worldIn;
         this.player = player;
         this.addSlotToContainer(new Slot(this.inputSlots, 0, 27, 47));
@@ -191,7 +191,7 @@ public class ContainerRepair extends Container
             if (!itemstack2.isEmpty())
             {
                 if (!net.minecraftforge.common.ForgeHooks.onAnvilChange(this, itemstack, itemstack2, outputSlot, repairedItemName, j)) return;
-                flag = itemstack2.getItem() == Items.ENCHANTED_BOOK && !ItemEnchantedBook.getEnchantments(itemstack2).hasNoTags();
+                flag = itemstack2.getItem() == Items.ENCHANTED_BOOK && !ItemEnchantedBook.getEnchantments(itemstack2).isEmpty();
 
                 if (itemstack1.isItemStackDamageable() && itemstack1.getItem().getIsRepairable(itemstack, itemstack2))
                 {
@@ -238,7 +238,7 @@ public class ContainerRepair extends Container
                             l1 = 0;
                         }
 
-                        if (l1 < itemstack1.getItemDamage()) // vanilla uses metadata here instead of damage.
+                        if (l1 < itemstack1.getMetadata())
                         {
                             itemstack1.setItemDamage(l1);
                             i += 2;
@@ -417,13 +417,13 @@ public class ContainerRepair extends Container
      */
     public boolean canInteractWith(EntityPlayer playerIn)
     {
-        if (this.world.getBlockState(this.selfPosition).getBlock() != Blocks.ANVIL)
+        if (this.world.getBlockState(this.pos).getBlock() != Blocks.ANVIL)
         {
             return false;
         }
         else
         {
-            return playerIn.getDistanceSq((double)this.selfPosition.getX() + 0.5D, (double)this.selfPosition.getY() + 0.5D, (double)this.selfPosition.getZ() + 0.5D) <= 64.0D;
+            return playerIn.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
         }
     }
 

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,17 +19,13 @@
 
 package net.minecraftforge.client;
 
-/**
- * @deprecated TODO remove in 1.13. This has never been used
- */
-@Deprecated
 public interface IRenderContextHandler
 {
     /** Run before the specified rendering context.
      */
-    void beforeRenderContext();
+    public void beforeRenderContext();
 
     /** Run after the specified rendering context.
      */
-    void afterRenderContext();
+    public void afterRenderContext();
 }

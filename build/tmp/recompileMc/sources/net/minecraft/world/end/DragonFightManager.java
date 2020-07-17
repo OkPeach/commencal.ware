@@ -82,7 +82,6 @@ public class DragonFightManager
 
             this.dragonKilled = compound.getBoolean("DragonKilled");
             this.previouslyKilled = compound.getBoolean("PreviouslyKilled");
-            this.scanForLegacyFight = !compound.getBoolean("LegacyScanPerformed"); // Forge: fix MC-105080
 
             if (compound.getBoolean("IsRespawning"))
             {
@@ -129,7 +128,6 @@ public class DragonFightManager
 
         nbttagcompound.setBoolean("DragonKilled", this.dragonKilled);
         nbttagcompound.setBoolean("PreviouslyKilled", this.previouslyKilled);
-        nbttagcompound.setBoolean("LegacyScanPerformed", !this.scanForLegacyFight); // Forge: fix MC-105080
 
         if (this.exitPortalLocation != null)
         {
@@ -155,7 +153,7 @@ public class DragonFightManager
 
         if (++this.ticksSinceLastPlayerScan >= 20)
         {
-            this.updateplayers();
+            this.updatePlayers();
             this.ticksSinceLastPlayerScan = 0;
         }
 
@@ -282,7 +280,7 @@ public class DragonFightManager
         {
             for (int j = -8; j <= 8; ++j)
             {
-                Chunk chunk = this.world.getChunkFromChunkCoords(i, j);
+                Chunk chunk = this.world.getChunk(i, j);
 
                 for (TileEntity tileentity : chunk.getTileEntityMap().values())
                 {
@@ -304,7 +302,7 @@ public class DragonFightManager
         {
             for (int j = -8; j <= 8; ++j)
             {
-                Chunk chunk = this.world.getChunkFromChunkCoords(i, j);
+                Chunk chunk = this.world.getChunk(i, j);
 
                 for (TileEntity tileentity : chunk.getTileEntityMap().values())
                 {
@@ -354,12 +352,12 @@ public class DragonFightManager
         {
             for (int j = -8; j <= 8; ++j)
             {
-                this.world.getChunkFromChunkCoords(i, j);
+                this.world.getChunk(i, j);
             }
         }
     }
 
-    private void updateplayers()
+    private void updatePlayers()
     {
         Set<EntityPlayerMP> set = Sets.<EntityPlayerMP>newHashSet();
 
@@ -444,7 +442,7 @@ public class DragonFightManager
 
     private EntityDragon createNewDragon()
     {
-        this.world.getChunkFromBlockCoords(new BlockPos(0, 128, 0));
+        this.world.getChunk(new BlockPos(0, 128, 0));
         EntityDragon entitydragon = new EntityDragon(this.world);
         entitydragon.getPhaseManager().setPhase(PhaseList.HOLDING_PATTERN);
         entitydragon.setLocationAndAngles(0.0D, 128.0D, 0.0D, this.world.rand.nextFloat() * 360.0F, 0.0F);
@@ -583,15 +581,5 @@ public class DragonFightManager
                 entityendercrystal.setBeamTarget((BlockPos)null);
             }
         }
-    }
-
-    public void addPlayer(EntityPlayerMP player)
-    {
-        this.bossInfo.addPlayer(player);
-    }
-
-    public void removePlayer(EntityPlayerMP player)
-    {
-        this.bossInfo.removePlayer(player);
     }
 }

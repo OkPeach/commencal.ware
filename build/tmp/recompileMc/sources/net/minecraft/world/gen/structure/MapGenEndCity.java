@@ -13,9 +13,9 @@ public class MapGenEndCity extends MapGenStructure
     private final int minCitySeparation = 11;
     private final ChunkGeneratorEnd endProvider;
 
-    public MapGenEndCity(ChunkGeneratorEnd p_i46665_1_)
+    public MapGenEndCity(ChunkGeneratorEnd endProviderIn)
     {
-        this.endProvider = p_i46665_1_;
+        this.endProvider = endProviderIn;
     }
 
     public String getStructureName()
@@ -68,12 +68,12 @@ public class MapGenEndCity extends MapGenStructure
         return findNearestStructurePosBySpacing(worldIn, this, pos, 20, 11, 10387313, true, 100, findUnexplored);
     }
 
-    private static int getYPosForStructure(int p_191070_0_, int p_191070_1_, ChunkGeneratorEnd p_191070_2_)
+    private static int getYPosForStructure(int chunkX, int chunkY, ChunkGeneratorEnd generatorIn)
     {
-        Random random = new Random((long)(p_191070_0_ + p_191070_1_ * 10387313));
+        Random random = new Random((long)(chunkX + chunkY * 10387313));
         Rotation rotation = Rotation.values()[random.nextInt(Rotation.values().length)];
         ChunkPrimer chunkprimer = new ChunkPrimer();
-        p_191070_2_.setBlocksInChunk(p_191070_0_, p_191070_1_, chunkprimer);
+        generatorIn.setBlocksInChunk(chunkX, chunkY, chunkprimer);
         int i = 5;
         int j = 5;
 

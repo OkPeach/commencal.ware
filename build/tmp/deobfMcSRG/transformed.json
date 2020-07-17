@@ -19101,7 +19101,7 @@
         "start": "21"
       },
       {
-        "access": "28",
+        "access": "29",
         "inner_class": "net/minecraft/potion/PotionHelper$MixPredicate",
         "inner_name": "MixPredicate",
         "outer_class": "net/minecraft/potion/PotionHelper"
@@ -19125,7 +19125,7 @@
     },
     "innerClasses": [
       {
-        "access": "28",
+        "access": "29",
         "inner_class": "net/minecraft/potion/PotionHelper$MixPredicate",
         "inner_name": "MixPredicate",
         "outer_class": "net/minecraft/potion/PotionHelper"

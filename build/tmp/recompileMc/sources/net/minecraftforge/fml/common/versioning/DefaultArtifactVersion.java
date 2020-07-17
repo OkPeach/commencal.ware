@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -102,11 +102,7 @@ public class DefaultArtifactVersion implements ArtifactVersion
     @Override
     public String toString()
     {
-        if (label == null)
-        {
-            return getVersionString();
-        }
-        return label + (unbounded ? "" : "@" + range);
+        return label == null ? comparableVersion.toString() : label + ( unbounded ? "" : "@" + range);
     }
 
     public VersionRange getRange()

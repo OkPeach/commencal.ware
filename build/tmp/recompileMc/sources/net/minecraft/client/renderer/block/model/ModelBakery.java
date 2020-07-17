@@ -53,7 +53,7 @@ public class ModelBakery
 {
     protected static final Set<ResourceLocation> LOCATIONS_BUILTIN_TEXTURES = Sets.newHashSet(new ResourceLocation("blocks/water_flow"), new ResourceLocation("blocks/water_still"), new ResourceLocation("blocks/lava_flow"), new ResourceLocation("blocks/lava_still"), new ResourceLocation("blocks/water_overlay"), new ResourceLocation("blocks/destroy_stage_0"), new ResourceLocation("blocks/destroy_stage_1"), new ResourceLocation("blocks/destroy_stage_2"), new ResourceLocation("blocks/destroy_stage_3"), new ResourceLocation("blocks/destroy_stage_4"), new ResourceLocation("blocks/destroy_stage_5"), new ResourceLocation("blocks/destroy_stage_6"), new ResourceLocation("blocks/destroy_stage_7"), new ResourceLocation("blocks/destroy_stage_8"), new ResourceLocation("blocks/destroy_stage_9"), new ResourceLocation("items/empty_armor_slot_helmet"), new ResourceLocation("items/empty_armor_slot_chestplate"), new ResourceLocation("items/empty_armor_slot_leggings"), new ResourceLocation("items/empty_armor_slot_boots"), new ResourceLocation("items/empty_armor_slot_shield"), new ResourceLocation("blocks/shulker_top_white"), new ResourceLocation("blocks/shulker_top_orange"), new ResourceLocation("blocks/shulker_top_magenta"), new ResourceLocation("blocks/shulker_top_light_blue"), new ResourceLocation("blocks/shulker_top_yellow"), new ResourceLocation("blocks/shulker_top_lime"), new ResourceLocation("blocks/shulker_top_pink"), new ResourceLocation("blocks/shulker_top_gray"), new ResourceLocation("blocks/shulker_top_silver"), new ResourceLocation("blocks/shulker_top_cyan"), new ResourceLocation("blocks/shulker_top_purple"), new ResourceLocation("blocks/shulker_top_blue"), new ResourceLocation("blocks/shulker_top_brown"), new ResourceLocation("blocks/shulker_top_green"), new ResourceLocation("blocks/shulker_top_red"), new ResourceLocation("blocks/shulker_top_black"));
     private static final Logger LOGGER = LogManager.getLogger();
-    public static final ModelResourceLocation MODEL_MISSING = new ModelResourceLocation("builtin/missing", "missing");
+    protected static final ModelResourceLocation MODEL_MISSING = new ModelResourceLocation("builtin/missing", "missing");
     private static final String MISSING_MODEL_MESH = "{    'textures': {       'particle': 'missingno',       'missingno': 'missingno'    },    'elements': [         {  'from': [ 0, 0, 0 ],            'to': [ 16, 16, 16 ],            'faces': {                'down':  { 'uv': [ 0, 0, 16, 16 ], 'cullface': 'down',  'texture': '#missingno' },                'up':    { 'uv': [ 0, 0, 16, 16 ], 'cullface': 'up',    'texture': '#missingno' },                'north': { 'uv': [ 0, 0, 16, 16 ], 'cullface': 'north', 'texture': '#missingno' },                'south': { 'uv': [ 0, 0, 16, 16 ], 'cullface': 'south', 'texture': '#missingno' },                'west':  { 'uv': [ 0, 0, 16, 16 ], 'cullface': 'west',  'texture': '#missingno' },                'east':  { 'uv': [ 0, 0, 16, 16 ], 'cullface': 'east',  'texture': '#missingno' }            }        }    ]}".replaceAll("'", "\"");
     private static final Map<String, String> BUILT_IN_MODELS = Maps.<String, String>newHashMap();
     private static final Joiner JOINER = Joiner.on(" -> ");
@@ -168,7 +168,7 @@ public class ModelBakery
 
     protected void loadVariantItemModels()
     {
-        this.variants.put(MODEL_MISSING, new VariantList(Lists.newArrayList(new Variant(new ResourceLocation(MODEL_MISSING.getResourcePath()), ModelRotation.X0_Y0, false, 1))));
+        this.variants.put(MODEL_MISSING, new VariantList(Lists.newArrayList(new Variant(new ResourceLocation(MODEL_MISSING.getPath()), ModelRotation.X0_Y0, false, 1))));
         this.loadStaticModels();
         this.loadVariantModels();
         this.loadMultipartVariantModels();
@@ -255,7 +255,7 @@ public class ModelBakery
 
     private ResourceLocation getBlockstateLocation(ResourceLocation location)
     {
-        return new ResourceLocation(location.getResourceDomain(), "blockstates/" + location.getResourcePath() + ".json");
+        return new ResourceLocation(location.getNamespace(), "blockstates/" + location.getPath() + ".json");
     }
 
     protected void loadVariantModels()
@@ -307,7 +307,7 @@ public class ModelBakery
 
         try
         {
-            String s = location.getResourcePath();
+            String s = location.getPath();
 
             if (!"builtin/generated".equals(s))
             {
@@ -354,7 +354,7 @@ public class ModelBakery
 
     protected ResourceLocation getModelLocation(ResourceLocation location)
     {
-        return new ResourceLocation(location.getResourceDomain(), "models/" + location.getResourcePath() + ".json");
+        return new ResourceLocation(location.getNamespace(), "models/" + location.getPath() + ".json");
     }
 
     protected void loadItemModels()
@@ -474,7 +474,7 @@ public class ModelBakery
     protected ResourceLocation getItemLocation(String location)
     {
         ResourceLocation resourcelocation = new ResourceLocation(location.replaceAll("#.*", ""));
-        return new ResourceLocation(resourcelocation.getResourceDomain(), "item/" + resourcelocation.getResourcePath());
+        return new ResourceLocation(resourcelocation.getNamespace(), "item/" + resourcelocation.getPath());
     }
 
     private void bakeBlockModels()
@@ -705,14 +705,14 @@ public class ModelBakery
         }
     }
 
-    private BakedQuad makeBakedQuad(BlockPart p_177589_1_, BlockPartFace p_177589_2_, TextureAtlasSprite p_177589_3_, EnumFacing p_177589_4_, ModelRotation p_177589_5_, boolean p_177589_6_)
+    private BakedQuad makeBakedQuad(BlockPart blockPartt, BlockPartFace blockPartFaceIn, TextureAtlasSprite sprite, EnumFacing face, ModelRotation transform, boolean uvLocked)
     {
-        return makeBakedQuad(p_177589_1_, p_177589_2_, p_177589_3_, p_177589_4_, (net.minecraftforge.common.model.ITransformation)p_177589_5_, p_177589_6_);
+        return makeBakedQuad(blockPartt, blockPartFaceIn, sprite, face, (net.minecraftforge.common.model.ITransformation)transform, uvLocked);
     }
 
-    protected BakedQuad makeBakedQuad(BlockPart p_177589_1_, BlockPartFace p_177589_2_, TextureAtlasSprite p_177589_3_, EnumFacing p_177589_4_, net.minecraftforge.common.model.ITransformation p_177589_5_, boolean p_177589_6_)
+    protected BakedQuad makeBakedQuad(BlockPart blockPartt, BlockPartFace blockPartFaceIn, TextureAtlasSprite sprite, EnumFacing face, net.minecraftforge.common.model.ITransformation transform, boolean uvLocked)
     {
-        return this.faceBakery.makeBakedQuad(p_177589_1_.positionFrom, p_177589_1_.positionTo, p_177589_2_, p_177589_3_, p_177589_4_, p_177589_5_, p_177589_1_.partRotation, p_177589_6_, p_177589_1_.shade);
+        return this.faceBakery.makeBakedQuad(blockPartt.positionFrom, blockPartt.positionTo, blockPartFaceIn, sprite, face, transform, blockPartt.partRotation, uvLocked, blockPartt.shade);
     }
 
     private void loadModelsCheck()

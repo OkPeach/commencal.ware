@@ -25,7 +25,7 @@ public class ChunkProviderClient implements IChunkProvider
      */
     private final Chunk blankChunk;
     /** The mapping between ChunkCoordinates and Chunks that ChunkProviderClient maintains. */
-    private final Long2ObjectMap<Chunk> chunkMapping = new Long2ObjectOpenHashMap<Chunk>(8192)
+    private final Long2ObjectMap<Chunk> loadedChunks = new Long2ObjectOpenHashMap<Chunk>(8192)
     {
         protected void rehash(int p_rehash_1_)
         {
@@ -57,13 +57,13 @@ public class ChunkProviderClient implements IChunkProvider
             chunk.onUnload();
         }
 
-        this.chunkMapping.remove(ChunkPos.asLong(x, z));
+        this.loadedChunks.remove(ChunkPos.asLong(x, z));
     }
 
     @Nullable
     public Chunk getLoadedChunk(int x, int z)
     {
-        return (Chunk)this.chunkMapping.get(ChunkPos.asLong(x, z));
+        return (Chunk)this.loadedChunks.get(ChunkPos.asLong(x, z));
     }
 
     /**
@@ -72,7 +72,7 @@ public class ChunkProviderClient implements IChunkProvider
     public Chunk loadChunk(int chunkX, int chunkZ)
     {
         Chunk chunk = new Chunk(this.world, chunkX, chunkZ);
-        this.chunkMapping.put(ChunkPos.asLong(chunkX, chunkZ), chunk);
+        this.loadedChunks.put(ChunkPos.asLong(chunkX, chunkZ), chunk);
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.world.ChunkEvent.Load(chunk));
         chunk.markLoaded(true);
         return chunk;
@@ -89,7 +89,7 @@ public class ChunkProviderClient implements IChunkProvider
     public boolean tick()
     {
         long i = System.currentTimeMillis();
-        ObjectIterator objectiterator = this.chunkMapping.values().iterator();
+        ObjectIterator objectiterator = this.loadedChunks.values().iterator();
 
         while (objectiterator.hasNext())
         {
@@ -110,11 +110,11 @@ public class ChunkProviderClient implements IChunkProvider
      */
     public String makeString()
     {
-        return "MultiplayerChunkCache: " + this.chunkMapping.size() + ", " + this.chunkMapping.size();
+        return "MultiplayerChunkCache: " + this.loadedChunks.size() + ", " + this.loadedChunks.size();
     }
 
     public boolean isChunkGeneratedAt(int x, int z)
     {
-        return this.chunkMapping.containsKey(ChunkPos.asLong(x, z));
+        return this.loadedChunks.containsKey(ChunkPos.asLong(x, z));
     }
 }

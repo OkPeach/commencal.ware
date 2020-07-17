@@ -11,8 +11,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class SPacketChat implements Packet<INetHandlerPlayClient>
 {
-    private ITextComponent chatComponent;
-    private ChatType type;
+    public ITextComponent chatComponent;
+    public ChatType type;
 
     public SPacketChat()
     {

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,8 +20,6 @@
 package net.minecraftforge.fluids;
 
 import javax.annotation.Nullable;
-
-import java.awt.Color;
 import java.util.Locale;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -67,9 +65,6 @@ public class Fluid
     protected final ResourceLocation still;
     protected final ResourceLocation flowing;
 
-    @Nullable
-    protected final ResourceLocation overlay;
-
     private SoundEvent fillSound;
     private SoundEvent emptySound;
 
@@ -111,6 +106,8 @@ public class Fluid
     /**
      * This indicates if the fluid is gaseous.
      *
+     * Useful for rendering the fluid in containers and the world.
+     *
      * Generally this is associated with negative density fluids.
      */
     protected boolean isGaseous;
@@ -128,51 +125,13 @@ public class Fluid
      * The default value of null should remain for any Fluid without a Block implementation.
      */
     protected Block block = null;
-    
-    /**
-     * Color used by universal bucket and the ModelFluid baked model.
-     * Note that this int includes the alpha so converting this to RGB with alpha would be
-     *   float r = ((color >> 16) & 0xFF) / 255f; // red
-     *   float g = ((color >> 8) & 0xFF) / 255f; // green
-     *   float b = ((color >> 0) & 0xFF) / 255f; // blue
-     *   float a = ((color >> 24) & 0xFF) / 255f; // alpha
-     */
-    protected int color = 0xFFFFFFFF;
-
-    public Fluid(String fluidName, ResourceLocation still, ResourceLocation flowing, Color color)
-    {
-        this(fluidName, still, flowing, null, color);
-    }
-
-    public Fluid(String fluidName, ResourceLocation still, ResourceLocation flowing, @Nullable ResourceLocation overlay, Color color)
-    {
-        this(fluidName, still, flowing, overlay);
-        this.setColor(color);
-    }
-
-    public Fluid(String fluidName, ResourceLocation still, ResourceLocation flowing, int color)
-    {
-        this(fluidName, still, flowing, null, color);
-    }
-
-    public Fluid(String fluidName, ResourceLocation still, ResourceLocation flowing, @Nullable ResourceLocation overlay, int color)
-    {
-        this(fluidName, still, flowing, overlay);
-        this.setColor(color);
-    }
 
     public Fluid(String fluidName, ResourceLocation still, ResourceLocation flowing)
-    {
-        this(fluidName, still, flowing, (ResourceLocation) null);
-    }
-
-    public Fluid(String fluidName, ResourceLocation still, ResourceLocation flowing, @Nullable ResourceLocation overlay)
     {
         this.fluidName = fluidName.toLowerCase(Locale.ENGLISH);
         this.unlocalizedName = fluidName;
         this.still = still;
         this.flowing = flowing;
-        this.overlay = overlay;
     }
 
     public Fluid setUnlocalizedName(String unlocalizedName)
@@ -242,18 +201,6 @@ public class Fluid
         this.emptySound = emptySound;
         return this;
     }
-    
-    public Fluid setColor(Color color)
-    {
-        this.color = color.getRGB();
-        return this;
-    }
-    
-    public Fluid setColor(int color)
-    {
-        this.color = color;
-        return this;
-    }
 
     public final String getName()
     {
@@ -268,16 +215,6 @@ public class Fluid
     public final boolean canBePlacedInWorld()
     {
         return block != null;
-    }
-
-    public final boolean isLighterThanAir()
-    {
-        int density = this.density;
-        if (block instanceof BlockFluidBase)
-        {
-            density = ((BlockFluidBase) block).getDensity();
-        }
-        return density <= 0;
     }
 
 	/**
@@ -374,7 +311,7 @@ public class Fluid
 
     public int getColor()
     {
-        return color;
+        return 0xFFFFFFFF;
     }
 
     public ResourceLocation getStill()
@@ -385,12 +322,6 @@ public class Fluid
     public ResourceLocation getFlowing()
     {
         return flowing;
-    }
-
-    @Nullable
-    public ResourceLocation getOverlay()
-    {
-        return overlay;
     }
 
     public SoundEvent getFillSound()

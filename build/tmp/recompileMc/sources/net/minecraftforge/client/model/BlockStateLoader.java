@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 
 import net.minecraft.client.renderer.block.model.ModelBlockDefinition;
 import net.minecraft.client.renderer.block.model.ModelRotation;
@@ -77,13 +76,13 @@ public class BlockStateLoader
             byte[] data = IOUtils.toByteArray(reader, StandardCharsets.UTF_8);
             reader = new InputStreamReader(new ByteArrayInputStream(data), StandardCharsets.UTF_8);
 
-            Marker marker = GSON.fromJson(new String(data, StandardCharsets.UTF_8), Marker.class);  // Read "forge_marker" to determine what to load.
+            Marker marker = GSON.fromJson(new String(data), Marker.class);  // Read "forge_marker" to determine what to load.
 
             switch (marker.forge_marker)
             {
                 case 1: // Version 1
                     ForgeBlockStateV1 v1 = GSON.fromJson(reader, ForgeBlockStateV1.class);
-                    Map<String, VariantList> variants = Maps.newLinkedHashMap();
+                    Map<String, VariantList> variants = Maps.newHashMap();
 
                     for (Entry<String, Collection<ForgeBlockStateV1.Variant>> entry : v1.variants.asMap().entrySet())
                     {   // Convert Version1 variants into vanilla variants for the ModelBlockDefinition.
@@ -91,12 +90,14 @@ public class BlockStateLoader
                         for (ForgeBlockStateV1.Variant var : entry.getValue())
                         {
                             boolean uvLock = var.getUvLock().orElse(false);
+                            boolean smooth = var.getSmooth().orElse(true);
+                            boolean gui3d = var.getGui3d().orElse(true);
                             int weight = var.getWeight().orElse(1);
 
-                            if (var.isVanillaCompatible())
-                                mcVars.add(new Variant(var.getModel(), (ModelRotation)var.getState().orElse(ModelRotation.X0_Y0), uvLock, weight));
+                            if (var.getModel() != null && var.getSubmodels().size() == 0 && var.getTextures().size() == 0 && var.getCustomData().size() == 0 && var.getState().orElse(null) instanceof ModelRotation)
+                                mcVars.add(new Variant(var.getModel(), (ModelRotation)var.getState().get(), uvLock, weight));
                             else
-                                mcVars.add(new ForgeVariant(location, var.getModel(), var.getState().orElse(TRSRTransformation.identity()), uvLock, var.getSmooth(), var.getGui3d(), weight, var.getTextures(), var.getOnlyPartsVariant(), var.getCustomData()));
+                                mcVars.add(new ForgeVariant(location, var.getModel(), var.getState().orElse(TRSRTransformation.identity()), uvLock, smooth, gui3d, weight, var.getTextures(), var.getOnlyPartsVariant(), var.getCustomData()));
                         }
                         variants.put(entry.getKey(), new VariantList(mcVars));
                     }
@@ -155,11 +156,11 @@ public class BlockStateLoader
         private final ImmutableMap<String, String> textures;
         private final ImmutableMap<String, SubModel> parts;
         private final ImmutableMap<String, String> customData;
-        private final Optional<Boolean> smooth;
-        private final Optional<Boolean> gui3d;
+        private final boolean smooth;
+        private final boolean gui3d;
         private final IModelState state;
 
-        ForgeVariant(ResourceLocation blockstateLocation, @Nullable ResourceLocation model, IModelState state, boolean uvLock, Optional<Boolean> smooth, Optional<Boolean> gui3d, int weight, ImmutableMap<String, String> textures, ImmutableMap<String, SubModel> parts, ImmutableMap<String, String> customData)
+        public ForgeVariant(ResourceLocation blockstateLocation, @Nullable ResourceLocation model, IModelState state, boolean uvLock, boolean smooth, boolean gui3d, int weight, ImmutableMap<String, String> textures, ImmutableMap<String, SubModel> parts, ImmutableMap<String, String> customData)
         {
             super(model == null ? new ResourceLocation("builtin/missing") : model, state instanceof ModelRotation ? (ModelRotation)state : ModelRotation.X0_Y0, uvLock, weight);
             this.blockstateLocation = blockstateLocation;
@@ -171,12 +172,12 @@ public class BlockStateLoader
             this.gui3d = gui3d;
         }
 
-        private IModel runModelHooks(IModel base, Optional<Boolean> smooth, Optional<Boolean> gui3d, boolean uvlock, ImmutableMap<String, String> textureMap, ImmutableMap<String, String> customData)
+        private IModel runModelHooks(IModel base, boolean smooth, boolean gui3d, boolean uvlock, ImmutableMap<String, String> textureMap, ImmutableMap<String, String> customData)
         {
             base = base.process(customData);
             base = base.retexture(textureMap);
-            base = smooth.map(base::smoothLighting).orElse(base);
-            base = gui3d.map(base::gui3d).orElse(base);
+            base = base.smoothLighting(smooth);
+            base = base.gui3d(gui3d);
             base = base.uvlock(uvlock);
             return base;
         }
@@ -199,6 +200,10 @@ public class BlockStateLoader
                     return base;
             }
 
+            // Apply rotation of base model to sub-models.
+            // If baseRot is non-null, then that rotation will be applied instead of the base model's rotation.
+            // This is used to allow replacing base model with a sub-model when there is no base model for a variant.
+            IModelState baseTr = getState();
             ImmutableMap.Builder<String, Pair<IModel, IModelState>> models = ImmutableMap.builder();
             for (Entry<String, SubModel> entry : parts.entrySet())
             {
@@ -216,10 +221,10 @@ public class BlockStateLoader
                     model = ModelLoaderRegistry.getModelOrLogError(modelLocation, "Unable to load block sub-model: \'" + modelLocation);
                 }
 
-                models.put(entry.getKey(), Pair.of(runModelHooks(model, Optional.of(part.smooth), Optional.of(part.gui3d), part.uvLock, part.getTextures(), part.getCustomData()), part.getState()));
+                models.put(entry.getKey(), Pair.of(runModelHooks(model, part.smooth, part.gui3d, part.uvLock, part.getTextures(), part.getCustomData()), part.getState()));
             }
 
-            return new MultiModel(getModelLocation(), hasBase ? base : null, models.build());
+            return new MultiModel(getModelLocation(), hasBase ? base : null, baseTr, models.build());
         }
 
         @Override

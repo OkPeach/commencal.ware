@@ -161,7 +161,6 @@ public class VillageCollection extends WorldSavedData
 
     private void addDoorsAround(BlockPos central)
     {
-        if (!this.world.isAreaLoaded(central, 16)) return; // Forge: prevent loading unloaded chunks when checking for doors
         int i = 16;
         int j = 4;
         int k = 16;

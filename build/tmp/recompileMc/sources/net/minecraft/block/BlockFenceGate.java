@@ -41,6 +41,10 @@ public class BlockFenceGate extends BlockHorizontal
         this.setCreativeTab(CreativeTabs.REDSTONE);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         state = this.getActualState(state, source, pos);
@@ -63,7 +67,7 @@ public class BlockFenceGate extends BlockHorizontal
     {
         EnumFacing.Axis enumfacing$axis = ((EnumFacing)state.getValue(FACING)).getAxis();
 
-        if (enumfacing$axis == EnumFacing.Axis.Z && (worldIn.getBlockState(pos.west()).getBlock() instanceof BlockWall || worldIn.getBlockState(pos.east()).getBlock() instanceof BlockWall) || enumfacing$axis == EnumFacing.Axis.X && (worldIn.getBlockState(pos.north()).getBlock() instanceof BlockWall || worldIn.getBlockState(pos.south()).getBlock() instanceof BlockWall))
+        if (enumfacing$axis == EnumFacing.Axis.Z && (canFenceGateConnectTo(worldIn, pos, EnumFacing.WEST) || canFenceGateConnectTo(worldIn, pos, EnumFacing.EAST)) || enumfacing$axis == EnumFacing.Axis.X && (canFenceGateConnectTo(worldIn, pos, EnumFacing.NORTH) || canFenceGateConnectTo(worldIn, pos, EnumFacing.SOUTH)))
         {
             state = state.withProperty(IN_WALL, Boolean.valueOf(true));
         }
@@ -74,6 +78,8 @@ public class BlockFenceGate extends BlockHorizontal
     /**
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
+     * fine.
      */
     public IBlockState withRotation(IBlockState state, Rotation rot)
     {
@@ -83,6 +89,7 @@ public class BlockFenceGate extends BlockHorizontal
     /**
      * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
     public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
@@ -97,6 +104,10 @@ public class BlockFenceGate extends BlockHorizontal
         return worldIn.getBlockState(pos.down()).getMaterial().isSolid() ? super.canPlaceBlockAt(worldIn, pos) : false;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getCollisionBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     @Nullable
     public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
     {
@@ -112,12 +123,16 @@ public class BlockFenceGate extends BlockHorizontal
 
     /**
      * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
      */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
@@ -191,6 +206,10 @@ public class BlockFenceGate extends BlockHorizontal
         }
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#shouldSideBeRendered(IBlockAccess,BlockPos,EnumFacing)} whenever
+     * possible. Implementing/overriding is fine.
+     */
     @SideOnly(Side.CLIENT)
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
@@ -202,7 +221,7 @@ public class BlockFenceGate extends BlockHorizontal
      */
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(FACING, EnumFacing.getHorizontal(meta)).withProperty(OPEN, Boolean.valueOf((meta & 4) != 0)).withProperty(POWERED, Boolean.valueOf((meta & 8) != 0));
+        return this.getDefaultState().withProperty(FACING, EnumFacing.byHorizontalIndex(meta)).withProperty(OPEN, Boolean.valueOf((meta & 4) != 0)).withProperty(POWERED, Boolean.valueOf((meta & 8) != 0));
     }
 
     /**
@@ -236,14 +255,14 @@ public class BlockFenceGate extends BlockHorizontal
     @Override
     public boolean canBeConnectedTo(IBlockAccess world, BlockPos pos, EnumFacing facing)
     {
-        IBlockState state = world.getBlockState(pos);
-        if (state.getBlock() instanceof BlockFenceGate &&
-            state.getBlockFaceShape(world, pos, facing) == BlockFaceShape.MIDDLE_POLE)
-        {
-            Block connector = world.getBlockState(pos.offset(facing)).getBlock();
-            return connector instanceof BlockFence || connector instanceof BlockWall;
-        }
-        return false;
+        Block connector = world.getBlockState(pos.offset(facing)).getBlock();
+        return connector instanceof BlockFence || connector instanceof BlockWall;
+    }
+
+    private boolean canFenceGateConnectTo(IBlockAccess world, BlockPos pos, EnumFacing facing)
+    {
+        Block block = world.getBlockState(pos.offset(facing)).getBlock();
+        return block.canBeConnectedTo(world, pos.offset(facing), facing.getOpposite());
     }
 
     /* ======================================== FORGE END ======================================== */
@@ -256,6 +275,8 @@ public class BlockFenceGate extends BlockHorizontal
      * does not fit the other descriptions and will generally cause other things not to connect to the face.
      * 
      * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {

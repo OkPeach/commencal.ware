@@ -28,7 +28,7 @@ public class LegacyV2Adapter implements IResourcePack
 
     private ResourceLocation fudgePath(ResourceLocation p_191382_1_)
     {
-        String s = p_191382_1_.getResourcePath();
+        String s = p_191382_1_.getPath();
 
         if (!"lang/swg_de.lang".equals(s) && s.startsWith("lang/") && s.endsWith(".lang"))
         {
@@ -37,9 +37,9 @@ public class LegacyV2Adapter implements IResourcePack
             if (i != -1)
             {
                 final String s1 = s.substring(0, i + 1) + s.substring(i + 1, s.indexOf(46, i)).toUpperCase() + ".lang";
-                return new ResourceLocation(p_191382_1_.getResourceDomain(), "")
+                return new ResourceLocation(p_191382_1_.getNamespace(), "")
                 {
-                    public String getResourcePath()
+                    public String getPath()
                     {
                         return s1;
                     }

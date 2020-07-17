@@ -184,7 +184,6 @@ public class EntityList
         return entry == null ? -1 : net.minecraftforge.registries.GameData.getEntityRegistry().getID(entry);
     }
 
-    @Nullable
     public static Class<? extends Entity> getClass(ResourceLocation key)
     {
         net.minecraftforge.fml.common.registry.EntityEntry entry = net.minecraftforge.fml.common.registry.ForgeRegistries.ENTITIES.getValue(key);
@@ -517,16 +516,5 @@ public class EntityList
                 this.killEntityStat = StatList.getStatKillEntity(this);
                 this.entityKilledByStat = StatList.getStatEntityKilledBy(this);
             }
-
-            // Forge start
-            public EntityEggInfo(ResourceLocation id, int primaryColor, int secondaryColor, StatBase killEntityStatistic, StatBase entityKilledByStatistic)
-            {
-                this.spawnedID = id;
-                this.primaryColor = primaryColor;
-                this.secondaryColor = secondaryColor;
-                this.killEntityStat = killEntityStatistic;
-                this.entityKilledByStat = entityKilledByStatistic;
-            }
-            // Forge end
         }
 }

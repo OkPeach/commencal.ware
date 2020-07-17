@@ -29,7 +29,7 @@ public class VertexBuffer
         this.bindBuffer();
         OpenGlHelper.glBufferData(OpenGlHelper.GL_ARRAY_BUFFER, data, 35044);
         this.unbindBuffer();
-        this.count = data.limit() / this.vertexFormat.getNextOffset();
+        this.count = data.limit() / this.vertexFormat.getSize();
     }
 
     public void drawArrays(int mode)

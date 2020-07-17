@@ -211,7 +211,7 @@ public class EntityFireworkRocket extends Entity
         NBTTagCompound nbttagcompound = itemstack.isEmpty() ? null : itemstack.getSubCompound("Fireworks");
         NBTTagList nbttaglist = nbttagcompound != null ? nbttagcompound.getTagList("Explosions", 10) : null;
 
-        if (nbttaglist != null && !nbttaglist.hasNoTags())
+        if (nbttaglist != null && !nbttaglist.isEmpty())
         {
             f = (float)(5 + nbttaglist.tagCount() * 2);
         }

@@ -16,8 +16,10 @@ public class RecipeList
 {
     private List<IRecipe> recipes = Lists.<IRecipe>newArrayList();
     private final BitSet craftable = new BitSet();
+    /** Tracks which recipes can fit in the current container */
     private final BitSet canFit = new BitSet();
     private final BitSet inBook = new BitSet();
+    /** True if all recipes in this button create the same ItemStack (via IRecipe.getRecipeOutput) */
     private boolean singleResultItem = true;
 
     /**
@@ -67,13 +69,13 @@ public class RecipeList
         return this.recipes;
     }
 
-    public List<IRecipe> getRecipes(boolean p_194208_1_)
+    public List<IRecipe> getRecipes(boolean onlyCraftable)
     {
         List<IRecipe> list = Lists.<IRecipe>newArrayList();
 
         for (int i = this.inBook.nextSetBit(0); i >= 0; i = this.inBook.nextSetBit(i + 1))
         {
-            if ((p_194208_1_ ? this.craftable : this.canFit).get(i))
+            if ((onlyCraftable ? this.craftable : this.canFit).get(i))
             {
                 list.add(this.recipes.get(i));
             }

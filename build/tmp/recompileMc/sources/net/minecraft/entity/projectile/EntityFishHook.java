@@ -138,7 +138,7 @@ public class EntityFishHook extends Entity
     }
 
     /**
-     * Set the position and rotation values directly without any clamping.
+     * Sets a target for the client to interpolate towards over the next few ticks
      */
     @SideOnly(Side.CLIENT)
     public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean teleport)
@@ -425,9 +425,9 @@ public class EntityFishHook extends Entity
                 double d0 = this.posX + (double)(f1 * (float)this.ticksCatchableDelay * 0.1F);
                 double d1 = (double)((float)MathHelper.floor(this.getEntityBoundingBox().minY) + 1.0F);
                 double d2 = this.posZ + (double)(f2 * (float)this.ticksCatchableDelay * 0.1F);
-                IBlockState state = worldserver.getBlockState(new BlockPos(d0, d1 - 1.0D, d2));
+                Block block = worldserver.getBlockState(new BlockPos(d0, d1 - 1.0D, d2)).getBlock();
 
-                if (state.getMaterial() == Material.WATER)
+                if (block == Blocks.WATER || block == Blocks.FLOWING_WATER)
                 {
                     if (this.rand.nextFloat() < 0.15F)
                     {
@@ -475,9 +475,9 @@ public class EntityFishHook extends Entity
                 double d4 = this.posX + (double)(MathHelper.sin(f6) * f7 * 0.1F);
                 double d5 = (double)((float)MathHelper.floor(this.getEntityBoundingBox().minY) + 1.0F);
                 double d6 = this.posZ + (double)(MathHelper.cos(f6) * f7 * 0.1F);
-                IBlockState state = worldserver.getBlockState(new BlockPos((int) d4, (int) d5 - 1, (int) d6));
+                Block block1 = worldserver.getBlockState(new BlockPos((int)d4, (int)d5 - 1, (int)d6)).getBlock();
 
-                if (state.getMaterial() == Material.WATER)
+                if (block1 == Blocks.WATER || block1 == Blocks.FLOWING_WATER)
                 {
                     worldserver.spawnParticle(EnumParticleTypes.WATER_SPLASH, d4, d5, d6, 2 + this.rand.nextInt(2), 0.10000000149011612D, 0.0D, 0.10000000149011612D, 0.0D);
                 }
@@ -531,7 +531,7 @@ public class EntityFishHook extends Entity
             else if (this.ticksCatchable > 0)
             {
                 LootContext.Builder lootcontext$builder = new LootContext.Builder((WorldServer)this.world);
-                lootcontext$builder.withLuck((float)this.luck + this.angler.getLuck()).withPlayer(this.angler).withLootedEntity(this); // Forge: add player & looted entity to LootContext
+                lootcontext$builder.withLuck((float)this.luck + this.angler.getLuck());
                 List<ItemStack> result = this.world.getLootTableManager().getLootTableFromLocation(LootTableList.GAMEPLAY_FISHING).generateLootForPools(this.rand, lootcontext$builder.build());
                 event = new net.minecraftforge.event.entity.player.ItemFishedEvent(result, this.inGround ? 2 : 1, this);
                 net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(event);

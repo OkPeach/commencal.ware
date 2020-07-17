@@ -41,7 +41,7 @@ public class ItemShield extends Item
         if (stack.getSubCompound("BlockEntityTag") != null)
         {
             EnumDyeColor enumdyecolor = TileEntityBanner.getColor(stack);
-            return I18n.translateToLocal("item.shield." + enumdyecolor.getUnlocalizedName() + ".name");
+            return I18n.translateToLocal("item.shield." + enumdyecolor.getTranslationKey() + ".name");
         }
         else
         {

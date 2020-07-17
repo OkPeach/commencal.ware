@@ -85,7 +85,7 @@ public class ItemFirework extends Item
 
             NBTTagList nbttaglist = nbttagcompound.getTagList("Explosions", 10);
 
-            if (!nbttaglist.hasNoTags())
+            if (!nbttaglist.isEmpty())
             {
                 for (int i = 0; i < nbttaglist.tagCount(); ++i)
                 {

@@ -23,17 +23,9 @@ public class BlockRailPowered extends BlockRailBase
     });
     public static final PropertyBool POWERED = PropertyBool.create("powered");
 
-    private final boolean isActivator;
-
     protected BlockRailPowered()
     {
-        this(false);
-    }
-
-    protected BlockRailPowered(boolean isActivator)
-    {
         super(true);
-        this.isActivator = isActivator;
         this.setDefaultState(this.blockState.getBaseState().withProperty(SHAPE, BlockRailBase.EnumRailDirection.NORTH_SOUTH).withProperty(POWERED, Boolean.valueOf(false)));
     }
 
@@ -154,7 +146,7 @@ public class BlockRailPowered extends BlockRailBase
     {
         IBlockState iblockstate = worldIn.getBlockState(pos);
 
-        if (!(iblockstate.getBlock() instanceof BlockRailPowered) || isActivator != ((BlockRailPowered)iblockstate.getBlock()).isActivator)
+        if (iblockstate.getBlock() != this)
         {
             return false;
         }
@@ -236,6 +228,8 @@ public class BlockRailPowered extends BlockRailBase
     /**
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
+     * fine.
      */
     @SuppressWarnings("incomplete-switch")
     public IBlockState withRotation(IBlockState state, Rotation rot)
@@ -324,6 +318,7 @@ public class BlockRailPowered extends BlockRailBase
     /**
      * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
     @SuppressWarnings("incomplete-switch")
     public IBlockState withMirror(IBlockState state, Mirror mirrorIn)

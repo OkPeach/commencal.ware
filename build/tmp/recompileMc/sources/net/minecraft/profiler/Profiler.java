@@ -92,7 +92,9 @@ public class Profiler
     }
 
     /**
-     * Get profiling data
+     * Gets the current profiling data. WARNING: If profiling is enabled, this must not return an empty list, as
+     * otherwise the game will crash when attempting to render the profiler. I.E. don't stub out the profiler code, OK?
+     * It's not necessary.
      */
     public List<Profiler.Result> getProfilingData(String profilerName)
     {

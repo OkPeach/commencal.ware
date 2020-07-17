@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -29,7 +29,6 @@ import net.minecraft.potion.PotionType;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.registry.VillagerRegistry.VillagerProfession;
-import net.minecraftforge.registries.DataSerializerEntry;
 import net.minecraftforge.registries.GameData;
 import net.minecraftforge.registries.IForgeRegistry;
 
@@ -52,7 +51,6 @@ public class ForgeRegistries
     public static final IForgeRegistry<VillagerProfession> VILLAGER_PROFESSIONS = GameRegistry.findRegistry(VillagerProfession.class);
     public static final IForgeRegistry<EntityEntry>  ENTITIES     = GameRegistry.findRegistry(EntityEntry.class);
     public static final IForgeRegistry<IRecipe>      RECIPES      = GameRegistry.findRegistry(IRecipe.class);
-    public static final IForgeRegistry<DataSerializerEntry> DATA_SERIALIZERS = GameRegistry.findRegistry(DataSerializerEntry.class);
 
 
     /**

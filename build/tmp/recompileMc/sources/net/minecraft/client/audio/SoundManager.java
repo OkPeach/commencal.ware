@@ -517,7 +517,7 @@ public class SoundManager
 
     private static URL getURLForSoundResource(final ResourceLocation p_148612_0_)
     {
-        String s = String.format("%s:%s:%s", "mcsounddomain", p_148612_0_.getResourceDomain(), p_148612_0_.getResourcePath());
+        String s = String.format("%s:%s:%s", "mcsounddomain", p_148612_0_.getNamespace(), p_148612_0_.getPath());
         URLStreamHandler urlstreamhandler = new URLStreamHandler()
         {
             protected URLConnection openConnection(URL p_openConnection_1_)
@@ -549,11 +549,6 @@ public class SoundManager
      * Sets the listener of sounds
      */
     public void setListener(EntityPlayer player, float p_148615_2_)
-    {
-        setListener((net.minecraft.entity.Entity) player, p_148615_2_);
-    }
-
-    public void setListener(net.minecraft.entity.Entity player, float p_148615_2_)
     {
         if (this.loaded && player != null)
         {

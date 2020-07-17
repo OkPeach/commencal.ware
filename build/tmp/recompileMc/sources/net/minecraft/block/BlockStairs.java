@@ -132,7 +132,7 @@ public class BlockStairs extends Block
 
     protected BlockStairs(IBlockState modelState)
     {
-        super(modelState.getBlock().blockMaterial);
+        super(modelState.getBlock().material);
         this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(HALF, BlockStairs.EnumHalf.BOTTOM).withProperty(SHAPE, BlockStairs.EnumShape.STRAIGHT));
         this.modelBlock = modelState.getBlock();
         this.modelState = modelState;
@@ -248,6 +248,8 @@ public class BlockStairs extends Block
      * does not fit the other descriptions and will generally cause other things not to connect to the face.
      * 
      * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
@@ -286,17 +288,26 @@ public class BlockStairs extends Block
 
     /**
      * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
      */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * Called periodically clientside on blocks near the player to show effects (like furnace fire particles). Note that
+     * this method is unrelated to {@link randomTick} and {@link #needsRandomTick}, and will always be called regardless
+     * of whether the block can receive random update ticks
+     */
     @SideOnly(Side.CLIENT)
     public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {
@@ -311,11 +322,15 @@ public class BlockStairs extends Block
     /**
      * Called after a player destroys this Block - the posiiton pos may no longer hold the state indicated.
      */
-    public void onBlockDestroyedByPlayer(World worldIn, BlockPos pos, IBlockState state)
+    public void onPlayerDestroy(World worldIn, BlockPos pos, IBlockState state)
     {
-        this.modelBlock.onBlockDestroyedByPlayer(worldIn, pos, state);
+        this.modelBlock.onPlayerDestroy(worldIn, pos, state);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getPackedLightmapCoords(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     @SideOnly(Side.CLIENT)
     public int getPackedLightmapCoords(IBlockState state, IBlockAccess source, BlockPos pos)
     {
@@ -343,14 +358,20 @@ public class BlockStairs extends Block
         return this.modelBlock.modifyAcceleration(worldIn, pos, entityIn, motion);
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     @SideOnly(Side.CLIENT)
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
-        return this.modelBlock.getBlockLayer();
+        return this.modelBlock.getRenderLayer();
     }
 
     /**
      * Return an AABB (in world coords!) that should be highlighted when the player is targeting this Block
+     * @deprecated call via {@link IBlockState#getSelectedBoundingBox(World,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
      */
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos)
@@ -421,13 +442,14 @@ public class BlockStairs extends Block
     /**
      * Called when this Block is destroyed by an Explosion
      */
-    public void onBlockDestroyedByExplosion(World worldIn, BlockPos pos, Explosion explosionIn)
+    public void onExplosionDestroy(World worldIn, BlockPos pos, Explosion explosionIn)
     {
-        this.modelBlock.onBlockDestroyedByExplosion(worldIn, pos, explosionIn);
+        this.modelBlock.onExplosionDestroy(worldIn, pos, explosionIn);
     }
 
     /**
      * Determines if the block is solid enough on the top side to support other blocks, like redstone components.
+     * @deprecated prefer calling {@link IBlockState#isTopSolid()} wherever possible
      */
     public boolean isTopSolid(IBlockState state)
     {
@@ -436,6 +458,8 @@ public class BlockStairs extends Block
 
     /**
      * Get the MapColor for this Block and the given BlockState
+     * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
@@ -455,6 +479,8 @@ public class BlockStairs extends Block
 
     /**
      * Ray traces through the blocks collision from start vector to end vector returning a ray trace hit.
+     * @deprecated call via {@link IBlockState#collisionRayTrace(World,BlockPos,Vec3d,Vec3d)} whenever possible.
+     * Implementing/overriding is fine.
      */
     @Nullable
     public RayTraceResult collisionRayTrace(IBlockState blockState, World worldIn, BlockPos pos, Vec3d start, Vec3d end)
@@ -492,7 +518,7 @@ public class BlockStairs extends Block
     public IBlockState getStateFromMeta(int meta)
     {
         IBlockState iblockstate = this.getDefaultState().withProperty(HALF, (meta & 4) > 0 ? BlockStairs.EnumHalf.TOP : BlockStairs.EnumHalf.BOTTOM);
-        iblockstate = iblockstate.withProperty(FACING, EnumFacing.getFront(5 - (meta & 3)));
+        iblockstate = iblockstate.withProperty(FACING, EnumFacing.byIndex(5 - (meta & 3)));
         return iblockstate;
     }
 
@@ -575,6 +601,8 @@ public class BlockStairs extends Block
     /**
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
+     * fine.
      */
     public IBlockState withRotation(IBlockState state, Rotation rot)
     {
@@ -584,6 +612,7 @@ public class BlockStairs extends Block
     /**
      * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
     @SuppressWarnings("incomplete-switch")
     public IBlockState withMirror(IBlockState state, Mirror mirrorIn)

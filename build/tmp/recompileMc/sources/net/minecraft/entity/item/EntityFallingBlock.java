@@ -34,15 +34,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class EntityFallingBlock extends Entity
 {
-    private IBlockState fallTile;
+    public IBlockState fallTile;
     public int fallTime;
     public boolean shouldDropItem = true;
-    private boolean dontSetBlock;
-    private boolean hurtEntities;
-    private int fallHurtMax = 40;
-    private float fallHurtAmount = 2.0F;
+    public boolean dontSetBlock;
+    public boolean hurtEntities;
+    public int fallHurtMax = 40;
+    public float fallHurtAmount = 2.0F;
     public NBTTagCompound tileEntityData;
-    protected static final DataParameter<BlockPos> ORIGIN = EntityDataManager.<BlockPos>createKey(EntityFallingBlock.class, DataSerializers.BLOCK_POS);
+    public static final DataParameter<BlockPos> ORIGIN = EntityDataManager.<BlockPos>createKey(EntityFallingBlock.class, DataSerializers.BLOCK_POS);
 
     public EntityFallingBlock(World worldIn)
     {
@@ -196,7 +196,7 @@ public class EntityFallingBlock extends Entity
 
                         if (!this.dontSetBlock)
                         {
-                            if (this.world.mayPlace(block, blockpos1, true, EnumFacing.UP, this) && (flag1 || !BlockFalling.canFallThrough(this.world.getBlockState(blockpos1.down()))) && this.world.setBlockState(blockpos1, this.fallTile, 3))
+                            if (this.world.mayPlace(block, blockpos1, true, EnumFacing.UP, (Entity)null) && (flag1 || !BlockFalling.canFallThrough(this.world.getBlockState(blockpos1.down()))) && this.world.setBlockState(blockpos1, this.fallTile, 3))
                             {
                                 if (block instanceof BlockFalling)
                                 {

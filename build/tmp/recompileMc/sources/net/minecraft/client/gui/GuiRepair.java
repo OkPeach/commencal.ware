@@ -26,6 +26,7 @@ import org.lwjgl.input.Keyboard;
 public class GuiRepair extends GuiContainer implements IContainerListener
 {
     private static final ResourceLocation ANVIL_RESOURCE = new ResourceLocation("textures/gui/container/anvil.png");
+    /** The same reference as {@link GuiContainer#field_147002_h}, downcasted to {@link ContainerRepair}. */
     private final ContainerRepair anvil;
     private GuiTextField nameField;
     private final InventoryPlayer playerInventory;

@@ -49,7 +49,7 @@ public class RenderArmorStand extends RenderLivingBase<EntityArmorStand>
         return (ModelArmorStand)super.getMainModel();
     }
 
-    protected void applyRotations(EntityArmorStand entityLiving, float p_77043_2_, float rotationYaw, float partialTicks)
+    protected void applyRotations(EntityArmorStand entityLiving, float ageInTicks, float rotationYaw, float partialTicks)
     {
         GlStateManager.rotate(180.0F - rotationYaw, 0.0F, 1.0F, 0.0F);
         float f = (float)(entityLiving.world.getTotalWorldTime() - entityLiving.punchCooldown) + partialTicks;

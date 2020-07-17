@@ -21,17 +21,17 @@ public class ItemAir extends Item
      * Returns the unlocalized name of this item. This version accepts an ItemStack so different stacks can have
      * different names based on their damage or NBT.
      */
-    public String getUnlocalizedName(ItemStack stack)
+    public String getTranslationKey(ItemStack stack)
     {
-        return this.block.getUnlocalizedName();
+        return this.block.getTranslationKey();
     }
 
     /**
      * Returns the unlocalized name of this item.
      */
-    public String getUnlocalizedName()
+    public String getTranslationKey()
     {
-        return this.block.getUnlocalizedName();
+        return this.block.getTranslationKey();
     }
 
     /**

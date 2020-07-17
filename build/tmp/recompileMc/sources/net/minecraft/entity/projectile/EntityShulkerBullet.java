@@ -127,7 +127,7 @@ public class EntityShulkerBullet extends Entity
 
         if (compound.hasKey("Dir", 99))
         {
-            this.direction = EnumFacing.getFront(compound.getInteger("Dir"));
+            this.direction = EnumFacing.byIndex(compound.getInteger("Dir"));
         }
 
         if (compound.hasKey("Owner", 10))
@@ -229,9 +229,9 @@ public class EntityShulkerBullet extends Entity
                 enumfacing = list.get(this.rand.nextInt(list.size()));
             }
 
-            d1 = this.posX + (double)enumfacing.getFrontOffsetX();
-            d2 = this.posY + (double)enumfacing.getFrontOffsetY();
-            d3 = this.posZ + (double)enumfacing.getFrontOffsetZ();
+            d1 = this.posX + (double)enumfacing.getXOffset();
+            d2 = this.posY + (double)enumfacing.getYOffset();
+            d3 = this.posZ + (double)enumfacing.getZOffset();
         }
 
         this.setDirection(enumfacing);

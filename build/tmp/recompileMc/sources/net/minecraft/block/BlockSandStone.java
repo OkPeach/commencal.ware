@@ -46,6 +46,8 @@ public class BlockSandStone extends Block
 
     /**
      * Get the MapColor for this Block and the given BlockState
+     * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
@@ -82,13 +84,13 @@ public class BlockSandStone extends Block
         private static final BlockSandStone.EnumType[] META_LOOKUP = new BlockSandStone.EnumType[values().length];
         private final int metadata;
         private final String name;
-        private final String unlocalizedName;
+        private final String translationKey;
 
         private EnumType(int meta, String name, String unlocalizedName)
         {
             this.metadata = meta;
             this.name = name;
-            this.unlocalizedName = unlocalizedName;
+            this.translationKey = unlocalizedName;
         }
 
         public int getMetadata()
@@ -119,9 +121,9 @@ public class BlockSandStone extends Block
             return this.name;
         }
 
-        public String getUnlocalizedName()
+        public String getTranslationKey()
         {
-            return this.unlocalizedName;
+            return this.translationKey;
         }
 
         static

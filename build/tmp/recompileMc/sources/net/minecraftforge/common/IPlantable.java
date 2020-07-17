@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,6 +25,6 @@ import net.minecraft.world.IBlockAccess;
 
 public interface IPlantable
 {
-    EnumPlantType getPlantType(IBlockAccess world, BlockPos pos);
-    IBlockState getPlant(IBlockAccess world, BlockPos pos);
+    public EnumPlantType getPlantType(IBlockAccess world, BlockPos pos);
+    public IBlockState getPlant(IBlockAccess world, BlockPos pos);
 }

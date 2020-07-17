@@ -16,46 +16,46 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class Particle
 {
-    private static final AxisAlignedBB EMPTY_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
-    protected World world;
-    protected double prevPosX;
-    protected double prevPosY;
-    protected double prevPosZ;
-    protected double posX;
-    protected double posY;
-    protected double posZ;
-    protected double motionX;
-    protected double motionY;
-    protected double motionZ;
-    private AxisAlignedBB boundingBox;
-    protected boolean onGround;
+    public static final AxisAlignedBB EMPTY_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
+    public World world;
+    public double prevPosX;
+    public double prevPosY;
+    public double prevPosZ;
+    public double posX;
+    public double posY;
+    public double posZ;
+    public double motionX;
+    public double motionY;
+    public double motionZ;
+    public AxisAlignedBB boundingBox;
+    public boolean onGround;
     /** Determines if particle to block collision is to be used */
-    protected boolean canCollide;
-    protected boolean isExpired;
-    protected float width;
-    protected float height;
-    protected Random rand;
-    protected int particleTextureIndexX;
-    protected int particleTextureIndexY;
-    protected float particleTextureJitterX;
-    protected float particleTextureJitterY;
-    protected int particleAge;
-    protected int particleMaxAge;
-    protected float particleScale;
-    protected float particleGravity;
+    public boolean canCollide;
+    public boolean isExpired;
+    public float width;
+    public float height;
+    public Random rand;
+    public int particleTextureIndexX;
+    public int particleTextureIndexY;
+    public float particleTextureJitterX;
+    public float particleTextureJitterY;
+    public int particleAge;
+    public int particleMaxAge;
+    public float particleScale;
+    public float particleGravity;
     /** The red amount of color. Used as a percentage, 1.0 = 255 and 0.0 = 0. */
-    protected float particleRed;
+    public float particleRed;
     /** The green amount of color. Used as a percentage, 1.0 = 255 and 0.0 = 0. */
-    protected float particleGreen;
+    public float particleGreen;
     /** The blue amount of color. Used as a percentage, 1.0 = 255 and 0.0 = 0. */
-    protected float particleBlue;
+    public float particleBlue;
     /** Particle alpha */
-    protected float particleAlpha;
-    protected TextureAtlasSprite particleTexture;
+    public float particleAlpha;
+    public TextureAtlasSprite particleTexture;
     /** The amount the particle will be rotated in rendering. */
-    protected float particleAngle;
+    public float particleAngle;
     /** The particle angle from the last tick. Appears to be used for calculating the rendered angle with partial ticks. */
-    protected float prevParticleAngle;
+    public float prevParticleAngle;
     public static double interpPosX;
     public static double interpPosY;
     public static double interpPosZ;
@@ -148,9 +148,9 @@ public class Particle
         return this.particleBlue;
     }
 
-    public void setMaxAge(int p_187114_1_)
+    public void setMaxAge(int particleLifeTime)
     {
-        this.particleMaxAge = p_187114_1_;
+        this.particleMaxAge = particleLifeTime;
     }
 
     public void onUpdate()
@@ -285,25 +285,25 @@ public class Particle
         this.isExpired = true;
     }
 
-    protected void setSize(float p_187115_1_, float p_187115_2_)
+    protected void setSize(float particleWidth, float particleHeight)
     {
-        if (p_187115_1_ != this.width || p_187115_2_ != this.height)
+        if (particleWidth != this.width || particleHeight != this.height)
         {
-            this.width = p_187115_1_;
-            this.height = p_187115_2_;
-            // FORGE: Fix MC-12269 - Glitchy movement when setSize is called without setPosition
-            setPosition(posX, posY, posZ);
+            this.width = particleWidth;
+            this.height = particleHeight;
+            AxisAlignedBB axisalignedbb = this.getBoundingBox();
+            this.setBoundingBox(new AxisAlignedBB(axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ, axisalignedbb.minX + (double)this.width, axisalignedbb.minY + (double)this.height, axisalignedbb.minZ + (double)this.width));
         }
     }
 
-    public void setPosition(double p_187109_1_, double p_187109_3_, double p_187109_5_)
+    public void setPosition(double x, double y, double z)
     {
-        this.posX = p_187109_1_;
-        this.posY = p_187109_3_;
-        this.posZ = p_187109_5_;
+        this.posX = x;
+        this.posY = y;
+        this.posZ = z;
         float f = this.width / 2.0F;
         float f1 = this.height;
-        this.setBoundingBox(new AxisAlignedBB(p_187109_1_ - (double)f, p_187109_3_, p_187109_5_ - (double)f, p_187109_1_ + (double)f, p_187109_3_ + (double)f1, p_187109_5_ + (double)f));
+        this.setBoundingBox(new AxisAlignedBB(x - (double)f, y, z - (double)f, x + (double)f, y + (double)f1, z + (double)f));
     }
 
     public void move(double x, double y, double z)
@@ -364,7 +364,7 @@ public class Particle
         this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
     }
 
-    public int getBrightnessForRender(float p_189214_1_)
+    public int getBrightnessForRender(float partialTick)
     {
         BlockPos blockpos = new BlockPos(this.posX, this.posY, this.posZ);
         return this.world.isBlockLoaded(blockpos) ? this.world.getCombinedLight(blockpos, 0) : 0;

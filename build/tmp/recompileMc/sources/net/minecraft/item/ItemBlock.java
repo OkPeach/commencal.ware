@@ -49,7 +49,7 @@ public class ItemBlock extends Item
 
         ItemStack itemstack = player.getHeldItem(hand);
 
-        if (!itemstack.isEmpty() && player.canPlayerEdit(pos, facing, itemstack) && worldIn.mayPlace(this.block, pos, false, facing, player))
+        if (!itemstack.isEmpty() && player.canPlayerEdit(pos, facing, itemstack) && worldIn.mayPlace(this.block, pos, false, facing, (Entity)null))
         {
             int i = this.getMetadata(itemstack.getMetadata());
             IBlockState iblockstate1 = this.block.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, i, player, hand);
@@ -127,24 +127,24 @@ public class ItemBlock extends Item
             pos = pos.offset(side);
         }
 
-        return worldIn.mayPlace(this.block, pos, false, side, player);
+        return worldIn.mayPlace(this.block, pos, false, side, (Entity)null);
     }
 
     /**
      * Returns the unlocalized name of this item. This version accepts an ItemStack so different stacks can have
      * different names based on their damage or NBT.
      */
-    public String getUnlocalizedName(ItemStack stack)
+    public String getTranslationKey(ItemStack stack)
     {
-        return this.block.getUnlocalizedName();
+        return this.block.getTranslationKey();
     }
 
     /**
      * Returns the unlocalized name of this item.
      */
-    public String getUnlocalizedName()
+    public String getTranslationKey()
     {
-        return this.block.getUnlocalizedName();
+        return this.block.getTranslationKey();
     }
 
     /**
@@ -152,7 +152,7 @@ public class ItemBlock extends Item
      */
     public CreativeTabs getCreativeTab()
     {
-        return this.block.getCreativeTabToDisplayOn();
+        return this.block.getCreativeTab();
     }
 
     /**

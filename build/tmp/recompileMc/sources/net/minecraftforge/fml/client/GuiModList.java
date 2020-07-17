@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
+import javax.imageio.ImageIO;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -42,7 +43,6 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.resources.IResourcePack;
@@ -64,7 +64,6 @@ import static net.minecraft.util.text.TextFormatting.*;
 import org.lwjgl.input.Mouse;
 
 import com.google.common.base.Strings;
-import org.lwjgl.opengl.GL11;
 
 /**
  * @author cpw
@@ -410,7 +409,7 @@ public class GuiModList extends GuiScreen
                 {
                     InputStream logoResource = getClass().getResourceAsStream(logoFile);
                     if (logoResource != null)
-                        logo = TextureUtil.readBufferedImage(logoResource);
+                        logo = ImageIO.read(logoResource);
                 }
                 if (logo != null)
                 {
@@ -579,7 +578,7 @@ public class GuiModList extends GuiScreen
                 GuiModList.this.mc.renderEngine.bindTexture(logoPath);
                 BufferBuilder wr = tess.getBuffer();
                 int offset = (this.left + this.listWidth/2) - (logoDims.width / 2);
-                wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+                wr.begin(7, DefaultVertexFormats.POSITION_TEX);
                 wr.pos(offset,                  top + logoDims.height, zLevel).tex(0, 1).endVertex();
                 wr.pos(offset + logoDims.width, top + logoDims.height, zLevel).tex(1, 1).endVertex();
                 wr.pos(offset + logoDims.width, top,                   zLevel).tex(1, 0).endVertex();

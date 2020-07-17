@@ -115,7 +115,7 @@ public class ItemMap extends ItemMapBase
                             int k2 = (j / i + k1 - 64) * i;
                             int l2 = (k / i + l1 - 64) * i;
                             Multiset<MapColor> multiset = HashMultiset.<MapColor>create();
-                            Chunk chunk = worldIn.getChunkFromBlockCoords(new BlockPos(k2, 0, l2));
+                            Chunk chunk = worldIn.getChunk(new BlockPos(k2, 0, l2));
 
                             if (!chunk.isEmpty())
                             {
@@ -260,7 +260,7 @@ public class ItemMap extends ItemMapBase
 
             if (mapdata != null)
             {
-                if (worldIn.provider.getDimension() == mapdata.dimension)
+                if (worldIn.provider.getDimensionType().getId() == mapdata.dimension)
                 {
                     int i = 1 << mapdata.scale;
                     int j = mapdata.xCenter;

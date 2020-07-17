@@ -80,7 +80,6 @@ public class AnvilChunkLoader implements IChunkLoader, IThreadedFileIO
         return null;
     }
 
-    @Nullable
     public Object[] loadChunk__Async(World worldIn, int x, int z) throws IOException
     {
         ChunkPos chunkpos = new ChunkPos(x, z);
@@ -96,7 +95,6 @@ public class AnvilChunkLoader implements IChunkLoader, IThreadedFileIO
             }
 
             nbttagcompound = this.fixer.process(FixTypes.CHUNK, CompressedStreamTools.read(datainputstream));
-            datainputstream.close(); // Forge: close stream after use
         }
 
         return this.checkedReadChunkFromNBT__Async(worldIn, x, z, nbttagcompound);
@@ -119,7 +117,6 @@ public class AnvilChunkLoader implements IChunkLoader, IThreadedFileIO
         return data != null ? (Chunk)data[0] : null;
     }
 
-    @Nullable
     protected Object[] checkedReadChunkFromNBT__Async(World worldIn, int x, int z, NBTTagCompound compound)
     {
         if (!compound.hasKey("Level", 10))
@@ -686,10 +683,5 @@ public class AnvilChunkLoader implements IChunkLoader, IThreadedFileIO
 
             return entity;
         }
-    }
-
-    public int getPendingSaveCount()
-    {
-        return this.chunksToSave.size();
     }
 }

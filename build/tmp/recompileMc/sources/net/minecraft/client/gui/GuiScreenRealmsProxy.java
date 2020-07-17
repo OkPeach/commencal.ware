@@ -72,7 +72,12 @@ public class GuiScreenRealmsProxy extends GuiScreen
     }
 
     /**
-     * Draws either a gradient over the background screen (when it exists) or a flat gradient over background.png
+     * Draws either a gradient over the background world (if there is a world), or a dirt screen if there is no world.
+     *  
+     * This method should usually be called before doing any other rendering; otherwise weird results will occur if
+     * there is no world, and the world will not be tinted if there is.
+     *  
+     * Do not call after having already done other rendering, as it will draw over it.
      */
     public void drawDefaultBackground()
     {
@@ -87,6 +92,17 @@ public class GuiScreenRealmsProxy extends GuiScreen
         return super.doesGuiPauseGame();
     }
 
+    /**
+     * Draws either a gradient over the background world (if there is a world), or a dirt screen if there is no world.
+     *  
+     * This method should usually be called before doing any other rendering; otherwise weird results will occur if
+     * there is no world, and the world will not be tinted if there is.
+     *  
+     * Do not call after having already done other rendering, as it will draw over it.
+     *  
+     * @param tint Used to offset vertical position for the texture in options_background.png, if there is no world
+     * (i.e. if {@link #func_146278_c} is called). In vanilla, this is always 0.
+     */
     public void drawWorldBackground(int tint)
     {
         super.drawWorldBackground(tint);

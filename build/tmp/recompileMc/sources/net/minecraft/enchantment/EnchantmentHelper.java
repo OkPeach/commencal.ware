@@ -106,7 +106,7 @@ public class EnchantmentHelper
             }
         }
 
-        if (nbttaglist.hasNoTags())
+        if (nbttaglist.isEmpty())
         {
             if (stack.hasTagCompound())
             {
@@ -160,7 +160,6 @@ public class EnchantmentHelper
         ENCHANTMENT_MODIFIER_DAMAGE.damageModifier = 0;
         ENCHANTMENT_MODIFIER_DAMAGE.source = source;
         applyEnchantmentModifierArray(ENCHANTMENT_MODIFIER_DAMAGE, stacks);
-        ENCHANTMENT_MODIFIER_DAMAGE.source = null; //Forge Fix memory leaks: https://bugs.mojang.com/browse/MC-128547
         return ENCHANTMENT_MODIFIER_DAMAGE.damageModifier;
     }
 
@@ -192,9 +191,6 @@ public class EnchantmentHelper
         {
             applyEnchantmentModifier(ENCHANTMENT_ITERATOR_HURT, p_151384_0_.getHeldItemMainhand());
         }
-
-        ENCHANTMENT_ITERATOR_HURT.attacker = null; //Forge Fix memory leaks: https://bugs.mojang.com/browse/MC-128547
-        ENCHANTMENT_ITERATOR_HURT.user = null;
     }
 
     public static void applyArthropodEnchantments(EntityLivingBase p_151385_0_, Entity p_151385_1_)
@@ -211,9 +207,6 @@ public class EnchantmentHelper
         {
             applyEnchantmentModifier(ENCHANTMENT_ITERATOR_DAMAGE, p_151385_0_.getHeldItemMainhand());
         }
-
-        ENCHANTMENT_ITERATOR_DAMAGE.user = null; //Forge Fix memory leaks: https://bugs.mojang.com/browse/MC-128547
-        ENCHANTMENT_ITERATOR_DAMAGE.target = null;
     }
 
     public static int getMaxEnchantmentLevel(Enchantment p_185284_0_, EntityLivingBase p_185284_1_)

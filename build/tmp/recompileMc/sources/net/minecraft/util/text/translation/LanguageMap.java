@@ -28,14 +28,7 @@ public class LanguageMap
     public LanguageMap()
     {
         InputStream inputstream = LanguageMap.class.getResourceAsStream("/assets/minecraft/lang/en_us.lang");
-        try
-        {
-            inject(this, inputstream);
-        }
-        finally
-        {
-            IOUtils.closeQuietly(inputstream); // Forge: close stream after use (MC-153470)
-        }
+        inject(this, inputstream);
     }
 
     public static void inject(InputStream inputstream)

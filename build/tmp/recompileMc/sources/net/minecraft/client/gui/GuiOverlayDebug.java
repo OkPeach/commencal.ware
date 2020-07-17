@@ -42,7 +42,7 @@ public class GuiOverlayDebug extends Gui
 
     public void renderDebugInfo(ScaledResolution scaledResolutionIn)
     {
-        this.mc.mcProfiler.startSection("debug");
+        this.mc.profiler.startSection("debug");
         GlStateManager.pushMatrix();
         this.renderDebugInfoLeft();
         this.renderDebugInfoRight(scaledResolutionIn);
@@ -53,7 +53,7 @@ public class GuiOverlayDebug extends Gui
             this.renderLagometer();
         }
 
-        this.mc.mcProfiler.endSection();
+        this.mc.profiler.endSection();
     }
 
     protected void renderDebugInfoLeft()
@@ -133,7 +133,7 @@ public class GuiOverlayDebug extends Gui
 
             if (this.mc.world != null)
             {
-                Chunk chunk = this.mc.world.getChunkFromBlockCoords(blockpos);
+                Chunk chunk = this.mc.world.getChunk(blockpos);
 
                 if (this.mc.world.isBlockLoaded(blockpos) && blockpos.getY() >= 0 && blockpos.getY() < 256)
                 {

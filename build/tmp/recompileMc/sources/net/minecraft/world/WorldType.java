@@ -116,7 +116,7 @@ public class WorldType
         return this.versioned;
     }
 
-    public static WorldType parseWorldType(String type)
+    public static WorldType byName(String type)
     {
         for (WorldType worldtype : WORLD_TYPES)
         {

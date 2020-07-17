@@ -47,7 +47,7 @@ public class CommandDifficulty extends CommandBase
         {
             EnumDifficulty enumdifficulty = this.getDifficultyFromCommand(args[0]);
             server.setDifficultyForAllWorlds(enumdifficulty);
-            notifyCommandListener(sender, this, "commands.difficulty.success", new Object[] {new TextComponentTranslation(enumdifficulty.getDifficultyResourceKey(), new Object[0])});
+            notifyCommandListener(sender, this, "commands.difficulty.success", new Object[] {new TextComponentTranslation(enumdifficulty.getTranslationKey(), new Object[0])});
         }
     }
 
@@ -59,7 +59,7 @@ public class CommandDifficulty extends CommandBase
             {
                 if (!"normal".equalsIgnoreCase(difficultyString) && !"n".equalsIgnoreCase(difficultyString))
                 {
-                    return !"hard".equalsIgnoreCase(difficultyString) && !"h".equalsIgnoreCase(difficultyString) ? EnumDifficulty.getDifficultyEnum(parseInt(difficultyString, 0, 3)) : EnumDifficulty.HARD;
+                    return !"hard".equalsIgnoreCase(difficultyString) && !"h".equalsIgnoreCase(difficultyString) ? EnumDifficulty.byId(parseInt(difficultyString, 0, 3)) : EnumDifficulty.HARD;
                 }
                 else
                 {

@@ -160,7 +160,6 @@ public class EntityItemFrame extends EntityHanging
             }
 
             stack.setItemFrame((EntityItemFrame)null);
-            this.setDisplayedItem(ItemStack.EMPTY); //Forge: Fix MC-124833 Pistons duplicating Items.
         }
     }
 
@@ -260,7 +259,7 @@ public class EntityItemFrame extends EntityHanging
     {
         NBTTagCompound nbttagcompound = compound.getCompoundTag("Item");
 
-        if (nbttagcompound != null && !nbttagcompound.hasNoTags())
+        if (nbttagcompound != null && !nbttagcompound.isEmpty())
         {
             this.setDisplayedItemWithUpdate(new ItemStack(nbttagcompound), false);
             this.setRotation(compound.getByte("ItemRotation"), false);

@@ -39,7 +39,7 @@ public class StateMap extends StateMapperBase
         }
         else
         {
-            s = String.format("%s:%s", Block.REGISTRY.getNameForObject(state.getBlock()).getResourceDomain(), this.removeName(this.name, map));
+            s = String.format("%s:%s", Block.REGISTRY.getNameForObject(state.getBlock()).getNamespace(), this.removeName(this.name, map));
         }
 
         if (this.suffix != null)

@@ -75,19 +75,19 @@ public class Vec3d
 
     public Vec3d subtract(double x, double y, double z)
     {
-        return this.addVector(-x, -y, -z);
+        return this.add(-x, -y, -z);
     }
 
     public Vec3d add(Vec3d vec)
     {
-        return this.addVector(vec.x, vec.y, vec.z);
+        return this.add(vec.x, vec.y, vec.z);
     }
 
     /**
      * Adds the specified x,y,z vector components to this vector and returns the resulting vector. Does not change this
      * vector.
      */
-    public Vec3d addVector(double x, double y, double z)
+    public Vec3d add(double x, double y, double z)
     {
         return new Vec3d(this.x + x, this.y + y, this.z + z);
     }
@@ -130,7 +130,7 @@ public class Vec3d
     /**
      * Returns the length of the vector.
      */
-    public double lengthVector()
+    public double length()
     {
         return (double)MathHelper.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
     }
@@ -274,7 +274,7 @@ public class Vec3d
     /**
      * returns a Vec3d from given pitch and yaw degrees as Vec2f
      */
-    public static Vec3d fromPitchYawVector(Vec2f p_189984_0_)
+    public static Vec3d fromPitchYaw(Vec2f p_189984_0_)
     {
         return fromPitchYaw(p_189984_0_.x, p_189984_0_.y);
     }

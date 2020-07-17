@@ -43,51 +43,51 @@ import org.apache.logging.log4j.Logger;
 
 public class Chunk implements net.minecraftforge.common.capabilities.ICapabilityProvider
 {
-    private static final Logger LOGGER = LogManager.getLogger();
+    public static final Logger LOGGER = LogManager.getLogger();
     public static final ExtendedBlockStorage NULL_BLOCK_STORAGE = null;
     /**
      * Used to store block IDs, block MSBs, Sky-light maps, Block-light maps, and metadata. Each entry corresponds to a
      * logical segment of 16x16x16 blocks, stacked vertically.
      */
-    private final ExtendedBlockStorage[] storageArrays;
+    public final ExtendedBlockStorage[] storageArrays;
     /** Contains a 16x16 mapping on the X/Z plane of the biome ID to which each colum belongs. */
-    private final byte[] blockBiomeArray;
+    public final byte[] blockBiomeArray;
     /** A map, similar to heightMap, that tracks how far down precipitation can fall. */
-    private final int[] precipitationHeightMap;
+    public final int[] precipitationHeightMap;
     /** Which columns need their skylightMaps updated. */
-    private final boolean[] updateSkylightColumns;
+    public final boolean[] updateSkylightColumns;
     /** Whether or not this Chunk is currently loaded into the World */
-    private boolean loaded;
+    public boolean loaded;
     /** Reference to the World object. */
-    private final World world;
-    private final int[] heightMap;
+    public final World world;
+    public final int[] heightMap;
     /** The x coordinate of the chunk. */
     public final int x;
     /** The z coordinate of the chunk. */
     public final int z;
-    private boolean isGapLightingUpdated;
+    public boolean isGapLightingUpdated;
     /** A Map of ChunkPositions to TileEntities in this chunk */
-    private final Map<BlockPos, TileEntity> tileEntities;
+    public final Map<BlockPos, TileEntity> tileEntities;
     /** Array of Lists containing the entities in this Chunk. Each List represents a 16 block subchunk. */
-    private final ClassInheritanceMultiMap<Entity>[] entityLists;
+    public final ClassInheritanceMultiMap<Entity>[] entityLists;
     /** Boolean value indicating if the terrain is populated. */
-    private boolean isTerrainPopulated;
-    private boolean isLightPopulated;
-    private boolean ticked;
+    public boolean isTerrainPopulated;
+    public boolean isLightPopulated;
+    public boolean ticked;
     /** Set to true if the chunk has been modified and needs to be updated internally. */
-    private boolean dirty;
+    public boolean dirty;
     /** Whether this Chunk has any Entities and thus requires saving on every tick */
-    private boolean hasEntities;
+    public boolean hasEntities;
     /** The time according to World.worldTime when this chunk was last saved */
-    private long lastSaveTime;
+    public long lastSaveTime;
     /** Lowest value in the heightmap. */
-    private int heightMapMinimum;
+    public int heightMapMinimum;
     /** the cumulative number of ticks players have been in this chunk */
-    private long inhabitedTime;
+    public long inhabitedTime;
     /** Contains the current round-robin relight check index, and is implied as the relight check location as well. */
-    private int queuedLightChecks;
+    public int queuedLightChecks;
     /** Queue containing the BlockPos of tile entities queued for creation */
-    private final ConcurrentLinkedQueue<BlockPos> tileEntityPosQueue;
+    public final ConcurrentLinkedQueue<BlockPos> tileEntityPosQueue;
     public boolean unloadQueued;
 
     public Chunk(World worldIn, int x, int z)
@@ -333,14 +333,14 @@ public class Chunk implements net.minecraftforge.common.capabilities.ICapability
 
                         for (EnumFacing enumfacing : EnumFacing.Plane.HORIZONTAL)
                         {
-                            j1 = Math.min(j1, this.world.getChunksLowestHorizon(l + enumfacing.getFrontOffsetX(), i1 + enumfacing.getFrontOffsetZ()));
+                            j1 = Math.min(j1, this.world.getChunksLowestHorizon(l + enumfacing.getXOffset(), i1 + enumfacing.getZOffset()));
                         }
 
                         this.checkSkylightNeighborHeight(l, i1, j1);
 
                         for (EnumFacing enumfacing1 : EnumFacing.Plane.HORIZONTAL)
                         {
-                            this.checkSkylightNeighborHeight(l + enumfacing1.getFrontOffsetX(), i1 + enumfacing1.getFrontOffsetZ(), k);
+                            this.checkSkylightNeighborHeight(l + enumfacing1.getXOffset(), i1 + enumfacing1.getZOffset(), k);
                         }
 
                         if (onlyOne)
@@ -489,7 +489,7 @@ public class Chunk implements net.minecraftforge.common.capabilities.ICapability
             {
                 for (EnumFacing enumfacing : EnumFacing.Plane.HORIZONTAL)
                 {
-                    this.updateSkylightNeighborHeight(k + enumfacing.getFrontOffsetX(), l + enumfacing.getFrontOffsetZ(), j2, k2);
+                    this.updateSkylightNeighborHeight(k + enumfacing.getXOffset(), l + enumfacing.getZOffset(), j2, k2);
                 }
 
                 this.updateSkylightNeighborHeight(k, l, j2, k2);
@@ -793,7 +793,6 @@ public class Chunk implements net.minecraftforge.common.capabilities.ICapability
         entityIn.chunkCoordY = k;
         entityIn.chunkCoordZ = this.z;
         this.entityLists[k].add(entityIn);
-        this.markDirty(); // Forge - ensure chunks are marked to save after an entity add
     }
 
     /**
@@ -820,7 +819,6 @@ public class Chunk implements net.minecraftforge.common.capabilities.ICapability
         }
 
         this.entityLists[index].remove(entityIn);
-        this.markDirty(); // Forge - ensure chunks are marked to save after entity removals
     }
 
     public boolean canSeeSky(BlockPos pos)
@@ -840,7 +838,7 @@ public class Chunk implements net.minecraftforge.common.capabilities.ICapability
     }
 
     @Nullable
-    public TileEntity getTileEntity(BlockPos pos, Chunk.EnumCreateEntityType p_177424_2_)
+    public TileEntity getTileEntity(BlockPos pos, Chunk.EnumCreateEntityType creationMode)
     {
         TileEntity tileentity = this.tileEntities.get(pos);
 
@@ -852,12 +850,12 @@ public class Chunk implements net.minecraftforge.common.capabilities.ICapability
 
         if (tileentity == null)
         {
-            if (p_177424_2_ == Chunk.EnumCreateEntityType.IMMEDIATE)
+            if (creationMode == Chunk.EnumCreateEntityType.IMMEDIATE)
             {
                 tileentity = this.createNewTileEntity(pos);
                 this.world.setTileEntity(pos, tileentity);
             }
-            else if (p_177424_2_ == Chunk.EnumCreateEntityType.QUEUED)
+            else if (creationMode == Chunk.EnumCreateEntityType.QUEUED)
             {
                 this.tileEntityPosQueue.add(pos.toImmutable());
             }
@@ -927,7 +925,6 @@ public class Chunk implements net.minecraftforge.common.capabilities.ICapability
      */
     public void onUnload()
     {
-        java.util.Arrays.stream(entityLists).forEach(multimap -> com.google.common.collect.Lists.newArrayList(multimap.getByClass(net.minecraft.entity.player.EntityPlayer.class)).forEach(player -> world.updateEntityWithOptionalForce(player, false))); // FORGE - Fix for MC-92916
         this.loaded = false;
 
         for (TileEntity tileentity : this.tileEntities.values())
@@ -1078,9 +1075,8 @@ public class Chunk implements net.minecraftforge.common.capabilities.ICapability
 
     protected void populate(IChunkGenerator generator)
     {
-        if (populating != null && net.minecraftforge.common.ForgeModContainer.logCascadingWorldGeneration) logCascadingWorldGeneration();
-        ChunkPos prev = populating;
-        populating = this.getPos();
+        if (populating && net.minecraftforge.common.ForgeModContainer.logCascadingWorldGeneration) logCascadingWorldGeneration();
+        populating = true;
         if (this.isTerrainPopulated())
         {
             if (generator.generateStructures(this, this.x, this.z))
@@ -1095,7 +1091,7 @@ public class Chunk implements net.minecraftforge.common.capabilities.ICapability
             net.minecraftforge.fml.common.registry.GameRegistry.generateWorld(this.x, this.z, this.world, generator, this.world.getChunkProvider());
             this.markDirty();
         }
-        populating = prev;
+        populating = false;
     }
 
     public BlockPos getPrecipitationHeight(BlockPos pos)
@@ -1301,12 +1297,7 @@ public class Chunk implements net.minecraftforge.common.capabilities.ICapability
 
         if (k == 255)
         {
-            // Forge: checking for client ensures that biomes are only generated on integrated server
-            // in singleplayer. Generating biomes on the client may corrupt the biome ID arrays on
-            // the server while they are being generated because IntCache can't be thread safe,
-            // so client and server may end up filling the same array.
-            // This is not necessary in 1.13 and newer versions.
-            Biome biome = world.isRemote ? Biomes.PLAINS : provider.getBiome(pos, Biomes.PLAINS);
+            Biome biome = provider.getBiome(pos, Biomes.PLAINS);
             k = Biome.getIdForBiome(biome);
             this.blockBiomeArray[j << 4 | i] = (byte)(k & 255);
         }
@@ -1423,7 +1414,7 @@ public class Chunk implements net.minecraftforge.common.capabilities.ICapability
                     for (EnumFacing enumfacing : EnumFacing.Plane.HORIZONTAL)
                     {
                         int k = enumfacing.getAxisDirection() == EnumFacing.AxisDirection.POSITIVE ? 16 : 1;
-                        this.world.getChunkFromBlockCoords(blockpos.offset(enumfacing, k)).checkLightSide(enumfacing.getOpposite());
+                        this.world.getChunk(blockpos.offset(enumfacing, k)).checkLightSide(enumfacing.getOpposite());
                     }
 
                     this.setSkylightUpdated();
@@ -1639,20 +1630,17 @@ public class Chunk implements net.minecraftforge.common.capabilities.ICapability
         }
     }
 
-    private static ChunkPos populating = null; // keep track of cascading chunk generation during chunk population
+    private static boolean populating = false; // keep track of cascading chunk generation during chunk population
 
     private void logCascadingWorldGeneration()
     {
         net.minecraftforge.fml.common.ModContainer activeModContainer = net.minecraftforge.fml.common.Loader.instance().activeModContainer();
-        String format = "{} loaded a new chunk {} in dimension {} ({}) while populating chunk {}, causing cascading worldgen lag.";
+        String format = "{} loaded a new chunk ({}, {}  Dimension: {}) during chunk population, causing cascading worldgen lag. Please report this to the mod's issue tracker. This log can be disabled in the Forge config.";
 
-        if (activeModContainer == null) { // vanilla minecraft has problems too (MC-114332), log it at a quieter level.
-            net.minecraftforge.fml.common.FMLLog.log.debug(format, "Minecraft", this.getPos(), this.world.provider.getDimension(), this.world.provider.getDimensionType().getName(), populating);
-            net.minecraftforge.fml.common.FMLLog.log.debug("Consider setting 'fixVanillaCascading' to 'true' in the Forge config to fix many cases where this occurs in the base game.");
-        } else {
-            net.minecraftforge.fml.common.FMLLog.log.warn(format, activeModContainer.getName(), this.getPos(), this.world.provider.getDimension(), this.world.provider.getDimensionType().getName(), populating);
-            net.minecraftforge.fml.common.FMLLog.log.warn("Please report this to the mod's issue tracker. This log can be disabled in the Forge config.");
-        }
+        if (activeModContainer == null) // vanilla minecraft has problems too (MC-114332), log it at a quieter level.
+            net.minecraftforge.fml.common.FMLLog.log.debug(format, "Minecraft", this.x, this.z, this.world.provider.getDimension());
+        else
+            net.minecraftforge.fml.common.FMLLog.log.warn(format, activeModContainer.getName(), this.x, this.z, this.world.provider.getDimension());
     }
 
     private final net.minecraftforge.common.capabilities.CapabilityDispatcher capabilities;

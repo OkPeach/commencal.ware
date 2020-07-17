@@ -54,6 +54,8 @@ public class BlockRedstoneRepeater extends BlockRedstoneDiode
     /**
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
+     * fine.
      */
     public IBlockState withRotation(IBlockState state, Rotation rot)
     {
@@ -63,6 +65,7 @@ public class BlockRedstoneRepeater extends BlockRedstoneDiode
     /**
      * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
     public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
@@ -129,6 +132,11 @@ public class BlockRedstoneRepeater extends BlockRedstoneDiode
         return isDiode(state);
     }
 
+    /**
+     * Called periodically clientside on blocks near the player to show effects (like furnace fire particles). Note that
+     * this method is unrelated to {@link randomTick} and {@link #needsRandomTick}, and will always be called regardless
+     * of whether the block can receive random update ticks
+     */
     @SideOnly(Side.CLIENT)
     public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {
@@ -146,8 +154,8 @@ public class BlockRedstoneRepeater extends BlockRedstoneDiode
             }
 
             f = f / 16.0F;
-            double d3 = (double)(f * (float)enumfacing.getFrontOffsetX());
-            double d4 = (double)(f * (float)enumfacing.getFrontOffsetZ());
+            double d3 = (double)(f * (float)enumfacing.getXOffset());
+            double d4 = (double)(f * (float)enumfacing.getZOffset());
             worldIn.spawnParticle(EnumParticleTypes.REDSTONE, d0 + d3, d1, d2 + d4, 0.0D, 0.0D, 0.0D);
         }
     }
@@ -166,7 +174,7 @@ public class BlockRedstoneRepeater extends BlockRedstoneDiode
      */
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(FACING, EnumFacing.getHorizontal(meta)).withProperty(LOCKED, Boolean.valueOf(false)).withProperty(DELAY, Integer.valueOf(1 + (meta >> 2)));
+        return this.getDefaultState().withProperty(FACING, EnumFacing.byHorizontalIndex(meta)).withProperty(LOCKED, Boolean.valueOf(false)).withProperty(DELAY, Integer.valueOf(1 + (meta >> 2)));
     }
 
     /**

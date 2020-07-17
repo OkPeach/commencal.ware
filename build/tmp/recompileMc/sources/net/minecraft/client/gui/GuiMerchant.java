@@ -40,11 +40,11 @@ public class GuiMerchant extends GuiContainer
     /** The chat component utilized by this GuiMerchant instance. */
     private final ITextComponent chatComponent;
 
-    public GuiMerchant(InventoryPlayer p_i45500_1_, IMerchant p_i45500_2_, World worldIn)
+    public GuiMerchant(InventoryPlayer playerInventoryIn, IMerchant merchantIn, World worldIn)
     {
-        super(new ContainerMerchant(p_i45500_1_, p_i45500_2_, worldIn));
-        this.merchant = p_i45500_2_;
-        this.chatComponent = p_i45500_2_.getDisplayName();
+        super(new ContainerMerchant(playerInventoryIn, merchantIn, worldIn));
+        this.merchant = merchantIn;
+        this.chatComponent = merchantIn.getDisplayName();
     }
 
     /**

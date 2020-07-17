@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -93,9 +93,9 @@ public interface IFMLLoadingPlugin
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
-    @interface TransformerExclusions
+    public @interface TransformerExclusions
     {
-        String[] value() default "";
+        public String[] value() default "";
     }
 
     /**
@@ -107,9 +107,9 @@ public interface IFMLLoadingPlugin
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
-    @interface MCVersion
+    public @interface MCVersion
     {
-        String value() default "";
+        public String value() default "";
     }
 
     /**
@@ -119,16 +119,16 @@ public interface IFMLLoadingPlugin
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
-    @interface Name
+    public @interface Name
     {
-        String value() default "";
+        public String value() default "";
     }
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
-    @interface DependsOn
+    public @interface DependsOn
     {
-        String[] value() default {};
+        public String[] value() default {};
     }
 
     /**
@@ -138,9 +138,9 @@ public interface IFMLLoadingPlugin
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
-    @interface SortingIndex
+    public @interface SortingIndex
     {
-        int value() default 0;
+        public int value() default 0;
     }
 
 }

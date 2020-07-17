@@ -160,7 +160,6 @@ public class BlockColors
                 return worldIn != null && pos != null ? 2129968 : 7455580;
             }
         }, Blocks.WATERLILY);
-        net.minecraftforge.client.ForgeHooksClient.onBlockColorsInit(blockcolors);
         return blockcolors;
     }
 
@@ -179,10 +178,10 @@ public class BlockColors
         }
     }
 
-    public int colorMultiplier(IBlockState state, @Nullable IBlockAccess blockAccess, @Nullable BlockPos pos, int renderPass)
+    public int colorMultiplier(IBlockState state, @Nullable IBlockAccess blockAccess, @Nullable BlockPos pos, int tintIndex)
     {
         IBlockColor iblockcolor = this.blockColorMap.get(state.getBlock().delegate);
-        return iblockcolor == null ? -1 : iblockcolor.colorMultiplier(state, blockAccess, pos, renderPass);
+        return iblockcolor == null ? -1 : iblockcolor.colorMultiplier(state, blockAccess, pos, tintIndex);
     }
 
     public void registerBlockColorHandler(IBlockColor blockColor, Block... blocksIn)

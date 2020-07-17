@@ -16,10 +16,10 @@ public class RenderGiantZombie extends RenderLiving<EntityGiantZombie>
     /** Scale of the model to use */
     private final float scale;
 
-    public RenderGiantZombie(RenderManager p_i47206_1_, float p_i47206_2_)
+    public RenderGiantZombie(RenderManager p_i47206_1_, float scaleIn)
     {
-        super(p_i47206_1_, new ModelZombie(), 0.5F * p_i47206_2_);
-        this.scale = p_i47206_2_;
+        super(p_i47206_1_, new ModelZombie(), 0.5F * scaleIn);
+        this.scale = scaleIn;
         this.addLayer(new LayerHeldItem(this));
         this.addLayer(new LayerBipedArmor(this)
         {

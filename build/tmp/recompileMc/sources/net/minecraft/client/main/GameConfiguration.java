@@ -48,14 +48,14 @@ public class GameConfiguration
     @SideOnly(Side.CLIENT)
     public static class FolderInformation
         {
-            public final File mcDataDir;
+            public final File gameDir;
             public final File resourcePacksDir;
             public final File assetsDir;
             public final String assetIndex;
 
             public FolderInformation(File mcDataDirIn, File resourcePacksDirIn, File assetsDirIn, @Nullable String assetIndexIn)
             {
-                this.mcDataDir = mcDataDirIn;
+                this.gameDir = mcDataDirIn;
                 this.resourcePacksDir = resourcePacksDirIn;
                 this.assetsDir = assetsDirIn;
                 this.assetIndex = assetIndexIn;

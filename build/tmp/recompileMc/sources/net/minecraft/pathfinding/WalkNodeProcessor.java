@@ -23,7 +23,6 @@ import net.minecraft.world.IBlockAccess;
 public class WalkNodeProcessor extends NodeProcessor
 {
     protected float avoidsWater;
-    protected EntityLiving currentEntity;
 
     public void init(IBlockAccess sourceIn, EntityLiving mob)
     {
@@ -232,8 +231,8 @@ public class WalkNodeProcessor extends NodeProcessor
 
                     if (pathpoint != null && (pathpoint.nodeType == PathNodeType.OPEN || pathpoint.nodeType == PathNodeType.WALKABLE) && this.entity.width < 1.0F)
                     {
-                        double d2 = (double)(x - facing.getFrontOffsetX()) + 0.5D;
-                        double d3 = (double)(z - facing.getFrontOffsetZ()) + 0.5D;
+                        double d2 = (double)(x - facing.getXOffset()) + 0.5D;
+                        double d3 = (double)(z - facing.getZOffset()) + 0.5D;
                         AxisAlignedBB axisalignedbb = new AxisAlignedBB(d2 - d1, (double)y + 0.001D, d3 - d1, d2 + d1, (double)((float)y + this.entity.height), d3 + d1);
                         AxisAlignedBB axisalignedbb1 = this.blockaccess.getBlockState(blockpos).getBoundingBox(this.blockaccess, blockpos);
                         AxisAlignedBB axisalignedbb2 = axisalignedbb.expand(0.0D, axisalignedbb1.maxY - 0.002D, 0.0D);
@@ -307,9 +306,7 @@ public class WalkNodeProcessor extends NodeProcessor
         PathNodeType pathnodetype = PathNodeType.BLOCKED;
         double d0 = (double)entitylivingIn.width / 2.0D;
         BlockPos blockpos = new BlockPos(entitylivingIn);
-        this.currentEntity = entitylivingIn;
         pathnodetype = this.getPathNodeType(blockaccessIn, x, y, z, xSize, ySize, zSize, canBreakDoorsIn, canEnterDoorsIn, enumset, pathnodetype, blockpos);
-        this.currentEntity = null;
 
         if (enumset.contains(PathNodeType.FENCE))
         {
@@ -413,8 +410,6 @@ public class WalkNodeProcessor extends NodeProcessor
             {
                 pathnodetype = PathNodeType.DAMAGE_CACTUS;
             }
-
-            if (pathnodetype1 == PathNodeType.DAMAGE_OTHER) pathnodetype = PathNodeType.DAMAGE_OTHER;
         }
 
         pathnodetype = this.checkNeighborBlocks(blockaccessIn, x, y, z, pathnodetype);
@@ -433,19 +428,17 @@ public class WalkNodeProcessor extends NodeProcessor
                 {
                     if (i != 0 || j != 0)
                     {
-                        IBlockState state = p_193578_1_.getBlockState(blockpos$pooledmutableblockpos.setPos(i + p_193578_2_, p_193578_3_, j + p_193578_4_));
-                        Block block = state.getBlock();
-                        PathNodeType type = block.getAiPathNodeType(state, p_193578_1_, blockpos$pooledmutableblockpos, this.currentEntity);
+                        Block block = p_193578_1_.getBlockState(blockpos$pooledmutableblockpos.setPos(i + p_193578_2_, p_193578_3_, j + p_193578_4_)).getBlock();
 
-                        if (block == Blocks.CACTUS || type == PathNodeType.DAMAGE_CACTUS)
+                        if (block == Blocks.CACTUS)
                         {
                             p_193578_5_ = PathNodeType.DANGER_CACTUS;
                         }
-                        else if (block == Blocks.FIRE || type == PathNodeType.DAMAGE_FIRE)
+                        else if (block == Blocks.FIRE)
                         {
                             p_193578_5_ = PathNodeType.DANGER_FIRE;
                         }
-                        else if (type == PathNodeType.DAMAGE_OTHER) p_193578_5_ = PathNodeType.DANGER_OTHER;
+                        else if(block.isBurning(p_193578_1_,blockpos$pooledmutableblockpos)) p_193578_5_ = PathNodeType.DAMAGE_FIRE;
                     }
                 }
             }
@@ -462,7 +455,7 @@ public class WalkNodeProcessor extends NodeProcessor
         Block block = iblockstate.getBlock();
         Material material = iblockstate.getMaterial();
 
-        PathNodeType type = block.getAiPathNodeType(iblockstate, p_189553_1_, blockpos, this.currentEntity);
+        PathNodeType type = block.getAiPathNodeType(iblockstate, p_189553_1_, blockpos);
         if (type != null) return type;
 
         if (material == Material.AIR)

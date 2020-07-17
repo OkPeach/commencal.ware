@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,12 +19,8 @@
 
 package net.minecraftforge.client;
 
-import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
-import java.util.function.Predicate;
 
-import net.minecraftforge.client.resource.IResourceType;
-import net.minecraftforge.client.resource.VanillaResourceType;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
@@ -40,14 +36,14 @@ import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.ForgeModContainer;
-import net.minecraftforge.client.resource.ISelectiveResourceReloadListener;
 
-public class CloudRenderer implements ISelectiveResourceReloadListener
+public class CloudRenderer implements IResourceManagerReloadListener
 {
     // Shared constants.
     private static final float PX_SIZE = 1 / 256F;
@@ -379,7 +375,7 @@ public class CloudRenderer implements ISelectiveResourceReloadListener
         {
             vbo.bindBuffer();
 
-            int stride = FORMAT.getNextOffset();
+            int stride = FORMAT.getSize();
             GlStateManager.glVertexPointer(3, GL11.GL_FLOAT, stride, 0);
             GlStateManager.glEnableClientState(GL11.GL_VERTEX_ARRAY);
             GlStateManager.glTexCoordPointer(2, GL11.GL_FLOAT, stride, 12);
@@ -389,9 +385,9 @@ public class CloudRenderer implements ISelectiveResourceReloadListener
         }
         else
         {
-            buffer.limit(FORMAT.getNextOffset());
+            buffer.limit(FORMAT.getSize());
             for (int i = 0; i < FORMAT.getElementCount(); i++)
-                FORMAT.getElements().get(i).getUsage().preDraw(FORMAT, i, FORMAT.getNextOffset(), buffer);
+                FORMAT.getElements().get(i).getUsage().preDraw(FORMAT, i, FORMAT.getSize(), buffer);
             buffer.position(0);
         }
 
@@ -450,7 +446,7 @@ public class CloudRenderer implements ISelectiveResourceReloadListener
 
         buffer.limit(0);
         for (int i = 0; i < FORMAT.getElementCount(); i++)
-            FORMAT.getElements().get(i).getUsage().postDraw(FORMAT, i, FORMAT.getNextOffset(), buffer);
+            FORMAT.getElements().get(i).getUsage().postDraw(FORMAT, i, FORMAT.getSize(), buffer);
         buffer.position(0);
 
         // Disable our coloring.
@@ -482,11 +478,8 @@ public class CloudRenderer implements ISelectiveResourceReloadListener
     }
 
     @Override
-    public void onResourceManagerReload(@Nonnull IResourceManager resourceManager, @Nonnull Predicate<IResourceType> resourcePredicate)
+    public void onResourceManagerReload(IResourceManager resourceManager)
     {
-        if (resourcePredicate.test(VanillaResourceType.TEXTURES))
-        {
-            reloadTextures();
-        }
+        reloadTextures();
     }
 }

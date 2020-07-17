@@ -115,17 +115,17 @@ public class GuiButtonRecipeTab extends GuiButtonToggle
 
     private void renderIcon(RenderItem p_193920_1_)
     {
-        ItemStack itemstack = this.category.getIconItemStack();
+        ItemStack itemstack = this.category.getIcon();
 
         if (this.category == CreativeTabs.TOOLS)
         {
             p_193920_1_.renderItemAndEffectIntoGUI(itemstack, this.x + 3, this.y + 5);
-            p_193920_1_.renderItemAndEffectIntoGUI(CreativeTabs.COMBAT.getIconItemStack(), this.x + 14, this.y + 5);
+            p_193920_1_.renderItemAndEffectIntoGUI(CreativeTabs.COMBAT.getIcon(), this.x + 14, this.y + 5);
         }
         else if (this.category == CreativeTabs.MISC)
         {
             p_193920_1_.renderItemAndEffectIntoGUI(itemstack, this.x + 3, this.y + 5);
-            p_193920_1_.renderItemAndEffectIntoGUI(CreativeTabs.FOOD.getIconItemStack(), this.x + 14, this.y + 5);
+            p_193920_1_.renderItemAndEffectIntoGUI(CreativeTabs.FOOD.getIcon(), this.x + 14, this.y + 5);
         }
         else
         {

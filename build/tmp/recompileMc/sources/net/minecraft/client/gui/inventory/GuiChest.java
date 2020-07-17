@@ -14,8 +14,9 @@ public class GuiChest extends GuiContainer
     /** The ResourceLocation containing the chest GUI texture. */
     private static final ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
     private final IInventory upperChestInventory;
+    /** The chest's inventory. Number of slots will vary based off of the type of chest. */
     private final IInventory lowerChestInventory;
-    /** window height is calculated with these values; the more rows, the heigher */
+    /** Window height is calculated with these values; the more rows, the higher */
     private final int inventoryRows;
 
     public GuiChest(IInventory upperInv, IInventory lowerInv)

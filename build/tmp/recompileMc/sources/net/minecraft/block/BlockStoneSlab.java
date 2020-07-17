@@ -57,9 +57,9 @@ public abstract class BlockStoneSlab extends BlockSlab
     /**
      * Returns the slab block name with the type associated with it
      */
-    public String getUnlocalizedName(int meta)
+    public String getTranslationKey(int meta)
     {
-        return super.getUnlocalizedName() + "." + BlockStoneSlab.EnumType.byMetadata(meta).getUnlocalizedName();
+        return super.getTranslationKey() + "." + BlockStoneSlab.EnumType.byMetadata(meta).getTranslationKey();
     }
 
     public IProperty<?> getVariantProperty()
@@ -144,6 +144,8 @@ public abstract class BlockStoneSlab extends BlockSlab
 
     /**
      * Get the MapColor for this Block and the given BlockState
+     * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
@@ -165,7 +167,7 @@ public abstract class BlockStoneSlab extends BlockSlab
         private final int meta;
         private final MapColor mapColor;
         private final String name;
-        private final String unlocalizedName;
+        private final String translationKey;
 
         private EnumType(int p_i46381_3_, MapColor p_i46381_4_, String p_i46381_5_)
         {
@@ -177,7 +179,7 @@ public abstract class BlockStoneSlab extends BlockSlab
             this.meta = p_i46382_3_;
             this.mapColor = p_i46382_4_;
             this.name = p_i46382_5_;
-            this.unlocalizedName = p_i46382_6_;
+            this.translationKey = p_i46382_6_;
         }
 
         public int getMetadata()
@@ -210,9 +212,9 @@ public abstract class BlockStoneSlab extends BlockSlab
             return this.name;
         }
 
-        public String getUnlocalizedName()
+        public String getTranslationKey()
         {
-            return this.unlocalizedName;
+            return this.translationKey;
         }
 
         static

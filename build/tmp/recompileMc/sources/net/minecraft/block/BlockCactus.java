@@ -36,7 +36,6 @@ public class BlockCactus extends Block implements net.minecraftforge.common.IPla
 
     public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
     {
-        if (!worldIn.isAreaLoaded(pos, 1)) return; // Forge: prevent growing cactus from loading unloaded chunks with block update
         BlockPos blockpos = pos.up();
 
         if (worldIn.isAirBlock(blockpos))
@@ -71,6 +70,10 @@ public class BlockCactus extends Block implements net.minecraftforge.common.IPla
         }
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getCollisionBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
     {
         return CACTUS_COLLISION_AABB;
@@ -78,6 +81,8 @@ public class BlockCactus extends Block implements net.minecraftforge.common.IPla
 
     /**
      * Return an AABB (in world coords!) that should be highlighted when the player is targeting this Block
+     * @deprecated call via {@link IBlockState#getSelectedBoundingBox(World,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
      */
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos)
@@ -85,6 +90,9 @@ public class BlockCactus extends Block implements net.minecraftforge.common.IPla
         return CACTUS_AABB.offset(pos);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
@@ -92,6 +100,7 @@ public class BlockCactus extends Block implements net.minecraftforge.common.IPla
 
     /**
      * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
      */
     public boolean isOpaqueCube(IBlockState state)
     {
@@ -138,7 +147,7 @@ public class BlockCactus extends Block implements net.minecraftforge.common.IPla
     /**
      * Called When an Entity Collided with the Block
      */
-    public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
+    public void onEntityCollision(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
     {
         entityIn.attackEntityFrom(DamageSource.CACTUS, 1.0F);
     }
@@ -151,8 +160,12 @@ public class BlockCactus extends Block implements net.minecraftforge.common.IPla
         return this.getDefaultState().withProperty(AGE, Integer.valueOf(meta));
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     @SideOnly(Side.CLIENT)
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
     }
@@ -190,6 +203,8 @@ public class BlockCactus extends Block implements net.minecraftforge.common.IPla
      * does not fit the other descriptions and will generally cause other things not to connect to the face.
      * 
      * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {

@@ -1,30 +1,11 @@
-/*
- * Minecraft Forge
- * Copyright (c) 2016-2018.
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation version 2.1
- * of the License.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
-
 package net.minecraftforge.client.model;
 
+import javax.vecmath.Matrix3f;
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
 
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
-import net.minecraftforge.common.model.TRSRTransformation;
 
 import com.google.common.collect.ImmutableList;
 
@@ -33,6 +14,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.settings.GameSettings;
@@ -42,7 +24,7 @@ import net.minecraft.util.ResourceLocation;
 public abstract class SimpleModelFontRenderer extends FontRenderer {
 
     private float r, g, b, a;
-    private final TRSRTransformation transform;
+    private final Matrix4f matrix;
     private ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
     private final VertexFormat format;
     private final Vector3f normal = new Vector3f(0, 0, 1);
@@ -54,9 +36,15 @@ public abstract class SimpleModelFontRenderer extends FontRenderer {
     public SimpleModelFontRenderer(GameSettings settings, ResourceLocation font, TextureManager manager, boolean isUnicode, Matrix4f matrix, VertexFormat format)
     {
         super(settings, font, manager, isUnicode);
-        this.transform = new TRSRTransformation(matrix);
+        manager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        this.matrix = new Matrix4f(matrix);
+        Matrix3f nm = new Matrix3f();
+        this.matrix.getRotationScale(nm);
+        nm.invert();
+        nm.transpose();
         this.format = format;
-        transform.transformNormal(normal);
+        nm.transform(normal);
+        normal.normalize();
         orientation = EnumFacing.getFacingFromVector(normal.x, normal.y, normal.z);
     }
 
@@ -126,14 +114,20 @@ public abstract class SimpleModelFontRenderer extends FontRenderer {
 
     private void addVertex(UnpackedBakedQuad.Builder quadBuilder, float x, float y, float u, float v)
     {
+        vec.x = x;
+        vec.y = y;
+        vec.z = 0;
+        vec.w = 1;
+        matrix.transform(vec);
         for(int e = 0; e < format.getElementCount(); e++)
         {
             switch(format.getElement(e).getUsage())
             {
                 case POSITION:
-                    vec.set(x, y, 0f, 1f);
-                    transform.transformPosition(vec);
                     quadBuilder.put(e, vec.x, vec.y, vec.z, vec.w);
+                    break;
+                case UV:
+                    quadBuilder.put(e, sprite.getInterpolatedU(u * 16), sprite.getInterpolatedV(v * 16), 0, 1);
                     break;
                 case COLOR:
                     quadBuilder.put(e, r, g, b, a);
@@ -142,13 +136,6 @@ public abstract class SimpleModelFontRenderer extends FontRenderer {
                     //quadBuilder.put(e, normal.x, normal.y, normal.z, 1);
                     quadBuilder.put(e, 0, 0, 1, 1);
                     break;
-                case UV:
-                    if(format.getElement(e).getIndex() == 0)
-                    {
-                        quadBuilder.put(e, sprite.getInterpolatedU(u * 16), sprite.getInterpolatedV(v * 16), 0, 1);
-                        break;
-                    }
-                    // else fallthrough to default
                 default:
                     quadBuilder.put(e);
                     break;
@@ -160,10 +147,10 @@ public abstract class SimpleModelFontRenderer extends FontRenderer {
     public void onResourceManagerReload(IResourceManager resourceManager)
     {
         super.onResourceManagerReload(resourceManager);
-        String p = locationFontTexture.getResourcePath();
+        String p = locationFontTexture.getPath();
         if(p.startsWith("textures/")) p = p.substring("textures/".length(), p.length());
         if(p.endsWith(".png")) p = p.substring(0, p.length() - ".png".length());
-        String f = locationFontTexture.getResourceDomain() + ":" + p;
+        String f = locationFontTexture.getNamespace() + ":" + p;
         sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(f);
     }
 
@@ -189,11 +176,6 @@ public abstract class SimpleModelFontRenderer extends FontRenderer {
     }
 
     @Override public void enableAlpha()
-    {
-    }
-
-    @Override
-    protected void bindTexture(ResourceLocation location)
     {
     }
 

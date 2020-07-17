@@ -77,7 +77,7 @@ public class Main
         final String s1 = (String)optionset.valueOf(optionspec7);
         final String s2 = (String)optionset.valueOf(optionspec8);
 
-        if (!proxy.equals(Proxy.NO_PROXY) && isNullOrEmpty(s1) && isNullOrEmpty(s2))
+        if (!proxy.equals(Proxy.NO_PROXY) && isNotEmpty(s1) && isNotEmpty(s2))
         {
             Authenticator.setDefault(new Authenticator()
             {
@@ -119,9 +119,9 @@ public class Main
     }
 
     /**
-     * Returns whether a string is either null or empty.
+     * Returns true if the given string is neither null nor empty.
      */
-    private static boolean isNullOrEmpty(String str)
+    private static boolean isNotEmpty(String str)
     {
         return str != null && !str.isEmpty();
     }

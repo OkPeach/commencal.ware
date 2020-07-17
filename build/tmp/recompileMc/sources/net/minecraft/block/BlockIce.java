@@ -30,8 +30,12 @@ public class BlockIce extends BlockBreakable
         this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     @SideOnly(Side.CLIENT)
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.TRANSLUCENT;
     }
@@ -105,7 +109,10 @@ public class BlockIce extends BlockBreakable
         }
     }
 
-    public EnumPushReaction getMobilityFlag(IBlockState state)
+    /**
+     * @deprecated call via {@link IBlockState#getMobilityFlag()} whenever possible. Implementing/overriding is fine.
+     */
+    public EnumPushReaction getPushReaction(IBlockState state)
     {
         return EnumPushReaction.NORMAL;
     }

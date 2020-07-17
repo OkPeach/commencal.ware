@@ -63,7 +63,7 @@ public class TextureUtil
         {
             boolean flag = false;
 
-            for (int i = 0; i < p_147949_2_[0].length; ++i)
+            for (int i = 0; i < p_147949_2_.length; ++i)
             {
                 if (p_147949_2_[0][i] >> 24 == 0)
                 {

@@ -95,7 +95,7 @@ public class TileEntityRendererDispatcher
     @Nullable
     public <T extends TileEntity> TileEntitySpecialRenderer<T> getRenderer(@Nullable TileEntity tileEntityIn)
     {
-        return tileEntityIn == null || tileEntityIn.isInvalid() ? null : this.getRenderer(tileEntityIn.getClass()); // Forge: fix MC-123363
+        return tileEntityIn == null ? null : this.getRenderer(tileEntityIn.getClass());
     }
 
     public void prepare(World worldIn, TextureManager renderEngineIn, FontRenderer fontRendererIn, Entity entityIn, RayTraceResult cameraHitResultIn, float p_190056_6_)
@@ -130,7 +130,6 @@ public class TileEntityRendererDispatcher
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             }
             BlockPos blockpos = tileentityIn.getPos();
-            if (this.world.isBlockLoaded(blockpos, false)) // Forge: fix MC-123363
             this.render(tileentityIn, (double)blockpos.getX() - staticPlayerX, (double)blockpos.getY() - staticPlayerY, (double)blockpos.getZ() - staticPlayerZ, partialTicks, destroyStage, 1.0F);
         }
     }
@@ -226,8 +225,7 @@ public class TileEntityRendererDispatcher
 
         if(pass > 0)
         {
-            net.minecraft.util.math.Vec3d cameraPos = net.minecraft.client.renderer.ActiveRenderInfo.getCameraPosition();
-            batchBuffer.getBuffer().sortVertexData((float)cameraPos.x, (float)cameraPos.y, (float)cameraPos.z);
+            batchBuffer.getBuffer().sortVertexData(0, 0, 0);
         }
         batchBuffer.draw();
 

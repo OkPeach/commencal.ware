@@ -85,7 +85,6 @@ public class CommandGameRule extends CommandBase
                 entityplayermp.connection.sendPacket(new SPacketEntityStatus(entityplayermp, b0));
             }
         }
-        net.minecraftforge.event.ForgeEventFactory.onGameRuleChange(rules, p_184898_1_, server);
     }
 
     /**

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -48,7 +48,7 @@ public class Yggdrasil
         }
         catch (AuthenticationException e)
         {
-            LogManager.getLogger("FML.TWEAK").error("-- Login failed!", e);
+            LogManager.getLogger("FMLTWEAK").error("-- Login failed! {}", e.getMessage(), e);
             throw new RuntimeException(e); // don't set other variables
         }
 

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,29 +23,21 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-
-import net.minecraft.client.renderer.ItemMeshDefinition;
+import gnu.trove.map.hash.TIntObjectHashMap;
 import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelManager;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.registries.IRegistryDelegate;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Wrapper around ItemModeMesher that cleans up the internal maps to respect ID remapping.
  */
 public class ItemModelMesherForge extends ItemModelMesher
 {
-    final Map<IRegistryDelegate<Item>, Int2ObjectMap<ModelResourceLocation>> locations = Maps.newHashMap();
-    final Map<IRegistryDelegate<Item>, Int2ObjectMap<IBakedModel>> models = Maps.newHashMap();
+    Map<IRegistryDelegate<Item>, TIntObjectHashMap<ModelResourceLocation>> locations = Maps.newHashMap();
+    Map<IRegistryDelegate<Item>, TIntObjectHashMap<IBakedModel>> models = Maps.newHashMap();
 
     public ItemModelMesherForge(ModelManager manager)
     {
@@ -53,10 +45,9 @@ public class ItemModelMesherForge extends ItemModelMesher
     }
 
     @Override
-    @Nullable
     protected IBakedModel getItemModel(Item item, int meta)
     {
-        Int2ObjectMap<IBakedModel> map = models.get(item.delegate);
+        TIntObjectHashMap<IBakedModel> map = models.get(item.delegate);
         return map == null ? null : map.get(meta);
     }
 
@@ -64,16 +55,16 @@ public class ItemModelMesherForge extends ItemModelMesher
     public void register(Item item, int meta, ModelResourceLocation location)
     {
         IRegistryDelegate<Item> key = item.delegate;
-        Int2ObjectMap<ModelResourceLocation> locs = locations.get(key);
-        Int2ObjectMap<IBakedModel>           mods = models.get(key);
+        TIntObjectHashMap<ModelResourceLocation> locs = locations.get(key);
+        TIntObjectHashMap<IBakedModel>           mods = models.get(key);
         if (locs == null)
         {
-            locs = new Int2ObjectOpenHashMap<>();
+            locs = new TIntObjectHashMap<ModelResourceLocation>();
             locations.put(key, locs);
         }
         if (mods == null)
         {
-            mods = new Int2ObjectOpenHashMap<>();
+            mods = new TIntObjectHashMap<IBakedModel>();
             models.put(key, mods);
         }
         locs.put(meta, location);
@@ -84,50 +75,24 @@ public class ItemModelMesherForge extends ItemModelMesher
     public void rebuildCache()
     {
         final ModelManager manager = this.getModelManager();
-        for (Map.Entry<IRegistryDelegate<Item>, Int2ObjectMap<ModelResourceLocation>> e : locations.entrySet())
+        for (Map.Entry<IRegistryDelegate<Item>, TIntObjectHashMap<ModelResourceLocation>> e : locations.entrySet())
         {
-            Int2ObjectMap<IBakedModel> mods = models.get(e.getKey());
+            TIntObjectHashMap<IBakedModel> mods = models.get(e.getKey());
             if (mods != null)
             {
                 mods.clear();
             }
             else
             {
-                mods = new Int2ObjectOpenHashMap<>();
+                mods = new TIntObjectHashMap<IBakedModel>();
                 models.put(e.getKey(), mods);
             }
-            final Int2ObjectMap<IBakedModel> map = mods;
-            e.getValue().int2ObjectEntrySet().forEach(entry ->
-                map.put(entry.getIntKey(), manager.getModel(entry.getValue()))
-            );
-        }
-    }
-
-    public ModelResourceLocation getLocation(@Nonnull ItemStack stack)
-    {
-        Item item = stack.getItem();
-        ModelResourceLocation location = null;
-
-        Int2ObjectMap<ModelResourceLocation> map = locations.get(item.delegate);
-        if (map != null)
-        {
-            location = map.get(getMetadata(stack));
-        }
-
-        if (location == null)
-        {
-            ItemMeshDefinition definition = shapers.get(item);
-            if (definition != null)
+            final TIntObjectHashMap<IBakedModel> map = mods;
+            e.getValue().forEachEntry((meta, location) ->
             {
-                location = definition.getModelLocation(stack);
-            }
+                map.put(meta, manager.getModel(location));
+                return true;
+            });
         }
-
-        if (location == null)
-        {
-            location = ModelBakery.MODEL_MISSING;
-        }
-
-        return location;
     }
 }

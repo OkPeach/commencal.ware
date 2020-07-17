@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,7 +16,6 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
 package net.minecraftforge.client.model;
 
 import javax.annotation.Nullable;
@@ -44,26 +43,13 @@ public class BakedItemModel implements IBakedModel
     protected final ItemOverrideList overrides;
     protected final IBakedModel guiModel;
 
-    /** @deprecated use {@link #BakedItemModel(ImmutableList, TextureAtlasSprite, ImmutableMap, ItemOverrideList, boolean)} */
-    @Deprecated // TODO: remove
     public BakedItemModel(ImmutableList<BakedQuad> quads, TextureAtlasSprite particle, ImmutableMap<TransformType, TRSRTransformation> transforms, ItemOverrideList overrides)
-    {
-        this(quads, particle, transforms, overrides, true);
-    }
-
-    public BakedItemModel(ImmutableList<BakedQuad> quads, TextureAtlasSprite particle, ImmutableMap<TransformType, TRSRTransformation> transforms, ItemOverrideList overrides, boolean untransformed)
     {
         this.quads = quads;
         this.particle = particle;
         this.transforms = transforms;
         this.overrides = overrides;
-        this.guiModel = untransformed && hasGuiIdentity(transforms) ? new BakedGuiItemModel<>(this) : null;
-    }
-
-    private static boolean hasGuiIdentity(ImmutableMap<TransformType, TRSRTransformation> transforms)
-    {
-        TRSRTransformation guiTransform = transforms.get(TransformType.GUI);
-        return guiTransform == null || guiTransform.isIdentity();
+        this.guiModel = new BakedGuiItemModel<>(this);
     }
 
     @Override public boolean isAmbientOcclusion() { return true; }
@@ -85,7 +71,7 @@ public class BakedItemModel implements IBakedModel
     @Override
     public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType type)
     {
-        if (type == TransformType.GUI && this.guiModel != null)
+        if (type == TransformType.GUI)
         {
             return this.guiModel.handlePerspective(type);
         }

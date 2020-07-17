@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,14 +25,13 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
-import java.util.Objects;
+import com.google.common.base.Objects;
 
 public class VertexLighterFlat extends QuadGatheringTransformer
 {
@@ -47,8 +46,6 @@ public class VertexLighterFlat extends QuadGatheringTransformer
     protected int colorIndex = -1;
     protected int lightmapIndex = -1;
 
-    protected VertexFormat baseFormat;
-
     public VertexLighterFlat(BlockColors colors)
     {
         this.blockInfo = new BlockInfo(colors);
@@ -58,11 +55,9 @@ public class VertexLighterFlat extends QuadGatheringTransformer
     public void setParent(IVertexConsumer parent)
     {
         super.setParent(parent);
-        setVertexFormat(parent.getVertexFormat());
-    }
-
-    private void updateIndices()
-    {
+        VertexFormat format = getVertexFormat(parent);
+        if(Objects.equal(format, getVertexFormat())) return;
+        setVertexFormat(format);
         for(int i = 0; i < getVertexFormat().getElementCount(); i++)
         {
             switch(getVertexFormat().getElement(i).getUsage())
@@ -99,28 +94,13 @@ public class VertexLighterFlat extends QuadGatheringTransformer
         }
     }
 
-    @Override
-    public void setVertexFormat(VertexFormat format)
+    private static VertexFormat getVertexFormat(IVertexConsumer parent)
     {
-        if (Objects.equals(format, baseFormat)) return;
-        baseFormat = format;
-        super.setVertexFormat(withNormal(format));
-        updateIndices();
-    }
-
-    private static final VertexFormat BLOCK_WITH_NORMAL = withNormalUncached(DefaultVertexFormats.BLOCK);
-    static VertexFormat withNormal(VertexFormat format)
-    {
-        //This is the case in 99.99%. Cache the value, so we don't have to redo it every time, and the speed up the equals check in LightUtil
-        if (format == DefaultVertexFormats.BLOCK)
-            return BLOCK_WITH_NORMAL;
-        return withNormalUncached(format);
-    }
-
-    private static VertexFormat withNormalUncached(VertexFormat format)
-    {
-        if (format == null || format.hasNormal()) return format;
-        return new VertexFormat(format).addElement(NORMAL_4F);
+        VertexFormat format = parent.getVertexFormat();
+        if(format == null || format.hasNormal()) return format;
+        format = new VertexFormat(format);
+        format.addElement(NORMAL_4F);
+        return format;
     }
 
     @Override
@@ -131,14 +111,14 @@ public class VertexLighterFlat extends QuadGatheringTransformer
         float[][] lightmap = quadData[lightmapIndex];
         float[][] color = quadData[colorIndex];
 
-        if (dataLength[normalIndex] >= 3
-            && (quadData[normalIndex][0][0] != -1
-            ||  quadData[normalIndex][0][1] != -1
-            ||  quadData[normalIndex][0][2] != -1))
+        // If all three normal values are either -1 or 0, normals must be generated
+        if(quadData[normalIndex][0][0] != quadData[normalIndex][0][1] ||
+            quadData[normalIndex][0][1] != quadData[normalIndex][0][2] ||
+           (quadData[normalIndex][0][0] != -1 && quadData[normalIndex][0][0] != 0))
         {
             normal = quadData[normalIndex];
         }
-        else // normals must be generated
+        else
         {
             normal = new float[4][4];
             Vector3f v1 = new Vector3f(position[3]);
@@ -220,19 +200,19 @@ public class VertexLighterFlat extends QuadGatheringTransformer
                         pos[2] += blockInfo.getBlockPos().getZ();*/
                         parent.put(e, position[v]);
                         break;
-                    case NORMAL:
+                    case NORMAL: if(normalIndex != -1)
+                    {
                         parent.put(e, normal[v]);
                         break;
+                    }
                     case COLOR:
                         parent.put(e, color[v]);
                         break;
-                    case UV:
-                        if(element.getIndex() == 1)
-                        {
-                            parent.put(e, lightmap[v]);
-                            break;
-                        }
-                        // else fallthrough to default
+                    case UV: if(element.getIndex() == 1)
+                    {
+                        parent.put(e, lightmap[v]);
+                        break;
+                    }
                     default:
                         parent.put(e, quadData[e][v]);
                 }
@@ -310,11 +290,6 @@ public class VertexLighterFlat extends QuadGatheringTransformer
     public void setBlockPos(BlockPos blockPos)
     {
         blockInfo.setBlockPos(blockPos);
-    }
-
-    public void resetBlockInfo()
-    {
-        blockInfo.reset();
     }
 
     public void updateBlockInfo()

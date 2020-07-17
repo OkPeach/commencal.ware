@@ -42,7 +42,7 @@ public class BlockTNT extends Block
 
         if (worldIn.isBlockPowered(pos))
         {
-            this.onBlockDestroyedByPlayer(worldIn, pos, state.withProperty(EXPLODE, Boolean.valueOf(true)));
+            this.onPlayerDestroy(worldIn, pos, state.withProperty(EXPLODE, Boolean.valueOf(true)));
             worldIn.setBlockToAir(pos);
         }
     }
@@ -56,7 +56,7 @@ public class BlockTNT extends Block
     {
         if (worldIn.isBlockPowered(pos))
         {
-            this.onBlockDestroyedByPlayer(worldIn, pos, state.withProperty(EXPLODE, Boolean.valueOf(true)));
+            this.onPlayerDestroy(worldIn, pos, state.withProperty(EXPLODE, Boolean.valueOf(true)));
             worldIn.setBlockToAir(pos);
         }
     }
@@ -64,7 +64,7 @@ public class BlockTNT extends Block
     /**
      * Called when this Block is destroyed by an Explosion
      */
-    public void onBlockDestroyedByExplosion(World worldIn, BlockPos pos, Explosion explosionIn)
+    public void onExplosionDestroy(World worldIn, BlockPos pos, Explosion explosionIn)
     {
         if (!worldIn.isRemote)
         {
@@ -77,7 +77,7 @@ public class BlockTNT extends Block
     /**
      * Called after a player destroys this Block - the posiiton pos may no longer hold the state indicated.
      */
-    public void onBlockDestroyedByPlayer(World worldIn, BlockPos pos, IBlockState state)
+    public void onPlayerDestroy(World worldIn, BlockPos pos, IBlockState state)
     {
         this.explode(worldIn, pos, state, (EntityLivingBase)null);
     }
@@ -127,7 +127,7 @@ public class BlockTNT extends Block
     /**
      * Called When an Entity Collided with the Block
      */
-    public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
+    public void onEntityCollision(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
     {
         if (!worldIn.isRemote && entityIn instanceof EntityArrow)
         {

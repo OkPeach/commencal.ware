@@ -217,13 +217,13 @@ public class Advancement
             private final Map<String, Criterion> criteria;
             private final String[][] requirements;
 
-            Builder(@Nullable ResourceLocation p_i47414_1_, @Nullable DisplayInfo p_i47414_2_, AdvancementRewards p_i47414_3_, Map<String, Criterion> p_i47414_4_, String[][] p_i47414_5_)
+            Builder(@Nullable ResourceLocation parentIdIn, @Nullable DisplayInfo displayIn, AdvancementRewards rewardsIn, Map<String, Criterion> criteriaIn, String[][] requirementsIn)
             {
-                this.parentId = p_i47414_1_;
-                this.display = p_i47414_2_;
-                this.rewards = p_i47414_3_;
-                this.criteria = p_i47414_4_;
-                this.requirements = p_i47414_5_;
+                this.parentId = parentIdIn;
+                this.display = displayIn;
+                this.rewards = rewardsIn;
+                this.criteria = criteriaIn;
+                this.requirements = requirementsIn;
             }
 
             /**

@@ -5,14 +5,14 @@ import javax.annotation.Nullable;
 public abstract class BaseAttribute implements IAttribute
 {
     private final IAttribute parent;
-    private final String unlocalizedName;
+    private final String translationKey;
     private final double defaultValue;
     private boolean shouldWatch;
 
     protected BaseAttribute(@Nullable IAttribute parentIn, String unlocalizedNameIn, double defaultValueIn)
     {
         this.parent = parentIn;
-        this.unlocalizedName = unlocalizedNameIn;
+        this.translationKey = unlocalizedNameIn;
         this.defaultValue = defaultValueIn;
 
         if (unlocalizedNameIn == null)
@@ -23,7 +23,7 @@ public abstract class BaseAttribute implements IAttribute
 
     public String getName()
     {
-        return this.unlocalizedName;
+        return this.translationKey;
     }
 
     public double getDefaultValue()
@@ -50,11 +50,11 @@ public abstract class BaseAttribute implements IAttribute
 
     public int hashCode()
     {
-        return this.unlocalizedName.hashCode();
+        return this.translationKey.hashCode();
     }
 
     public boolean equals(Object p_equals_1_)
     {
-        return p_equals_1_ instanceof IAttribute && this.unlocalizedName.equals(((IAttribute)p_equals_1_).getName());
+        return p_equals_1_ instanceof IAttribute && this.translationKey.equals(((IAttribute)p_equals_1_).getName());
     }
 }

@@ -55,9 +55,9 @@ public class ParticlePortal extends Particle
         super.renderParticle(buffer, entityIn, partialTicks, rotationX, rotationZ, rotationYZ, rotationXY, rotationXZ);
     }
 
-    public int getBrightnessForRender(float p_189214_1_)
+    public int getBrightnessForRender(float partialTick)
     {
-        int i = super.getBrightnessForRender(p_189214_1_);
+        int i = super.getBrightnessForRender(partialTick);
         float f = (float)this.particleAge / (float)this.particleMaxAge;
         f = f * f;
         f = f * f;

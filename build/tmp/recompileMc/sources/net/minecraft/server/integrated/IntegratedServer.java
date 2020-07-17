@@ -49,7 +49,7 @@ public class IntegratedServer extends MinecraftServer
 
     public IntegratedServer(Minecraft clientIn, String folderNameIn, String worldNameIn, WorldSettings worldSettingsIn, YggdrasilAuthenticationService authServiceIn, MinecraftSessionService sessionServiceIn, GameProfileRepository profileRepoIn, PlayerProfileCache profileCacheIn)
     {
-        super(new File(clientIn.mcDataDir, "saves"), clientIn.getProxy(), clientIn.getDataFixer(), authServiceIn, sessionServiceIn, profileRepoIn, profileCacheIn);
+        super(new File(clientIn.gameDir, "saves"), clientIn.getProxy(), clientIn.getDataFixer(), authServiceIn, sessionServiceIn, profileRepoIn, profileCacheIn);
         this.setServerOwner(clientIn.getSession().getUsername());
         this.setFolderName(folderNameIn);
         this.setWorldName(worldNameIn);
@@ -276,7 +276,7 @@ public class IntegratedServer extends MinecraftServer
 
     public File getDataDirectory()
     {
-        return this.mc.mcDataDir;
+        return this.mc.gameDir;
     }
 
     public boolean isDedicatedServer()
@@ -389,7 +389,7 @@ public class IntegratedServer extends MinecraftServer
                 i = 25564;
             }
 
-            this.getNetworkSystem().addLanEndpoint((InetAddress)null, i);
+            this.getNetworkSystem().addEndpoint((InetAddress)null, i);
             LOGGER.info("Started on {}", (int)i);
             this.isPublic = true;
             this.lanServerPing = new ThreadLanServerPing(this.getMOTD(), i + "");

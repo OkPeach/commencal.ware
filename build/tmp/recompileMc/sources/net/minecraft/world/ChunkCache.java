@@ -14,13 +14,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ChunkCache implements IBlockAccess
 {
-    protected int chunkX;
-    protected int chunkZ;
-    protected Chunk[][] chunkArray;
+    public int chunkX;
+    public int chunkZ;
+    public Chunk[][] chunkArray;
     /** set by !chunk.getAreLevelsEmpty */
-    protected boolean empty;
+    public boolean empty;
     /** Reference to the World object. */
-    protected World world;
+    public World world;
 
     public ChunkCache(World worldIn, BlockPos posFromIn, BlockPos posToIn, int subIn)
     {
@@ -36,7 +36,7 @@ public class ChunkCache implements IBlockAccess
         {
             for (int l = this.chunkZ; l <= j; ++l)
             {
-                this.chunkArray[k - this.chunkX][l - this.chunkZ] = worldIn.getChunkFromChunkCoords(k, l);
+                this.chunkArray[k - this.chunkX][l - this.chunkZ] = worldIn.getChunk(k, l);
             }
         }
 
@@ -70,12 +70,12 @@ public class ChunkCache implements IBlockAccess
     }
 
     @Nullable
-    public TileEntity getTileEntity(BlockPos pos, Chunk.EnumCreateEntityType p_190300_2_)
+    public TileEntity getTileEntity(BlockPos pos, Chunk.EnumCreateEntityType createType)
     {
         int i = (pos.getX() >> 4) - this.chunkX;
         int j = (pos.getZ() >> 4) - this.chunkZ;
         if (!withinBounds(i, j)) return null;
-        return this.chunkArray[i][j].getTileEntity(pos, p_190300_2_);
+        return this.chunkArray[i][j].getTileEntity(pos, createType);
     }
 
     @SideOnly(Side.CLIENT)

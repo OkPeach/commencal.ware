@@ -84,9 +84,9 @@ public abstract class BlockPurpurSlab extends BlockSlab
     /**
      * Returns the slab block name with the type associated with it
      */
-    public String getUnlocalizedName(int meta)
+    public String getTranslationKey(int meta)
     {
-        return super.getUnlocalizedName();
+        return super.getTranslationKey();
     }
 
     public IProperty<?> getVariantProperty()

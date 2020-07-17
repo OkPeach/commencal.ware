@@ -47,13 +47,13 @@ public class RenderZombieVillager extends RenderBiped<EntityZombieVillager>
         }
     }
 
-    protected void applyRotations(EntityZombieVillager entityLiving, float p_77043_2_, float rotationYaw, float partialTicks)
+    protected void applyRotations(EntityZombieVillager entityLiving, float ageInTicks, float rotationYaw, float partialTicks)
     {
         if (entityLiving.isConverting())
         {
             rotationYaw += (float)(Math.cos((double)entityLiving.ticksExisted * 3.25D) * Math.PI * 0.25D);
         }
 
-        super.applyRotations(entityLiving, p_77043_2_, rotationYaw, partialTicks);
+        super.applyRotations(entityLiving, ageInTicks, rotationYaw, partialTicks);
     }
 }

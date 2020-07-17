@@ -103,6 +103,10 @@ public class BlockRedstoneTorch extends BlockTorch
         }
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getWeakPower(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
         return this.isOn && blockState.getValue(FACING) != side ? 15 : 0;
@@ -175,6 +179,10 @@ public class BlockRedstoneTorch extends BlockTorch
         }
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getStrongPower(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public int getStrongPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
         return side == EnumFacing.DOWN ? blockState.getWeakPower(blockAccess, pos, side) : 0;
@@ -190,12 +198,18 @@ public class BlockRedstoneTorch extends BlockTorch
 
     /**
      * Can this block provide power. Only wire currently seems to have this change based on its state.
+     * @deprecated call via {@link IBlockState#canProvidePower()} whenever possible. Implementing/overriding is fine.
      */
     public boolean canProvidePower(IBlockState state)
     {
         return true;
     }
 
+    /**
+     * Called periodically clientside on blocks near the player to show effects (like furnace fire particles). Note that
+     * this method is unrelated to {@link randomTick} and {@link #needsRandomTick}, and will always be called regardless
+     * of whether the block can receive random update ticks
+     */
     @SideOnly(Side.CLIENT)
     public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {
@@ -210,9 +224,9 @@ public class BlockRedstoneTorch extends BlockTorch
             {
                 EnumFacing enumfacing1 = enumfacing.getOpposite();
                 double d3 = 0.27D;
-                d0 += 0.27D * (double)enumfacing1.getFrontOffsetX();
+                d0 += 0.27D * (double)enumfacing1.getXOffset();
                 d1 += 0.22D;
-                d2 += 0.27D * (double)enumfacing1.getFrontOffsetZ();
+                d2 += 0.27D * (double)enumfacing1.getZOffset();
             }
 
             worldIn.spawnParticle(EnumParticleTypes.REDSTONE, d0, d1, d2, 0.0D, 0.0D, 0.0D);

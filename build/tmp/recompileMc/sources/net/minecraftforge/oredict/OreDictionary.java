@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -94,24 +94,6 @@ public class OreDictionary
             registerOre("stairWood",   Blocks.JUNGLE_STAIRS);
             registerOre("stairWood",   Blocks.ACACIA_STAIRS);
             registerOre("stairWood",   Blocks.DARK_OAK_STAIRS);
-            registerOre("fenceWood", Blocks.OAK_FENCE);
-            registerOre("fenceWood", Blocks.SPRUCE_FENCE);
-            registerOre("fenceWood", Blocks.BIRCH_FENCE);
-            registerOre("fenceWood", Blocks.JUNGLE_FENCE);
-            registerOre("fenceWood", Blocks.DARK_OAK_FENCE);
-            registerOre("fenceWood", Blocks.ACACIA_FENCE);
-            registerOre("fenceGateWood", Blocks.OAK_FENCE_GATE);
-            registerOre("fenceGateWood", Blocks.SPRUCE_FENCE_GATE);
-            registerOre("fenceGateWood", Blocks.BIRCH_FENCE_GATE);
-            registerOre("fenceGateWood", Blocks.JUNGLE_FENCE_GATE);
-            registerOre("fenceGateWood", Blocks.DARK_OAK_FENCE_GATE);
-            registerOre("fenceGateWood", Blocks.ACACIA_FENCE_GATE);
-            registerOre("doorWood", Items.ACACIA_DOOR);
-            registerOre("doorWood", Items.BIRCH_DOOR);
-            registerOre("doorWood", Items.DARK_OAK_DOOR);
-            registerOre("doorWood", Items.OAK_DOOR);
-            registerOre("doorWood", Items.JUNGLE_DOOR);
-            registerOre("doorWood", Items.SPRUCE_DOOR);
             registerOre("stickWood",   Items.STICK);
             registerOre("treeSapling", new ItemStack(Blocks.SAPLING, 1, WILDCARD_VALUE));
             registerOre("treeLeaves",  new ItemStack(Blocks.LEAVES, 1, WILDCARD_VALUE));
@@ -226,8 +208,6 @@ public class OreDictionary
             registerOre("paneGlass",     Blocks.GLASS_PANE);
             registerOre("paneGlass",     new ItemStack(Blocks.STAINED_GLASS_PANE, 1, WILDCARD_VALUE));
             //paneGlass{Color} is added below with dyes
-            registerOre("wool",          new ItemStack(Blocks.WOOL, 1, WILDCARD_VALUE));
-            //wool{Color} is added below with dyes
 
             // chests
             registerOre("chest",        Blocks.CHEST);
@@ -325,18 +305,15 @@ public class OreDictionary
         for(int i = 0; i < 16; i++)
         {
             ItemStack dye = new ItemStack(Items.DYE, 1, i);
-            ItemStack wool = new ItemStack(Blocks.WOOL, 1, 15 - i);
             ItemStack block = new ItemStack(Blocks.STAINED_GLASS, 1, 15 - i);
             ItemStack pane = new ItemStack(Blocks.STAINED_GLASS_PANE, 1, 15 - i);
             if (!hasInit)
             {
                 registerOre("dye" + dyes[i], dye);
-                registerOre("wool" + dyes[i], wool);
                 registerOre("blockGlass" + dyes[i], block);
                 registerOre("paneGlass"  + dyes[i], pane);
             }
             replacements.put(dye,   "dye" + dyes[i]);
-            replacements.put(wool,  "wool" + dyes[i]);
             replacements.put(block, "blockGlass" + dyes[i]);
             replacements.put(pane,  "paneGlass" + dyes[i]);
         }
@@ -448,7 +425,7 @@ public class OreDictionary
                         replaced++;
                         if(DEBUG && replacedIngs.add(ing))
                         {
-                            String recipeName = obj.getRegistryName().getResourcePath();
+                            String recipeName = obj.getRegistryName().getPath();
                             FMLLog.log.debug("Replaced {} of the recipe \'{}\' with \"{}\".", ing.getMatchingStacks(), recipeName, oreName);
                         }
                     }

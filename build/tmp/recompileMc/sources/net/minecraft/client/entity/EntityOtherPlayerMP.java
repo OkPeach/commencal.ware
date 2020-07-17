@@ -49,12 +49,12 @@ public class EntityOtherPlayerMP extends AbstractClientPlayer
      */
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
-        net.minecraftforge.common.ForgeHooks.onPlayerAttack(this, source, amount);
+        net.minecraftforge.common.ForgeHooks.onLivingAttack(this, source, amount);
         return true;
     }
 
     /**
-     * Set the position and rotation values directly without any clamping.
+     * Sets a target for the client to interpolate towards over the next few ticks
      */
     public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean teleport)
     {

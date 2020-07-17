@@ -7,14 +7,14 @@ import net.minecraft.util.math.BlockPos;
 
 public class EntityAIFollowOwnerFlying extends EntityAIFollowOwner
 {
-    public EntityAIFollowOwnerFlying(EntityTameable p_i47416_1_, double p_i47416_2_, float p_i47416_4_, float p_i47416_5_)
+    public EntityAIFollowOwnerFlying(EntityTameable tameableIn, double followSpeedIn, float minDistIn, float maxDistIn)
     {
-        super(p_i47416_1_, p_i47416_2_, p_i47416_4_, p_i47416_5_);
+        super(tameableIn, followSpeedIn, minDistIn, maxDistIn);
     }
 
-    protected boolean isTeleportFriendlyBlock(int x, int p_192381_2_, int y, int p_192381_4_, int p_192381_5_)
+    protected boolean isTeleportFriendlyBlock(int x, int z, int y, int xOffset, int zOffset)
     {
-        IBlockState iblockstate = this.world.getBlockState(new BlockPos(x + p_192381_4_, y - 1, p_192381_2_ + p_192381_5_));
-        return (iblockstate.isTopSolid() || iblockstate.getMaterial() == Material.LEAVES) && this.world.isAirBlock(new BlockPos(x + p_192381_4_, y, p_192381_2_ + p_192381_5_)) && this.world.isAirBlock(new BlockPos(x + p_192381_4_, y + 1, p_192381_2_ + p_192381_5_));
+        IBlockState iblockstate = this.world.getBlockState(new BlockPos(x + xOffset, y - 1, z + zOffset));
+        return (iblockstate.isTopSolid() || iblockstate.getMaterial() == Material.LEAVES) && this.world.isAirBlock(new BlockPos(x + xOffset, y, z + zOffset)) && this.world.isAirBlock(new BlockPos(x + xOffset, y + 1, z + zOffset));
     }
 }

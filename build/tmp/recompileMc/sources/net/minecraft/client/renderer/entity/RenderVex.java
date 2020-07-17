@@ -14,9 +14,9 @@ public class RenderVex extends RenderBiped<EntityVex>
     private static final ResourceLocation VEX_CHARGING_TEXTURE = new ResourceLocation("textures/entity/illager/vex_charging.png");
     private int modelVersion;
 
-    public RenderVex(RenderManager p_i47190_1_)
+    public RenderVex(RenderManager renderManagerIn)
     {
-        super(p_i47190_1_, new ModelVex(), 0.3F);
+        super(renderManagerIn, new ModelVex(), 0.3F);
         this.modelVersion = ((ModelVex)this.mainModel).getModelVersion();
     }
 

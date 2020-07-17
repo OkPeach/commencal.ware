@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -50,7 +50,7 @@ public final class Optional {
          * Mark a list of interfaces for optional removal.
          * @return
          */
-        Interface[] value();
+        public Interface[] value();
     }
     /**
      * Used to remove optional interfaces
@@ -65,20 +65,20 @@ public final class Optional {
          * The fully qualified name of the interface to be stripped
          * @return the interface name
          */
-        String iface();
+        public String iface();
 
         /**
          * The modid that is required to be present for stripping NOT to occur
          * @return the modid
          */
-        String modid();
+        public String modid();
 
         /**
          * Strip references to this interface in method declarations? (Useful to kill synthetic methods from scala f.e.)
          *
          * @return if references should be stripped
          */
-        boolean striprefs() default false;
+        public boolean striprefs() default false;
     }
     /**
      * Used to remove optional methods
@@ -92,6 +92,6 @@ public final class Optional {
          * The modid that is required to be present for stripping NOT to occur
          * @return the modid
          */
-        String modid();
+        public String modid();
     }
 }

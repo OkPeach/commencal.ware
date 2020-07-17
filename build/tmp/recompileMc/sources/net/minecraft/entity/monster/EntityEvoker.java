@@ -390,7 +390,7 @@ public class EntityEvoker extends EntitySpellcasterIllager
             {
                 return false;
             }
-            else if (!net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(EntityEvoker.this.world, EntityEvoker.this))
+            else if (!EntityEvoker.this.world.getGameRules().getBoolean("mobGriefing"))
             {
                 return false;
             }

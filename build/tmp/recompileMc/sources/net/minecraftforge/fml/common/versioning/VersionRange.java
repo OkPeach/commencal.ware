@@ -1,25 +1,25 @@
 /*
- * Repackaged and some modifications done by Forge, see in-line comments.
+ * Minecraft Forge
+ * Copyright (c) 2016.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation version 2.1
+ * of the License.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.minecraftforge.fml.common.versioning;
 
+package net.minecraftforge.fml.common.versioning;
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Modifications by cpw under LGPL 2.1 or later
  */
 
 import java.util.ArrayList;
@@ -27,10 +27,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import com.google.common.base.Joiner; //Forge: Add Imports
-import javax.annotation.Nullable;
-
 import com.google.common.base.Joiner;
+
+import javax.annotation.Nullable;
 
 /**
  * Construct a version range from a specification.
@@ -76,8 +75,7 @@ public class VersionRange
 
         return new VersionRange( recommendedVersion, copiedRestrictions );
     }
-
-    //Forge: Added factory function
+    
     /**
      * Factory method, for custom versioning schemes
      * @param version version
@@ -88,7 +86,6 @@ public class VersionRange
     {
         return new VersionRange(version, restrictions);
     }
-
     /**
      * Create a version range from a string representation
      * <p/>
@@ -106,7 +103,7 @@ public class VersionRange
      * @throws InvalidVersionSpecificationException
      *
      */
-    public static VersionRange createFromVersionSpec( @Nullable String spec ) //Forge: Added @Nullable
+    public static VersionRange createFromVersionSpec( @Nullable String spec )
         throws InvalidVersionSpecificationException
     {
         if ( spec == null )
@@ -233,10 +230,14 @@ public class VersionRange
         return restriction;
     }
 
-    public static VersionRange createFromVersion( String version , ArtifactVersion existing) //Forge: Added existing argument
+    public static VersionRange createFromVersion( String version , ArtifactVersion existing)
     {
         List<Restriction> restrictions = Collections.emptyList();
-        return new VersionRange(existing != null ? existing : new DefaultArtifactVersion( version ), restrictions );
+        if (existing == null)
+        {
+            existing = new DefaultArtifactVersion( version );
+        }
+        return new VersionRange(existing , restrictions );
     }
 
     /**
@@ -471,24 +472,20 @@ public class VersionRange
 
         return restrictions;
     }
-    
-    
-    //Forge: Removed getSelectedVersion and isSelectedVersion
 
-    @Override //Forge: Added @Override
+    @Override
     public String toString()
     {
         if ( recommendedVersion != null )
         {
-            return recommendedVersion.getVersionString(); //Forge: Version string specifically.
+            return recommendedVersion.toString();
         }
         else
         {
-            return Joiner.on(',').join(restrictions); //Forge: Changeed from iterator loop to joiner.
+            return Joiner.on(',').join(restrictions);
         }
     }
 
-    //Forge: Added friendly {localized} toString
     public String toStringFriendly()
     {
         if ( recommendedVersion != null )
@@ -542,7 +539,7 @@ public class VersionRange
         return !restrictions.isEmpty() && recommendedVersion == null;
     }
 
-    @Override //Forge: Added @Override
+    @Override
     public boolean equals( Object obj )
     {
         if ( this == obj )
@@ -564,7 +561,7 @@ public class VersionRange
         return equals;
     }
 
-    @Override //Forge: Added @Override
+    @Override
     public int hashCode()
     {
         int hash = 7;
@@ -573,13 +570,11 @@ public class VersionRange
         return hash;
     }
 
-    //Forge: Added @isUnboundedAbove
     public boolean isUnboundedAbove()
     {
         return restrictions.size() == 1 && restrictions.get(0).getUpperBound() == null && !restrictions.get(0).isUpperBoundInclusive();
     }
 
-    //Forge: Added @getLowerBoundString
     public String getLowerBoundString()
     {
         return restrictions.size() == 1 ? restrictions.get(0).getLowerBound().getVersionString() : "";

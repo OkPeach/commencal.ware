@@ -115,11 +115,6 @@ public class RenderItem implements IResourceManagerReloadListener
 
     private void renderModel(IBakedModel model, int color, ItemStack stack)
     {
-        if (net.minecraftforge.common.ForgeModContainer.allowEmissiveItems)
-        {
-            net.minecraftforge.client.ForgeHooksClient.renderLitItem(this, model, color, stack);
-            return;
-        }
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         bufferbuilder.begin(7, DefaultVertexFormats.ITEM);
@@ -144,7 +139,7 @@ public class RenderItem implements IResourceManagerReloadListener
             {
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                 GlStateManager.enableRescaleNormal();
-                stack.getItem().getTileEntityItemStackRenderer().renderByItem(stack);
+                TileEntityItemStackRenderer.instance.renderByItem(stack);
             }
             else
             {
@@ -203,7 +198,7 @@ public class RenderItem implements IResourceManagerReloadListener
         this.putQuadNormal(renderer, quad);
     }
 
-    public void renderQuads(BufferBuilder renderer, List<BakedQuad> quads, int color, ItemStack stack)
+    private void renderQuads(BufferBuilder renderer, List<BakedQuad> quads, int color, ItemStack stack)
     {
         boolean flag = color == -1 && !stack.isEmpty();
         int i = 0;
@@ -362,7 +357,6 @@ public class RenderItem implements IResourceManagerReloadListener
                         return String.valueOf((Object)p_184391_2_.getItem());
                     }
                 });
-                crashreportcategory.addDetail("Registry Name", () -> String.valueOf(p_184391_2_.getItem().getRegistryName()));
                 crashreportcategory.addDetail("Item Aux", new ICrashReportDetail<String>()
                 {
                     public String call() throws Exception

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,7 +21,9 @@ package net.minecraftforge.fml.common.discovery.asm;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import net.minecraftforge.fml.common.FMLLog;
@@ -29,21 +31,25 @@ import net.minecraftforge.fml.common.LoaderException;
 import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import net.minecraftforge.fml.common.discovery.ModCandidate;
 
+import org.apache.logging.log4j.Level;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Type;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 public class ASMModParser
 {
+
     private Type asmType;
     private int classVersion;
     private Type asmSuperType;
     private LinkedList<ModAnnotation> annotations = Lists.newLinkedList();
     private Set<String> interfaces = Sets.newHashSet();
+    private String baseModProperties;
 
     static enum AnnotationType
     {
@@ -98,6 +104,8 @@ public class ASMModParser
                 .add("classVersion", classVersion)
                 .add("superName", asmSuperType.getClassName())
                 .add("annotations", annotations)
+                .add("isBaseMod", isBaseMod(Collections.<String>emptyList()))
+                .add("baseModProperties", baseModProperties)
                 .toString();
     }
 
@@ -124,6 +132,21 @@ public class ASMModParser
     public void validate()
     {
 
+    }
+
+    public boolean isBaseMod(List<String> rememberedTypes)
+    {
+        return getASMSuperType().equals(Type.getType("LBaseMod;")) || getASMSuperType().equals(Type.getType("Lnet/minecraft/src/BaseMod;"))|| rememberedTypes.contains(getASMSuperType().getClassName());
+    }
+
+    public void setBaseModProperties(String foundProperties)
+    {
+        this.baseModProperties = foundProperties;
+    }
+
+    public String getBaseModProperties()
+    {
+        return this.baseModProperties;
     }
 
     public void sendToTable(ASMDataTable table, ModCandidate candidate)

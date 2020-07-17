@@ -45,9 +45,9 @@ public class ItemSlab extends ItemBlock
      * Returns the unlocalized name of this item. This version accepts an ItemStack so different stacks can have
      * different names based on their damage or NBT.
      */
-    public String getUnlocalizedName(ItemStack stack)
+    public String getTranslationKey(ItemStack stack)
     {
-        return this.singleSlab.getUnlocalizedName(stack.getMetadata());
+        return this.singleSlab.getTranslationKey(stack.getMetadata());
     }
 
     /**

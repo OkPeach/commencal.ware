@@ -112,7 +112,11 @@ public class EntityVillager extends EntityAgeable implements INpc, IMerchant
     private boolean needsInitilization;
     private boolean isWillingToMate;
     private int wealth;
-    /** Last player to trade with this villager, used for aggressivity. */
+    /**
+     * Last player to trade with this villager, used for aggressivity.
+     *  
+     * MODDERS: Do not reference directly; will have a different type under forge
+     */
     private java.util.UUID lastBuyingPlayer;
     private int careerId;
     /** This is the EntityVillager's career level value */
@@ -684,7 +688,7 @@ public class EntityVillager extends EntityAgeable implements INpc, IMerchant
             this.populateBuyingList();
         }
 
-        return net.minecraftforge.event.ForgeEventFactory.listTradeOffers(this, player, buyingList);
+        return this.buyingList;
     }
 
     private void populateBuyingList()
@@ -733,7 +737,25 @@ public class EntityVillager extends EntityAgeable implements INpc, IMerchant
     }
 
     /**
-     * Get the formatted ChatComponent that will be used for the sender's username in chat
+     * Returns a displayable component representing this thing's name. This method should be implemented slightly
+     * differently depending on the interface (for <a href="https://github.com/ModCoderPack/MCPBot-
+     * Issues/issues/14">technical reasons</a> the same method is used for both IWorldNameable and ICommandSender), but
+     * unlike {@link #getName()} this method will generally behave sanely.
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#getDisplayName() INameable.getDisplayName()}</dt>
+     * <dd>A normal component. Might be a translation component or a text component depending on the context. Usually
+     * implemented as:</dd>
+     * <dd><pre><code>return this.{@link net.minecraft.util.INameable#hasCustomName() hasCustomName()} ? new
+     * TextComponentString(this.{@link #getName()}) : new TextComponentTranslation(this.{@link
+     * #getName()});</code></pre></dd>
+     * <dt>{@link net.minecraft.command.ICommandSender#getDisplayName() ICommandSender.getDisplayName()} and {@link
+     * net.minecraft.entity.Entity#getDisplayName() Entity.getDisplayName()}</dt>
+     * <dd>For most entities, this returns the result of {@link #getName()}, with {@linkplain
+     * net.minecraft.scoreboard.ScorePlayerTeam#formatPlayerName scoreboard formatting} and a {@linkplain
+     * net.minecraft.entity.Entity#getHoverEvent special hover event}.</dd>
+     * <dd>For non-entity command senders, this will return the result of {@link #getName()} in a text component.</dd>
+     * </dl>
      */
     public ITextComponent getDisplayName()
     {
@@ -884,7 +906,17 @@ public class EntityVillager extends EntityAgeable implements INpc, IMerchant
 
     /**
      * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
-     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
+     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory.
+     *  
+     * The livingdata parameter is used to pass data between all instances during a pack spawn. It will be null on the
+     * first call. Subclasses may check if it's null, and then create a new one and return it if so, initializing all
+     * entities in the pack with the contained data.
+     *  
+     * @return The IEntityLivingData to pass to this method for other instances of this entity class within the same
+     * pack
+     *  
+     * @param difficulty The current local difficulty
+     * @param livingdata Shared spawn data. Will usually be null. (See return value for more information)
      */
     @Nullable
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)

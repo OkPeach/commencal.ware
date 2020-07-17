@@ -386,7 +386,7 @@ public abstract class Render<T extends Entity>
         return false;
     }
 
-    public void renderMultipass(T p_188300_1_, double p_188300_2_, double p_188300_4_, double p_188300_6_, float p_188300_8_, float p_188300_9_)
+    public void renderMultipass(T entityIn, double x, double y, double z, float entityYaw, float partialTicks)
     {
     }
 }

@@ -30,13 +30,13 @@ import org.apache.logging.log4j.Logger;
 public class ChunkProviderServer implements IChunkProvider
 {
     private static final Logger LOGGER = LogManager.getLogger();
-    private final Set<Long> droppedChunksSet = Sets.<Long>newHashSet();
+    private final Set<Long> droppedChunks = Sets.<Long>newHashSet();
     public final IChunkGenerator chunkGenerator;
     public final IChunkLoader chunkLoader;
     /** map of chunk Id's to Chunk instances */
-    public final Long2ObjectMap<Chunk> id2ChunkMap = new Long2ObjectOpenHashMap<Chunk>(8192);
+    public final Long2ObjectMap<Chunk> loadedChunks = new Long2ObjectOpenHashMap<Chunk>(8192);
     public final WorldServer world;
-    private final Set<Long> loadingChunks = com.google.common.collect.Sets.newHashSet();
+    private Set<Long> loadingChunks = com.google.common.collect.Sets.newHashSet();
 
     public ChunkProviderServer(WorldServer worldObjIn, IChunkLoader chunkLoaderIn, IChunkGenerator chunkGeneratorIn)
     {
@@ -47,7 +47,7 @@ public class ChunkProviderServer implements IChunkProvider
 
     public Collection<Chunk> getLoadedChunks()
     {
-        return this.id2ChunkMap.values();
+        return this.loadedChunks.values();
     }
 
     /**
@@ -60,7 +60,7 @@ public class ChunkProviderServer implements IChunkProvider
     {
         if (this.world.provider.canDropChunk(chunkIn.x, chunkIn.z))
         {
-            this.droppedChunksSet.add(Long.valueOf(ChunkPos.asLong(chunkIn.x, chunkIn.z)));
+            this.droppedChunks.add(Long.valueOf(ChunkPos.asLong(chunkIn.x, chunkIn.z)));
             chunkIn.unloadQueued = true;
         }
     }
@@ -72,7 +72,7 @@ public class ChunkProviderServer implements IChunkProvider
      */
     public void queueUnloadAll()
     {
-        ObjectIterator objectiterator = this.id2ChunkMap.values().iterator();
+        ObjectIterator objectiterator = this.loadedChunks.values().iterator();
 
         while (objectiterator.hasNext())
         {
@@ -85,7 +85,7 @@ public class ChunkProviderServer implements IChunkProvider
     public Chunk getLoadedChunk(int x, int z)
     {
         long i = ChunkPos.asLong(x, z);
-        Chunk chunk = (Chunk)this.id2ChunkMap.get(i);
+        Chunk chunk = (Chunk)this.loadedChunks.get(i);
 
         if (chunk != null)
         {
@@ -102,7 +102,7 @@ public class ChunkProviderServer implements IChunkProvider
     }
 
     @Nullable
-    public Chunk loadChunk(int x, int z, @Nullable Runnable runnable)
+    public Chunk loadChunk(int x, int z, Runnable runnable)
     {
         Chunk chunk = this.getLoadedChunk(x, z);
         if (chunk == null)
@@ -116,7 +116,7 @@ public class ChunkProviderServer implements IChunkProvider
 
                 if (chunk != null)
                 {
-                this.id2ChunkMap.put(ChunkPos.asLong(x, z), chunk);
+                this.loadedChunks.put(ChunkPos.asLong(x, z), chunk);
                 chunk.onLoad();
                 chunk.populate(this, this.chunkGenerator);
                 }
@@ -126,7 +126,7 @@ public class ChunkProviderServer implements IChunkProvider
             else
             {
                 net.minecraft.world.chunk.storage.AnvilChunkLoader loader = (net.minecraft.world.chunk.storage.AnvilChunkLoader) this.chunkLoader;
-                if (runnable == null || !net.minecraftforge.common.ForgeChunkManager.asyncChunkLoading)
+                if (runnable == null)
                     chunk = net.minecraftforge.common.chunkio.ChunkIOExecutor.syncChunkLoad(this.world, loader, this, x, z);
                 else if (loader.isChunkGeneratedAt(x, z))
                 {
@@ -164,7 +164,7 @@ public class ChunkProviderServer implements IChunkProvider
                 throw new ReportedException(crashreport);
             }
 
-            this.id2ChunkMap.put(i, chunk);
+            this.loadedChunks.put(i, chunk);
             chunk.onLoad();
             chunk.populate(this, this.chunkGenerator);
         }
@@ -226,7 +226,7 @@ public class ChunkProviderServer implements IChunkProvider
     public boolean saveChunks(boolean all)
     {
         int i = 0;
-        List<Chunk> list = Lists.newArrayList(this.id2ChunkMap.values());
+        List<Chunk> list = Lists.newArrayList(this.loadedChunks.values());
 
         for (int j = 0; j < list.size(); ++j)
         {
@@ -268,19 +268,19 @@ public class ChunkProviderServer implements IChunkProvider
     {
         if (!this.world.disableLevelSaving)
         {
-            if (!this.droppedChunksSet.isEmpty())
+            if (!this.droppedChunks.isEmpty())
             {
                 for (ChunkPos forced : this.world.getPersistentChunks().keySet())
                 {
-                    this.droppedChunksSet.remove(ChunkPos.asLong(forced.x, forced.z));
+                    this.droppedChunks.remove(ChunkPos.asLong(forced.x, forced.z));
                 }
 
-                Iterator<Long> iterator = this.droppedChunksSet.iterator();
+                Iterator<Long> iterator = this.droppedChunks.iterator();
 
                 for (int i = 0; i < 100 && iterator.hasNext(); iterator.remove())
                 {
                     Long olong = iterator.next();
-                    Chunk chunk = (Chunk)this.id2ChunkMap.get(olong);
+                    Chunk chunk = (Chunk)this.loadedChunks.get(olong);
 
                     if (chunk != null && chunk.unloadQueued)
                     {
@@ -288,13 +288,15 @@ public class ChunkProviderServer implements IChunkProvider
                         net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.asLong(chunk.x, chunk.z), chunk);
                         this.saveChunkData(chunk);
                         this.saveChunkExtraData(chunk);
-                        this.id2ChunkMap.remove(olong);
+                        this.loadedChunks.remove(olong);
                         ++i;
+                        if (loadedChunks.size() == 0 && net.minecraftforge.common.ForgeChunkManager.getPersistentChunksFor(this.world).size() == 0 && !this.world.provider.getDimensionType().shouldLoadSpawn()){
+                            net.minecraftforge.common.DimensionManager.unloadWorld(this.world.provider.getDimension());
+                            break;
+                        }
                     }
                 }
             }
-
-            if (this.id2ChunkMap.isEmpty()) net.minecraftforge.common.DimensionManager.unloadWorld(this.world.provider.getDimension());
 
             this.chunkLoader.chunkTick();
         }
@@ -315,7 +317,7 @@ public class ChunkProviderServer implements IChunkProvider
      */
     public String makeString()
     {
-        return "ServerChunkCache: " + this.id2ChunkMap.size() + " Drop: " + this.droppedChunksSet.size();
+        return "ServerChunkCache: " + this.loadedChunks.size() + " Drop: " + this.droppedChunks.size();
     }
 
     public List<Biome.SpawnListEntry> getPossibleCreatures(EnumCreatureType creatureType, BlockPos pos)
@@ -336,7 +338,7 @@ public class ChunkProviderServer implements IChunkProvider
 
     public int getLoadedChunkCount()
     {
-        return this.id2ChunkMap.size();
+        return this.loadedChunks.size();
     }
 
     /**
@@ -344,11 +346,11 @@ public class ChunkProviderServer implements IChunkProvider
      */
     public boolean chunkExists(int x, int z)
     {
-        return this.id2ChunkMap.containsKey(ChunkPos.asLong(x, z));
+        return this.loadedChunks.containsKey(ChunkPos.asLong(x, z));
     }
 
     public boolean isChunkGeneratedAt(int x, int z)
     {
-        return this.id2ChunkMap.containsKey(ChunkPos.asLong(x, z)) || this.chunkLoader.isChunkGeneratedAt(x, z);
+        return this.loadedChunks.containsKey(ChunkPos.asLong(x, z)) || this.chunkLoader.isChunkGeneratedAt(x, z);
     }
 }

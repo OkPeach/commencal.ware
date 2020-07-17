@@ -56,6 +56,10 @@ public class BlockPistonExtension extends BlockDirectional
         this.setHardness(0.5F);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         switch ((EnumFacing)state.getValue(FACING))
@@ -106,6 +110,7 @@ public class BlockPistonExtension extends BlockDirectional
 
     /**
      * Determines if the block is solid enough on the top side to support other blocks, like redstone components.
+     * @deprecated prefer calling {@link IBlockState#isTopSolid()} wherever possible
      */
     public boolean isTopSolid(IBlockState state)
     {
@@ -151,12 +156,16 @@ public class BlockPistonExtension extends BlockDirectional
 
     /**
      * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
      */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
@@ -207,6 +216,10 @@ public class BlockPistonExtension extends BlockDirectional
         }
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#shouldSideBeRendered(IBlockAccess,BlockPos,EnumFacing)} whenever
+     * possible. Implementing/overriding is fine.
+     */
     @SideOnly(Side.CLIENT)
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
@@ -217,7 +230,7 @@ public class BlockPistonExtension extends BlockDirectional
     public static EnumFacing getFacing(int meta)
     {
         int i = meta & 7;
-        return i > 5 ? null : EnumFacing.getFront(i);
+        return i > 5 ? null : EnumFacing.byIndex(i);
     }
 
     public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state)
@@ -252,6 +265,8 @@ public class BlockPistonExtension extends BlockDirectional
     /**
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
+     * fine.
      */
     public IBlockState withRotation(IBlockState state, Rotation rot)
     {
@@ -261,6 +276,7 @@ public class BlockPistonExtension extends BlockDirectional
     /**
      * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
     public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
@@ -280,6 +296,8 @@ public class BlockPistonExtension extends BlockDirectional
      * does not fit the other descriptions and will generally cause other things not to connect to the face.
      * 
      * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {

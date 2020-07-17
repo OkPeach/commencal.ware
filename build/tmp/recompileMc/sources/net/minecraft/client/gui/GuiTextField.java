@@ -15,36 +15,36 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class GuiTextField extends Gui
 {
-    private final int id;
-    private final FontRenderer fontRenderer;
+    public final int id;
+    public final FontRenderer fontRenderer;
     public int x;
     public int y;
     /** The width of this text field. */
     public int width;
     public int height;
     /** Has the current text being edited on the textbox. */
-    private String text = "";
-    private int maxStringLength = 32;
-    private int cursorCounter;
-    private boolean enableBackgroundDrawing = true;
+    public String text = "";
+    public int maxStringLength = 32;
+    public int cursorCounter;
+    public boolean enableBackgroundDrawing = true;
     /** if true the textbox can lose focus by clicking elsewhere on the screen */
-    private boolean canLoseFocus = true;
+    public boolean canLoseFocus = true;
     /** If this value is true along with isEnabled, keyTyped will process the keys. */
-    private boolean isFocused;
+    public boolean isFocused;
     /** If this value is true along with isFocused, keyTyped will process the keys. */
-    private boolean isEnabled = true;
+    public boolean isEnabled = true;
     /** The current character index that should be used as start of the rendered text. */
-    private int lineScrollOffset;
-    private int cursorPosition;
+    public int lineScrollOffset;
+    public int cursorPosition;
     /** other selection position, maybe the same as the cursor */
-    private int selectionEnd;
-    private int enabledColor = 14737632;
-    private int disabledColor = 7368816;
+    public int selectionEnd;
+    public int enabledColor = 14737632;
+    public int disabledColor = 7368816;
     /** True if this textbox is visible */
-    private boolean visible = true;
-    private GuiPageButtonList.GuiResponder guiResponder;
+    public boolean visible = true;
+    public GuiPageButtonList.GuiResponder guiResponder;
     /** Called to check if the text is valid */
-    private Predicate<String> validator = Predicates.<String>alwaysTrue();
+    public Predicate<String> validator = Predicates.<String>alwaysTrue();
 
     public GuiTextField(int componentId, FontRenderer fontrendererObj, int x, int y, int par5Width, int par6Height)
     {

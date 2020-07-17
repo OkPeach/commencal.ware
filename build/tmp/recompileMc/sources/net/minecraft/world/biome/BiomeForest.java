@@ -96,7 +96,7 @@ public class BiomeForest extends Biome
             this.addMushrooms(worldIn, rand, pos);
         }
 
-        if(net.minecraftforge.event.terraingen.TerrainGen.decorate(worldIn, rand, new net.minecraft.util.math.ChunkPos(pos), net.minecraftforge.event.terraingen.DecorateBiomeEvent.Decorate.EventType.FLOWERS))
+        if(net.minecraftforge.event.terraingen.TerrainGen.decorate(worldIn, rand, pos, net.minecraftforge.event.terraingen.DecorateBiomeEvent.Decorate.EventType.FLOWERS))
         { // no tab for patch
         int i = rand.nextInt(5) - 3;
 
@@ -121,12 +121,12 @@ public class BiomeForest extends Biome
                 int l = j * 4 + 1 + 8 + p_185379_2_.nextInt(3);
                 BlockPos blockpos = p_185379_1_.getHeight(p_185379_3_.add(k, 0, l));
 
-                if (p_185379_2_.nextInt(20) == 0 && net.minecraftforge.event.terraingen.TerrainGen.decorate(p_185379_1_, p_185379_2_, new net.minecraft.util.math.ChunkPos(p_185379_3_), blockpos, net.minecraftforge.event.terraingen.DecorateBiomeEvent.Decorate.EventType.BIG_SHROOM))
+                if (p_185379_2_.nextInt(20) == 0 && net.minecraftforge.event.terraingen.TerrainGen.decorate(p_185379_1_, p_185379_2_, blockpos, net.minecraftforge.event.terraingen.DecorateBiomeEvent.Decorate.EventType.BIG_SHROOM))
                 {
                     WorldGenBigMushroom worldgenbigmushroom = new WorldGenBigMushroom();
                     worldgenbigmushroom.generate(p_185379_1_, p_185379_2_, blockpos);
                 }
-                else if (net.minecraftforge.event.terraingen.TerrainGen.decorate(p_185379_1_, p_185379_2_, new net.minecraft.util.math.ChunkPos(p_185379_3_), blockpos, net.minecraftforge.event.terraingen.DecorateBiomeEvent.Decorate.EventType.TREE))
+                else if (net.minecraftforge.event.terraingen.TerrainGen.decorate(p_185379_1_, p_185379_2_, blockpos, net.minecraftforge.event.terraingen.DecorateBiomeEvent.Decorate.EventType.TREE))
                 {
                     WorldGenAbstractTree worldgenabstracttree = this.getRandomTreeFeature(p_185379_2_);
                     worldgenabstracttree.setDecorationDefaults();

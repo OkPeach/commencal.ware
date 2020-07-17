@@ -81,7 +81,7 @@ public abstract class StructureComponent
         }
 
         int i = tagCompound.getInteger("O");
-        this.setCoordBaseMode(i == -1 ? null : EnumFacing.getHorizontal(i));
+        this.setCoordBaseMode(i == -1 ? null : EnumFacing.byHorizontalIndex(i));
         this.componentType = tagCompound.getInteger("GD");
         this.readStructureFromNBT(tagCompound, worldIn.getSaveHandler().getStructureTemplateManager());
     }

@@ -151,7 +151,7 @@ public class EntityMinecartFurnace extends EntityMinecart
     {
         ItemStack itemstack = player.getHeldItem(hand);
 
-        if (super.processInitialInteract(player, hand)) return true;
+        if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.minecart.MinecartInteractEvent(this, player, hand))) return true;
 
         if (itemstack.getItem() == Items.COAL && this.fuel + 3600 <= 32000)
         {

@@ -47,7 +47,7 @@ public class BiomeDesert extends Biome
     {
         super.decorate(worldIn, rand, pos);
 
-        if(net.minecraftforge.event.terraingen.TerrainGen.decorate(worldIn, rand, new net.minecraft.util.math.ChunkPos(pos), net.minecraftforge.event.terraingen.DecorateBiomeEvent.Decorate.EventType.DESERT_WELL))
+        if(net.minecraftforge.event.terraingen.TerrainGen.decorate(worldIn, rand, pos, net.minecraftforge.event.terraingen.DecorateBiomeEvent.Decorate.EventType.DESERT_WELL))
         if (rand.nextInt(1000) == 0)
         {
             int i = rand.nextInt(16) + 8;
@@ -56,7 +56,7 @@ public class BiomeDesert extends Biome
             (new WorldGenDesertWells()).generate(worldIn, rand, blockpos);
         }
 
-        if(net.minecraftforge.event.terraingen.TerrainGen.decorate(worldIn, rand, new net.minecraft.util.math.ChunkPos(pos), net.minecraftforge.event.terraingen.DecorateBiomeEvent.Decorate.EventType.FOSSIL))
+        if(net.minecraftforge.event.terraingen.TerrainGen.decorate(worldIn, rand, pos, net.minecraftforge.event.terraingen.DecorateBiomeEvent.Decorate.EventType.FOSSIL))
         if (rand.nextInt(64) == 0)
         {
             (new WorldGenFossils()).generate(worldIn, rand, pos);

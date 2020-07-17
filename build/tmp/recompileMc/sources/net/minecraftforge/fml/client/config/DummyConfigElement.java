@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -50,7 +50,6 @@ public class DummyConfigElement implements IConfigElement
     protected Object[] values;
     protected Object[] defaultValues;
     protected String[] validValues;
-    protected String[] validValuesDisplay;
     protected Pattern validStringPattern;
     protected Object minValue;
     protected Object maxValue;
@@ -166,8 +165,8 @@ public class DummyConfigElement implements IConfigElement
             return Arrays.toString(this.defaultValues);
         }
     }
-
-    public DummyConfigElement(String name, Object defaultValue, ConfigGuiType type, String langKey, String[] validValues, String[] validValuesDisplay, Pattern validStringPattern, Object minValue, Object maxValue)
+    
+    public DummyConfigElement(String name, Object defaultValue, ConfigGuiType type, String langKey, String[] validValues, Pattern validStringPattern, Object minValue, Object maxValue)
     {
         this.name = name;
         this.defaultValue = defaultValue;
@@ -175,7 +174,6 @@ public class DummyConfigElement implements IConfigElement
         this.type = type;
         this.langKey = langKey;
         this.validValues = validValues;
-        this.validValuesDisplay = validValuesDisplay;
         this.validStringPattern = validStringPattern;
         if (minValue == null)
         {
@@ -196,12 +194,7 @@ public class DummyConfigElement implements IConfigElement
         else
             this.maxValue = maxValue;
     }
-
-    public DummyConfigElement(String name, Object defaultValue, ConfigGuiType type, String langKey, String[] validValues, Pattern validStringPattern, Object minValue, Object maxValue)
-    {
-        this(name, defaultValue, type, langKey, validValues, null, validStringPattern, minValue, maxValue);
-    }
-
+    
     public DummyConfigElement(String name, Object defaultValue, ConfigGuiType type, String langKey, Pattern validStringPattern)
     {
         this(name, defaultValue, type, langKey, null, validStringPattern, null, null);
@@ -211,12 +204,7 @@ public class DummyConfigElement implements IConfigElement
     {
         this(name, defaultValue, type, langKey, validValues, null, null, null);
     }
-
-    public DummyConfigElement(String name, Object defaultValue, ConfigGuiType type, String langKey, String[] validValues, String[] validValuesDisplay)
-    {
-        this(name, defaultValue, type, langKey, validValues, validValuesDisplay, null, null, null);
-    }
-
+    
     public DummyConfigElement(String name, Object defaultValue, ConfigGuiType type, String langKey)
     {
         this(name, defaultValue, type, langKey, null, null, null, null);
@@ -393,12 +381,6 @@ public class DummyConfigElement implements IConfigElement
     public String[] getValidValues()
     {
         return validValues;
-    }
- 
-    @Override
-    public String[] getValidValuesDisplay()
-    {
-        return validValuesDisplay;
     }
 
     @Override

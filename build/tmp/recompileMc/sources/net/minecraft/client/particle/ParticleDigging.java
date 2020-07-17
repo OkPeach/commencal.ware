@@ -112,9 +112,9 @@ public class ParticleDigging extends Particle
         buffer.pos((double)(f5 + rotationX * f4 - rotationXY * f4), (double)(f6 - rotationZ * f4), (double)(f7 + rotationYZ * f4 - rotationXZ * f4)).tex((double)f1, (double)f3).color(this.particleRed, this.particleGreen, this.particleBlue, 1.0F).lightmap(j, k).endVertex();
     }
 
-    public int getBrightnessForRender(float p_189214_1_)
+    public int getBrightnessForRender(float partialTick)
     {
-        int i = super.getBrightnessForRender(p_189214_1_);
+        int i = super.getBrightnessForRender(partialTick);
         int j = 0;
 
         if (this.world.isBlockLoaded(this.sourcePos))

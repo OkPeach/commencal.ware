@@ -49,9 +49,9 @@ public class ParticleDrip extends Particle
         this.motionZ = 0.0D;
     }
 
-    public int getBrightnessForRender(float p_189214_1_)
+    public int getBrightnessForRender(float partialTick)
     {
-        return this.materialType == Material.WATER ? super.getBrightnessForRender(p_189214_1_) : 257;
+        return this.materialType == Material.WATER ? super.getBrightnessForRender(partialTick) : 257;
     }
 
     public void onUpdate()

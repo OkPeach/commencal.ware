@@ -71,6 +71,10 @@ public class TileEntityEnderChest extends TileEntity implements ITickable
         }
     }
 
+    /**
+     * See {@link Block#eventReceived} for more information. This must return true serverside before it is called
+     * clientside.
+     */
     public boolean receiveClientEvent(int id, int type)
     {
         if (id == 1)

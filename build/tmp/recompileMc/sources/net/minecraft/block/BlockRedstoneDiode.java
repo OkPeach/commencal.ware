@@ -28,11 +28,18 @@ public abstract class BlockRedstoneDiode extends BlockHorizontal
         this.isRepeaterPowered = powered;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         return REDSTONE_DIODE_AABB;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
@@ -43,14 +50,12 @@ public abstract class BlockRedstoneDiode extends BlockHorizontal
      */
     public boolean canPlaceBlockAt(World worldIn, BlockPos pos)
     {
-        IBlockState downState = worldIn.getBlockState(pos.down());
-        return (downState.isTopSolid() || downState.getBlockFaceShape(worldIn, pos.down(), EnumFacing.UP) == BlockFaceShape.SOLID) ? super.canPlaceBlockAt(worldIn, pos) : false;
+        return worldIn.getBlockState(pos.down()).isTopSolid() ? super.canPlaceBlockAt(worldIn, pos) : false;
     }
 
     public boolean canBlockStay(World worldIn, BlockPos pos)
     {
-        IBlockState downState = worldIn.getBlockState(pos.down());
-        return downState.isTopSolid() || downState.getBlockFaceShape(worldIn, pos.down(), EnumFacing.UP) == BlockFaceShape.SOLID;
+        return worldIn.getBlockState(pos.down()).isTopSolid();
     }
 
     /**
@@ -82,6 +87,10 @@ public abstract class BlockRedstoneDiode extends BlockHorizontal
         }
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#shouldSideBeRendered(IBlockAccess,BlockPos,EnumFacing)} whenever
+     * possible. Implementing/overriding is fine.
+     */
     @SideOnly(Side.CLIENT)
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
@@ -93,11 +102,19 @@ public abstract class BlockRedstoneDiode extends BlockHorizontal
         return this.isRepeaterPowered;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getStrongPower(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public int getStrongPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
         return blockState.getWeakPower(blockAccess, pos, side);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getWeakPower(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
         if (!this.isPowered(blockState))
@@ -216,6 +233,7 @@ public abstract class BlockRedstoneDiode extends BlockHorizontal
 
     /**
      * Can this block provide power. Only wire currently seems to have this change based on its state.
+     * @deprecated call via {@link IBlockState#canProvidePower()} whenever possible. Implementing/overriding is fine.
      */
     public boolean canProvidePower(IBlockState state)
     {
@@ -263,7 +281,7 @@ public abstract class BlockRedstoneDiode extends BlockHorizontal
     /**
      * Called after a player destroys this Block - the posiiton pos may no longer hold the state indicated.
      */
-    public void onBlockDestroyedByPlayer(World worldIn, BlockPos pos, IBlockState state)
+    public void onPlayerDestroy(World worldIn, BlockPos pos, IBlockState state)
     {
         if (this.isRepeaterPowered)
         {
@@ -273,11 +291,12 @@ public abstract class BlockRedstoneDiode extends BlockHorizontal
             }
         }
 
-        super.onBlockDestroyedByPlayer(worldIn, pos, state);
+        super.onPlayerDestroy(worldIn, pos, state);
     }
 
     /**
      * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
      */
     public boolean isOpaqueCube(IBlockState state)
     {
@@ -336,8 +355,12 @@ public abstract class BlockRedstoneDiode extends BlockHorizontal
         return this.isSameDiode(other.getDefaultState());
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     @SideOnly(Side.CLIENT)
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
     }
@@ -369,6 +392,8 @@ public abstract class BlockRedstoneDiode extends BlockHorizontal
      * does not fit the other descriptions and will generally cause other things not to connect to the face.
      * 
      * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {

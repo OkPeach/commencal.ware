@@ -12,13 +12,13 @@ import org.apache.commons.lang3.Validate;
 
 public class SPacketSoundEffect implements Packet<INetHandlerPlayClient>
 {
-    private SoundEvent sound;
-    private SoundCategory category;
-    private int posX;
-    private int posY;
-    private int posZ;
-    private float soundVolume;
-    private float soundPitch;
+    public SoundEvent sound;
+    public SoundCategory category;
+    public int posX;
+    public int posY;
+    public int posZ;
+    public float soundVolume;
+    public float soundPitch;
 
     public SPacketSoundEffect()
     {

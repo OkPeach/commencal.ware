@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -61,8 +61,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import net.minecraftforge.fml.common.FMLLog;
-import org.apache.commons.io.IOUtils;
 
 public final class ModelDynBucket implements IModel
 {
@@ -84,45 +82,32 @@ public final class ModelDynBucket implements IModel
     private final ResourceLocation coverLocation;
     @Nullable
     private final Fluid fluid;
-
     private final boolean flipGas;
-    private final boolean tint;
 
     public ModelDynBucket()
     {
-        this(null, null, null, null, false, true);
+        this(null, null, null, null, false);
     }
 
-    /** @deprecated use {@link #ModelDynBucket(ResourceLocation, ResourceLocation, ResourceLocation, Fluid, boolean, boolean)} */
-    @Deprecated // TODO: remove
     public ModelDynBucket(@Nullable ResourceLocation baseLocation, @Nullable ResourceLocation liquidLocation, @Nullable ResourceLocation coverLocation, @Nullable Fluid fluid, boolean flipGas)
-    {
-        this(baseLocation, liquidLocation, coverLocation, fluid, flipGas, true);
-    }
-
-    public ModelDynBucket(@Nullable ResourceLocation baseLocation, @Nullable ResourceLocation liquidLocation, @Nullable ResourceLocation coverLocation, @Nullable Fluid fluid, boolean flipGas, boolean tint)
     {
         this.baseLocation = baseLocation;
         this.liquidLocation = liquidLocation;
         this.coverLocation = coverLocation;
         this.fluid = fluid;
         this.flipGas = flipGas;
-        this.tint = tint;
     }
 
     @Override
     public Collection<ResourceLocation> getTextures()
     {
         ImmutableSet.Builder<ResourceLocation> builder = ImmutableSet.builder();
-
         if (baseLocation != null)
             builder.add(baseLocation);
         if (liquidLocation != null)
             builder.add(liquidLocation);
         if (coverLocation != null)
             builder.add(coverLocation);
-        if (fluid != null)
-            builder.add(fluid.getStill());
 
         return builder.build();
     }
@@ -134,8 +119,8 @@ public final class ModelDynBucket implements IModel
 
         ImmutableMap<TransformType, TRSRTransformation> transformMap = PerspectiveMapWrapper.getTransforms(state);
 
-        // if the fluid is lighter than air, will manipulate the initial state to be rotated 180? to turn it upside down
-        if (flipGas && fluid != null && fluid.isLighterThanAir())
+        // if the fluid is a gas wi manipulate the initial state to be rotated 180? to turn it upside down
+        if (flipGas && fluid != null && fluid.isGaseous())
         {
             state = new ModelStateComposition(state, TRSRTransformation.blockCenterToCorner(new TRSRTransformation(null, new Quat4f(0, 0, 1, 0), null, null)));
         }
@@ -160,32 +145,31 @@ public final class ModelDynBucket implements IModel
         {
             TextureAtlasSprite liquid = bakedTextureGetter.apply(liquidLocation);
             // build liquid layer (inside)
-            builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, liquid, fluidSprite, NORTH_Z_FLUID, EnumFacing.NORTH, tint ? fluid.getColor() : 0xFFFFFFFF, 1));
-            builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, liquid, fluidSprite, SOUTH_Z_FLUID, EnumFacing.SOUTH, tint ? fluid.getColor() : 0xFFFFFFFF, 1));
+            builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, liquid, fluidSprite, NORTH_Z_FLUID, EnumFacing.NORTH, fluid.getColor()));
+            builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, liquid, fluidSprite, SOUTH_Z_FLUID, EnumFacing.SOUTH, fluid.getColor()));
             particleSprite = fluidSprite;
         }
         if (coverLocation != null)
         {
             // cover (the actual item around the other two)
             TextureAtlasSprite cover = bakedTextureGetter.apply(coverLocation);
-            builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, NORTH_Z_COVER, cover, EnumFacing.NORTH, 0xFFFFFFFF, 2));
-            builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, SOUTH_Z_COVER, cover, EnumFacing.SOUTH, 0xFFFFFFFF, 2));
+            builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, NORTH_Z_COVER, cover, EnumFacing.NORTH, 0xffffffff));
+            builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, SOUTH_Z_COVER, cover, EnumFacing.SOUTH, 0xffffffff));
             if (particleSprite == null)
             {
                 particleSprite = cover;
             }
         }
 
-        return new BakedDynBucket(this, builder.build(), particleSprite, format, Maps.immutableEnumMap(transformMap), Maps.newHashMap(), transform.isIdentity());
+        return new BakedDynBucket(this, builder.build(), particleSprite, format, Maps.immutableEnumMap(transformMap), Maps.newHashMap());
     }
 
     /**
-     * Sets the fluid in the model.
-     * "fluid" - Name of the fluid in the fluid registry.
-     * "flipGas" - If "true" the model will be flipped upside down if the fluid is lighter than air. If "false" it won't.
-     * "applyTint" - If "true" the model will tint the fluid quads according to the fluid's base color.
+     * Sets the liquid in the model.
+     * fluid - Name of the fluid in the FluidRegistry
+     * flipGas - If "true" the model will be flipped upside down if the liquid is a gas. If "false" it wont
      * <p/>
-     * If the fluid can't be found, water is used.
+     * If the fluid can't be found, water is used
      */
     @Override
     public ModelDynBucket process(ImmutableMap<String, String> customData)
@@ -205,20 +189,8 @@ public final class ModelDynBucket implements IModel
                 throw new IllegalArgumentException(String.format("DynBucket custom data \"flipGas\" must have value \'true\' or \'false\' (was \'%s\')", flipStr));
         }
 
-        boolean tint = this.tint;
-        if (customData.containsKey("applyTint"))
-        {
-            String string = customData.get("applyTint");
-            switch (string)
-            {
-                case "true":  tint = true;  break;
-                case "false": tint = false; break;
-                default: throw new IllegalArgumentException(String.format("DynBucket custom data \"applyTint\" must have value \'true\' or \'false\' (was \'%s\')", string));
-            }
-        }
-
         // create new model with correct liquid
-        return new ModelDynBucket(baseLocation, liquidLocation, coverLocation, fluid, flip, tint);
+        return new ModelDynBucket(baseLocation, liquidLocation, coverLocation, fluid, flip);
     }
 
     /**
@@ -245,7 +217,7 @@ public final class ModelDynBucket implements IModel
         if (textures.containsKey("cover"))
             cover = new ResourceLocation(textures.get("cover"));
 
-        return new ModelDynBucket(base, liquid, cover, fluid, flipGas, tint);
+        return new ModelDynBucket(base, liquid, cover, fluid, flipGas);
     }
 
     public enum LoaderDynBucket implements ICustomModelLoader
@@ -255,7 +227,7 @@ public final class ModelDynBucket implements IModel
         @Override
         public boolean accepts(ResourceLocation modelLocation)
         {
-            return modelLocation.getResourceDomain().equals(ForgeVersion.MOD_ID) && modelLocation.getResourcePath().contains("forgebucket");
+            return modelLocation.getNamespace().equals(ForgeVersion.MOD_ID) && modelLocation.getPath().contains("forgebucket");
         }
 
         @Override
@@ -273,26 +245,19 @@ public final class ModelDynBucket implements IModel
         public void register(TextureMap map)
         {
             // only create these textures if they are not added by a resource pack
-            try (IResource cover = getResource(new ResourceLocation(ForgeVersion.MOD_ID, "textures/items/bucket_cover.png"));
-                 IResource base = getResource(new ResourceLocation(ForgeVersion.MOD_ID, "textures/items/bucket_base.png")))
-            {
-                if (cover == null)
-                {
-                    ResourceLocation bucketCover = new ResourceLocation(ForgeVersion.MOD_ID, "items/bucket_cover");
-                    BucketCoverSprite bucketCoverSprite = new BucketCoverSprite(bucketCover);
-                    map.setTextureEntry(bucketCoverSprite);
-                }
 
-                if (base == null)
-                {
-                    ResourceLocation bucketBase = new ResourceLocation(ForgeVersion.MOD_ID, "items/bucket_base");
-                    BucketBaseSprite bucketBaseSprite = new BucketBaseSprite(bucketBase);
-                    map.setTextureEntry(bucketBaseSprite);
-                }
-            }
-            catch (IOException e)
+            if (getResource(new ResourceLocation(ForgeVersion.MOD_ID, "textures/items/bucket_cover.png")) == null)
             {
-                FMLLog.log.error("Failed to close resource", e);
+                ResourceLocation bucketCover = new ResourceLocation(ForgeVersion.MOD_ID, "items/bucket_cover");
+                BucketCoverSprite bucketCoverSprite = new BucketCoverSprite(bucketCover);
+                map.setTextureEntry(bucketCoverSprite);
+            }
+
+            if (getResource(new ResourceLocation(ForgeVersion.MOD_ID, "textures/items/bucket_base.png")) == null)
+            {
+                ResourceLocation bucketBase = new ResourceLocation(ForgeVersion.MOD_ID, "items/bucket_base");
+                BucketBaseSprite bucketBaseSprite = new BucketBaseSprite(bucketBase);
+                map.setTextureEntry(bucketBaseSprite);
             }
         }
 
@@ -381,30 +346,24 @@ public final class ModelDynBucket implements IModel
             final int[][] pixels = new int[Minecraft.getMinecraft().gameSettings.mipmapLevels + 1][];
             pixels[0] = new int[width * height];
 
-            try (
-                 IResource empty = getResource(new ResourceLocation("textures/items/bucket_empty.png"));
-                 IResource mask = getResource(new ResourceLocation(ForgeVersion.MOD_ID, "textures/items/vanilla_bucket_cover_mask.png"))
-            ) {
-                // use the alpha mask if it fits, otherwise leave the cover texture blank
-                if (empty != null && mask != null && Objects.equals(empty.getResourcePackName(), mask.getResourcePackName()) &&
-                        alphaMask.getIconWidth() == width && alphaMask.getIconHeight() == height)
-                {
-                    final int[][] oldPixels = sprite.getFrameTextureData(0);
-                    final int[][] alphaPixels = alphaMask.getFrameTextureData(0);
+            IResource empty = getResource(new ResourceLocation("textures/items/bucket_empty.png"));
+            IResource mask = getResource(new ResourceLocation(ForgeVersion.MOD_ID, "textures/items/vanilla_bucket_cover_mask.png"));
 
-                    for (int p = 0; p < width * height; p++)
-                    {
-                        final int alphaMultiplier = alphaPixels[0][p] >>> 24;
-                        final int oldPixel = oldPixels[0][p];
-                        final int oldPixelAlpha = oldPixel >>> 24;
-                        final int newAlpha = oldPixelAlpha * alphaMultiplier / 0xFF;
-                        pixels[0][p] = (oldPixel & 0xFFFFFF) + (newAlpha << 24);
-                    }
-                }
-            }
-            catch (IOException e)
+            // use the alpha mask if it fits, otherwise leave the cover texture blank
+            if (empty != null && mask != null && Objects.equals(empty.getResourcePackName(), mask.getResourcePackName()) &&
+                    alphaMask.getIconWidth() == width && alphaMask.getIconHeight() == height)
             {
-                FMLLog.log.error("Failed to close resource", e);
+                final int[][] oldPixels = sprite.getFrameTextureData(0);
+                final int[][] alphaPixels = alphaMask.getFrameTextureData(0);
+
+                for (int p = 0; p < width * height; p++)
+                {
+                    final int alphaMultiplier = alphaPixels[0][p] >>> 24;
+                    final int oldPixel = oldPixels[0][p];
+                    final int oldPixelAlpha = oldPixel >>> 24;
+                    final int newAlpha = oldPixelAlpha * alphaMultiplier / 0xFF;
+                    pixels[0][p] = (oldPixel & 0xFFFFFF) + (newAlpha << 24);
+                }
             }
 
             this.clearFramesTextureData();
@@ -460,15 +419,14 @@ public final class ModelDynBucket implements IModel
         private final Map<String, IBakedModel> cache; // contains all the baked models since they'll never change
         private final VertexFormat format;
 
-        BakedDynBucket(ModelDynBucket parent,
-                       ImmutableList<BakedQuad> quads,
-                       TextureAtlasSprite particle,
-                       VertexFormat format,
-                       ImmutableMap<TransformType, TRSRTransformation> transforms,
-                       Map<String, IBakedModel> cache,
-                       boolean untransformed)
+        public BakedDynBucket(ModelDynBucket parent,
+                              ImmutableList<BakedQuad> quads,
+                              TextureAtlasSprite particle,
+                              VertexFormat format,
+                              ImmutableMap<TransformType, TRSRTransformation> transforms,
+                              Map<String, IBakedModel> cache)
         {
-            super(quads, particle, transforms, BakedDynBucketOverrideHandler.INSTANCE, untransformed);
+            super(quads, particle, transforms, BakedDynBucketOverrideHandler.INSTANCE);
             this.format = format;
             this.parent = parent;
             this.cache = cache;

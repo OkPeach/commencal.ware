@@ -58,7 +58,7 @@ public class LootTableManager
 
         public LootTable load(ResourceLocation p_load_1_) throws Exception
         {
-            if (p_load_1_.getResourcePath().contains("."))
+            if (p_load_1_.getPath().contains("."))
             {
                 LootTableManager.LOGGER.debug("Invalid loot table name '{}' (can't contain periods)", (Object)p_load_1_);
                 return LootTable.EMPTY_LOOT_TABLE;
@@ -91,7 +91,7 @@ public class LootTableManager
             }
             else
             {
-                File file1 = new File(new File(LootTableManager.this.baseFolder, resource.getResourceDomain()), resource.getResourcePath() + ".json");
+                File file1 = new File(new File(LootTableManager.this.baseFolder, resource.getNamespace()), resource.getPath() + ".json");
 
                 if (file1.exists())
                 {
@@ -135,7 +135,7 @@ public class LootTableManager
         @Nullable
         private LootTable loadBuiltinLootTable(ResourceLocation resource)
         {
-            URL url = LootTableManager.class.getResource("/assets/" + resource.getResourceDomain() + "/loot_tables/" + resource.getResourcePath() + ".json");
+            URL url = LootTableManager.class.getResource("/assets/" + resource.getNamespace() + "/loot_tables/" + resource.getPath() + ".json");
 
             if (url != null)
             {

@@ -647,7 +647,7 @@ public abstract class EntityLiving extends EntityLivingBase
         super.onLivingUpdate();
         this.world.profiler.startSection("looting");
 
-        if (!this.world.isRemote && this.canPickUpLoot() && !this.dead && net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.world, this))
+        if (!this.world.isRemote && this.canPickUpLoot() && !this.dead && this.world.getGameRules().getBoolean("mobGriefing"))
         {
             for (EntityItem entityitem : this.world.getEntitiesWithinAABB(EntityItem.class, this.getEntityBoundingBox().grow(1.0D, 0.0D, 1.0D)))
             {
@@ -976,7 +976,7 @@ public abstract class EntityLiving extends EntityLivingBase
         else
         {
             int i = (int)(this.getHealth() - this.getMaxHealth() * 0.33F);
-            i = i - (3 - this.world.getDifficulty().getDifficultyId()) * 4;
+            i = i - (3 - this.world.getDifficulty().getId()) * 4;
 
             if (i < 0)
             {
@@ -1267,7 +1267,17 @@ public abstract class EntityLiving extends EntityLivingBase
 
     /**
      * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
-     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
+     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory.
+     *  
+     * The livingdata parameter is used to pass data between all instances during a pack spawn. It will be null on the
+     * first call. Subclasses may check if it's null, and then create a new one and return it if so, initializing all
+     * entities in the pack with the contained data.
+     *  
+     * @return The IEntityLivingData to pass to this method for other instances of this entity class within the same
+     * pack
+     *  
+     * @param difficulty The current local difficulty
+     * @param livingdata Shared spawn data. Will usually be null. (See return value for more information)
      */
     @Nullable
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)
@@ -1594,19 +1604,5 @@ public abstract class EntityLiving extends EntityLivingBase
         ON_GROUND,
         IN_AIR,
         IN_WATER;
-
-        private final java.util.function.BiPredicate<net.minecraft.world.IBlockAccess, BlockPos> spawnPredicate;
-
-        SpawnPlacementType() { this.spawnPredicate = null; }
-
-        SpawnPlacementType(java.util.function.BiPredicate<net.minecraft.world.IBlockAccess, BlockPos> spawnPredicate)
-        {
-            this.spawnPredicate = spawnPredicate;
-        }
-
-        public boolean canSpawnAt(World world, BlockPos pos)
-        {
-            return this.spawnPredicate != null ? this.spawnPredicate.test(world, pos) : net.minecraft.world.WorldEntitySpawner.canCreatureTypeSpawnBody(this, world, pos);
-        }
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,5 +23,5 @@ package net.minecraftforge.fml.common.eventhandler;
 
 public interface IEventListener
 {
-    void invoke(Event event);
+    public void invoke(Event event);
 }

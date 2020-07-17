@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -33,9 +33,9 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Pack200;
 import java.util.regex.Pattern;
 
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.fml.common.FMLLog;
-import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.repackage.com.nothome.delta.GDiffPatcher;
 import LZMA.LzmaInputStream;
@@ -48,14 +48,12 @@ import com.google.common.hash.Hashing;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
-import org.apache.commons.io.IOUtils;
 
 public class ClassPatchManager {
-    //Must be ABOVE INSTANCE so they get set in time for the constructor.
+    public static final ClassPatchManager INSTANCE = new ClassPatchManager();
+
     public static final boolean dumpPatched = Boolean.parseBoolean(System.getProperty("fml.dumpPatchedClasses", "false"));
     public static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("fml.debugClassPatchManager", "false"));
-
-    public static final ClassPatchManager INSTANCE = new ClassPatchManager();
 
     private GDiffPatcher patcher = new GDiffPatcher();
     private ListMultimap<String, ClassPatch> patches;
@@ -167,68 +165,57 @@ public class ClassPatchManager {
     public void setup(Side side)
     {
         Pattern binpatchMatcher = Pattern.compile(String.format("binpatch/%s/.*.binpatch", side.toString().toLowerCase(Locale.ENGLISH)));
-        JarInputStream jis = null;
+        JarInputStream jis;
         try
+        {
+            InputStream binpatchesCompressed = getClass().getResourceAsStream("/binpatches.pack.lzma");
+            if (binpatchesCompressed==null)
+            {
+                if (!((Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment")))
+                {
+                    FMLLog.log.fatal("The binary patch set is missing, things are not going to work!");
+                }
+                return;
+            }
+            LzmaInputStream binpatchesDecompressed = new LzmaInputStream(binpatchesCompressed);
+            ByteArrayOutputStream jarBytes = new ByteArrayOutputStream();
+            JarOutputStream jos = new JarOutputStream(jarBytes);
+            Pack200.newUnpacker().unpack(binpatchesDecompressed, jos);
+            jis = new JarInputStream(new ByteArrayInputStream(jarBytes.toByteArray()));
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException("Error occurred reading binary patches. Expect severe problems!", e);
+        }
+
+        patches = ArrayListMultimap.create();
+
+        do
         {
             try
             {
-                InputStream binpatchesCompressed = getClass().getResourceAsStream("/binpatches.pack.lzma");
-                if (binpatchesCompressed==null)
+                JarEntry entry = jis.getNextJarEntry();
+                if (entry == null)
                 {
-                    if (!FMLLaunchHandler.isDeobfuscatedEnvironment())
-                    {
-                        FMLLog.log.fatal("The binary patch set is missing, things are not going to work!");
-                    }
-                    return;
+                    break;
                 }
-                try (LzmaInputStream binpatchesDecompressed = new LzmaInputStream(binpatchesCompressed))
+                if (binpatchMatcher.matcher(entry.getName()).matches())
                 {
-                    ByteArrayOutputStream jarBytes = new ByteArrayOutputStream();
-                    try (JarOutputStream jos = new JarOutputStream(jarBytes))
+                    ClassPatch cp = readPatch(entry, jis);
+                    if (cp != null)
                     {
-                        Pack200.newUnpacker().unpack(binpatchesDecompressed, jos);
-                        jis = new JarInputStream(new ByteArrayInputStream(jarBytes.toByteArray()));
+                        patches.put(cp.sourceClassName, cp);
                     }
+                }
+                else
+                {
+                    jis.closeEntry();
                 }
             }
-            catch (Exception e)
+            catch (IOException e)
             {
-                throw new RuntimeException("Error occurred reading binary patches. Expect severe problems!", e);
             }
-
-            patches = ArrayListMultimap.create();
-
-            do
-            {
-                try
-                {
-                    JarEntry entry = jis.getNextJarEntry();
-                    if (entry == null)
-                    {
-                        break;
-                    }
-                    if (binpatchMatcher.matcher(entry.getName()).matches())
-                    {
-                        ClassPatch cp = readPatch(entry, jis);
-                        if (cp != null)
-                        {
-                            patches.put(cp.sourceClassName, cp);
-                        }
-                    }
-                    else
-                    {
-                        jis.closeEntry();
-                    }
-                }
-                catch (IOException e)
-                {
-                }
-            } while (true);
-        }
-        finally
-        {
-            IOUtils.closeQuietly(jis);
-        }
+        } while (true);
         FMLLog.log.debug("Read {} binary patches", patches.size());
         if (DEBUG)
             FMLLog.log.debug("Patch list :\n\t{}", Joiner.on("\t\n").join(patches.asMap().entrySet()));

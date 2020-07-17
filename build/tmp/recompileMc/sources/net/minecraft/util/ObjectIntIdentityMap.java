@@ -10,8 +10,8 @@ import javax.annotation.Nullable;
 
 public class ObjectIntIdentityMap<T> implements IObjectIntIterable<T>
 {
-    protected final IdentityHashMap<T, Integer> identityMap;
-    protected final List<T> objectList;
+    public final IdentityHashMap<T, Integer> identityMap;
+    public final List<T> objectList;
 
     public ObjectIntIdentityMap()
     {

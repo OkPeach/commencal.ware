@@ -66,7 +66,7 @@ public class Material
      * Mobility information flag. 0 indicates that this block is normal, 1 indicates that it can't push other blocks, 2
      * indicates that it can't be pushed.
      */
-    private EnumPushReaction mobilityFlag = EnumPushReaction.NORMAL;
+    private EnumPushReaction pushReaction = EnumPushReaction.NORMAL;
     private boolean isAdventureModeExempt;
 
     public Material(MapColor color)
@@ -174,9 +174,9 @@ public class Material
         return this.requiresNoTool;
     }
 
-    public EnumPushReaction getMobilityFlag()
+    public EnumPushReaction getPushReaction()
     {
-        return this.mobilityFlag;
+        return this.pushReaction;
     }
 
     /**
@@ -184,7 +184,7 @@ public class Material
      */
     protected Material setNoPushMobility()
     {
-        this.mobilityFlag = EnumPushReaction.DESTROY;
+        this.pushReaction = EnumPushReaction.DESTROY;
         return this;
     }
 
@@ -193,7 +193,7 @@ public class Material
      */
     protected Material setImmovableMobility()
     {
-        this.mobilityFlag = EnumPushReaction.BLOCK;
+        this.pushReaction = EnumPushReaction.BLOCK;
         return this;
     }
 

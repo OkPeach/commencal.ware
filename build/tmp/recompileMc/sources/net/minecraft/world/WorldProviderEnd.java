@@ -167,28 +167,4 @@ public class WorldProviderEnd extends WorldProvider
     {
         return this.dragonFightManager;
     }
-
-    /**
-     * Called when a Player is added to the provider's world.
-     */
-    @Override
-    public void onPlayerAdded(net.minecraft.entity.player.EntityPlayerMP player)
-    {
-        if (this.dragonFightManager != null)
-        {
-            this.dragonFightManager.addPlayer(player);
-        }
-    }
-
-    /**
-     * Called when a Player is removed from the provider's world.
-     */
-    @Override
-    public void onPlayerRemoved(net.minecraft.entity.player.EntityPlayerMP player)
-    {
-        if (this.dragonFightManager != null)
-        {
-            this.dragonFightManager.removePlayer(player);
-        }
-    }
 }

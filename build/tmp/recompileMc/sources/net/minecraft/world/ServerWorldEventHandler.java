@@ -16,13 +16,13 @@ import net.minecraft.util.math.BlockPos;
 public class ServerWorldEventHandler implements IWorldEventListener
 {
     /** Reference to the MinecraftServer object. */
-    private final MinecraftServer mcServer;
+    private final MinecraftServer server;
     /** The WorldServer object. */
     private final WorldServer world;
 
     public ServerWorldEventHandler(MinecraftServer mcServerIn, WorldServer worldServerIn)
     {
-        this.mcServer = mcServerIn;
+        this.server = mcServerIn;
         this.world = worldServerIn;
     }
 
@@ -30,7 +30,7 @@ public class ServerWorldEventHandler implements IWorldEventListener
     {
     }
 
-    public void spawnParticle(int id, boolean ignoreRange, boolean p_190570_3_, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, int... parameters)
+    public void spawnParticle(int id, boolean ignoreRange, boolean minimiseParticleLevel, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, int... parameters)
     {
     }
 
@@ -65,7 +65,7 @@ public class ServerWorldEventHandler implements IWorldEventListener
 
     public void playSoundToAllNearExcept(@Nullable EntityPlayer player, SoundEvent soundIn, SoundCategory category, double x, double y, double z, float volume, float pitch)
     {
-        this.mcServer.getPlayerList().sendToAllNearExcept(player, x, y, z, volume > 1.0F ? (double)(16.0F * volume) : 16.0D, this.world.provider.getDimension(), new SPacketSoundEffect(soundIn, category, x, y, z, volume, pitch));
+        this.server.getPlayerList().sendToAllNearExcept(player, x, y, z, volume > 1.0F ? (double)(16.0F * volume) : 16.0D, this.world.provider.getDimension(), new SPacketSoundEffect(soundIn, category, x, y, z, volume, pitch));
     }
 
     /**
@@ -90,17 +90,17 @@ public class ServerWorldEventHandler implements IWorldEventListener
 
     public void playEvent(EntityPlayer player, int type, BlockPos blockPosIn, int data)
     {
-        this.mcServer.getPlayerList().sendToAllNearExcept(player, (double)blockPosIn.getX(), (double)blockPosIn.getY(), (double)blockPosIn.getZ(), 64.0D, this.world.provider.getDimension(), new SPacketEffect(type, blockPosIn, data, false));
+        this.server.getPlayerList().sendToAllNearExcept(player, (double)blockPosIn.getX(), (double)blockPosIn.getY(), (double)blockPosIn.getZ(), 64.0D, this.world.provider.getDimension(), new SPacketEffect(type, blockPosIn, data, false));
     }
 
     public void broadcastSound(int soundID, BlockPos pos, int data)
     {
-        this.mcServer.getPlayerList().sendPacketToAllPlayers(new SPacketEffect(soundID, pos, data, true));
+        this.server.getPlayerList().sendPacketToAllPlayers(new SPacketEffect(soundID, pos, data, true));
     }
 
     public void sendBlockBreakProgress(int breakerId, BlockPos pos, int progress)
     {
-        for (EntityPlayerMP entityplayermp : this.mcServer.getPlayerList().getPlayers())
+        for (EntityPlayerMP entityplayermp : this.server.getPlayerList().getPlayers())
         {
             if (entityplayermp != null && entityplayermp.world == this.world && entityplayermp.getEntityId() != breakerId)
             {

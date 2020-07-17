@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -28,16 +28,14 @@ import io.netty.util.AttributeKey;
 public class HandshakeMessageHandler<S extends Enum<S> & IHandshakeState<S>> extends SimpleChannelInboundHandler<FMLHandshakeMessage> {
     private static final AttributeKey<IHandshakeState<?>> STATE = AttributeKey.valueOf("fml:handshake-state");
     private final AttributeKey<S> fmlHandshakeState;
-    private final S initialState;
-    private final S errorState;
-    private final Class<S> stateType;
+    private S initialState;
+    private Class<S> stateType;
 
     @SuppressWarnings("unchecked")
     public HandshakeMessageHandler(Class<S> stateType)
     {
         fmlHandshakeState = (AttributeKey<S>) ((Object)STATE);
         initialState = Enum.valueOf(stateType, "START");
-        errorState = Enum.valueOf(stateType, "ERROR");
         this.stateType = stateType;
     }
     @Override
@@ -73,7 +71,6 @@ public class HandshakeMessageHandler<S extends Enum<S> & IHandshakeState<S>> ext
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
     {
         FMLLog.log.error("HandshakeMessageHandler exception", cause);
-        ctx.channel().attr(fmlHandshakeState).set(errorState);
         super.exceptionCaught(ctx, cause);
     }
 }

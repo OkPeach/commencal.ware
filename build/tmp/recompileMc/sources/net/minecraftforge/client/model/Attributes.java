@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -45,8 +45,8 @@ public class Attributes
      */
     public static boolean moreSpecific(VertexFormat first, VertexFormat second)
     {
-        int size = first.getNextOffset();
-        if(size != second.getNextOffset()) return false;
+        int size = first.getSize();
+        if(size != second.getSize()) return false;
 
         int padding = 0;
         int j = 0;

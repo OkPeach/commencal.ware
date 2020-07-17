@@ -190,7 +190,17 @@ public class EntityPolarBear extends EntityAnimal
 
     /**
      * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
-     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
+     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory.
+     *  
+     * The livingdata parameter is used to pass data between all instances during a pack spawn. It will be null on the
+     * first call. Subclasses may check if it's null, and then create a new one and return it if so, initializing all
+     * entities in the pack with the contained data.
+     *  
+     * @return The IEntityLivingData to pass to this method for other instances of this entity class within the same
+     * pack
+     *  
+     * @param difficulty The current local difficulty
+     * @param livingdata Shared spawn data. Will usually be null. (See return value for more information)
      */
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, IEntityLivingData livingdata)
     {
@@ -288,17 +298,17 @@ public class EntityPolarBear extends EntityAnimal
             super(EntityPolarBear.this, 1.25D, true);
         }
 
-        protected void checkAndPerformAttack(EntityLivingBase p_190102_1_, double p_190102_2_)
+        protected void checkAndPerformAttack(EntityLivingBase enemy, double distToEnemySqr)
         {
-            double d0 = this.getAttackReachSqr(p_190102_1_);
+            double d0 = this.getAttackReachSqr(enemy);
 
-            if (p_190102_2_ <= d0 && this.attackTick <= 0)
+            if (distToEnemySqr <= d0 && this.attackTick <= 0)
             {
                 this.attackTick = 20;
-                this.attacker.attackEntityAsMob(p_190102_1_);
+                this.attacker.attackEntityAsMob(enemy);
                 EntityPolarBear.this.setStanding(false);
             }
-            else if (p_190102_2_ <= d0 * 2.0D)
+            else if (distToEnemySqr <= d0 * 2.0D)
             {
                 if (this.attackTick <= 0)
                 {

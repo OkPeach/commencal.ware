@@ -219,7 +219,7 @@ public class ChunkRenderWorker implements Runnable
 
     private boolean isChunkExisting(BlockPos pos, World worldIn)
     {
-        return !worldIn.getChunkFromChunkCoords(pos.getX() >> 4, pos.getZ() >> 4).isEmpty();
+        return !worldIn.getChunk(pos.getX() >> 4, pos.getZ() >> 4).isEmpty();
     }
 
     private RegionRenderCacheBuilder getRegionRenderCacheBuilder() throws InterruptedException

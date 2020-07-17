@@ -24,10 +24,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ContainerEnchantment extends Container
 {
-    /** SlotEnchantmentTable object with ItemStack to be enchanted */
+    /** A 2-slot InventoryBasic anonymous subclass (see constructor) that holds the item to be enchanted and the lapis. */
     public IInventory tableInventory;
     /** current world (for bookshelf counting) */
-    private final World worldPointer;
+    private final World world;
     private final BlockPos position;
     private final Random rand;
     public int xpSeed;
@@ -67,7 +67,7 @@ public class ContainerEnchantment extends Container
         this.enchantLevels = new int[3];
         this.enchantClue = new int[] { -1, -1, -1};
         this.worldClue = new int[] { -1, -1, -1};
-        this.worldPointer = worldIn;
+        this.world = worldIn;
         this.position = pos;
         this.xpSeed = playerInv.player.getXPSeed();
         this.addSlotToContainer(new Slot(this.tableInventory, 0, 15, 47)
@@ -186,7 +186,7 @@ public class ContainerEnchantment extends Container
 
             if (!itemstack.isEmpty() && itemstack.isItemEnchantable())
             {
-                if (!this.worldPointer.isRemote)
+                if (!this.world.isRemote)
                 {
                     int l = 0;
                     float power = 0;
@@ -195,16 +195,16 @@ public class ContainerEnchantment extends Container
                     {
                         for (int k = -1; k <= 1; ++k)
                         {
-                            if ((j != 0 || k != 0) && this.worldPointer.isAirBlock(this.position.add(k, 0, j)) && this.worldPointer.isAirBlock(this.position.add(k, 1, j)))
+                            if ((j != 0 || k != 0) && this.world.isAirBlock(this.position.add(k, 0, j)) && this.world.isAirBlock(this.position.add(k, 1, j)))
                             {
-                                power += net.minecraftforge.common.ForgeHooks.getEnchantPower(worldPointer, position.add(k * 2, 0, j * 2));
-                                power += net.minecraftforge.common.ForgeHooks.getEnchantPower(worldPointer, position.add(k * 2, 1, j * 2));
+                                power += net.minecraftforge.common.ForgeHooks.getEnchantPower(world, position.add(k * 2, 0, j * 2));
+                                power += net.minecraftforge.common.ForgeHooks.getEnchantPower(world, position.add(k * 2, 1, j * 2));
                                 if (k != 0 && j != 0)
                                 {
-                                    power += net.minecraftforge.common.ForgeHooks.getEnchantPower(worldPointer, position.add(k * 2, 0, j));
-                                    power += net.minecraftforge.common.ForgeHooks.getEnchantPower(worldPointer, position.add(k * 2, 1, j));
-                                    power += net.minecraftforge.common.ForgeHooks.getEnchantPower(worldPointer, position.add(k, 0, j * 2));
-                                    power += net.minecraftforge.common.ForgeHooks.getEnchantPower(worldPointer, position.add(k, 1, j * 2));
+                                    power += net.minecraftforge.common.ForgeHooks.getEnchantPower(world, position.add(k * 2, 0, j));
+                                    power += net.minecraftforge.common.ForgeHooks.getEnchantPower(world, position.add(k * 2, 1, j));
+                                    power += net.minecraftforge.common.ForgeHooks.getEnchantPower(world, position.add(k, 0, j * 2));
+                                    power += net.minecraftforge.common.ForgeHooks.getEnchantPower(world, position.add(k, 1, j * 2));
                                 }
                             }
                         }
@@ -222,7 +222,7 @@ public class ContainerEnchantment extends Container
                         {
                             this.enchantLevels[i1] = 0;
                         }
-                        this.enchantLevels[i1] = net.minecraftforge.event.ForgeEventFactory.onEnchantmentLevelSet(worldPointer, position, i1, (int)power, itemstack, enchantLevels[i1]);
+                        this.enchantLevels[i1] = net.minecraftforge.event.ForgeEventFactory.onEnchantmentLevelSet(world, position, i1, (int)power, itemstack, enchantLevels[i1]);
                     }
 
                     for (int j1 = 0; j1 < 3; ++j1)
@@ -270,7 +270,7 @@ public class ContainerEnchantment extends Container
         }
         else if (this.enchantLevels[id] > 0 && !itemstack.isEmpty() && (playerIn.experienceLevel >= i && playerIn.experienceLevel >= this.enchantLevels[id] || playerIn.capabilities.isCreativeMode))
         {
-            if (!this.worldPointer.isRemote)
+            if (!this.world.isRemote)
             {
                 List<EnchantmentData> list = this.getEnchantmentList(itemstack, id, this.enchantLevels[id]);
 
@@ -319,7 +319,7 @@ public class ContainerEnchantment extends Container
                     this.tableInventory.markDirty();
                     this.xpSeed = playerIn.getXPSeed();
                     this.onCraftMatrixChanged(this.tableInventory);
-                    this.worldPointer.playSound((EntityPlayer)null, this.position, SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.BLOCKS, 1.0F, this.worldPointer.rand.nextFloat() * 0.1F + 0.9F);
+                    this.world.playSound((EntityPlayer)null, this.position, SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.BLOCKS, 1.0F, this.world.rand.nextFloat() * 0.1F + 0.9F);
                 }
             }
 
@@ -358,7 +358,7 @@ public class ContainerEnchantment extends Container
     {
         super.onContainerClosed(playerIn);
 
-        if (!this.worldPointer.isRemote)
+        if (!this.world.isRemote)
         {
             this.clearContainer(playerIn, playerIn.world, this.tableInventory);
         }
@@ -369,7 +369,7 @@ public class ContainerEnchantment extends Container
      */
     public boolean canInteractWith(EntityPlayer playerIn)
     {
-        if (this.worldPointer.getBlockState(this.position).getBlock() != Blocks.ENCHANTING_TABLE)
+        if (this.world.getBlockState(this.position).getBlock() != Blocks.ENCHANTING_TABLE)
         {
             return false;
         }
@@ -421,9 +421,10 @@ public class ContainerEnchantment extends Container
                     return ItemStack.EMPTY;
                 }
 
-                if (itemstack1.hasTagCompound())// Forge: Fix MC-17431
+                if (itemstack1.hasTagCompound() && itemstack1.getCount() == 1)
                 {
-                    ((Slot)this.inventorySlots.get(0)).putStack(itemstack1.splitStack(1));
+                    ((Slot)this.inventorySlots.get(0)).putStack(itemstack1.copy());
+                    itemstack1.setCount(0);
                 }
                 else if (!itemstack1.isEmpty())
                 {

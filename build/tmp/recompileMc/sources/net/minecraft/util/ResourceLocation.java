@@ -13,14 +13,14 @@ import org.apache.commons.lang3.Validate;
 
 public class ResourceLocation implements Comparable<ResourceLocation>
 {
-    protected final String resourceDomain;
-    protected final String resourcePath;
+    protected final String namespace;
+    protected final String path;
 
     protected ResourceLocation(int unused, String... resourceName)
     {
-        this.resourceDomain = org.apache.commons.lang3.StringUtils.isEmpty(resourceName[0]) ? "minecraft" : resourceName[0].toLowerCase(Locale.ROOT);
-        this.resourcePath = resourceName[1].toLowerCase(Locale.ROOT);
-        Validate.notNull(this.resourcePath);
+        this.namespace = org.apache.commons.lang3.StringUtils.isEmpty(resourceName[0]) ? "minecraft" : resourceName[0].toLowerCase(Locale.ROOT);
+        this.path = resourceName[1].toLowerCase(Locale.ROOT);
+        Validate.notNull(this.path);
     }
 
     public ResourceLocation(String resourceName)
@@ -28,9 +28,9 @@ public class ResourceLocation implements Comparable<ResourceLocation>
         this(0, splitObjectName(resourceName));
     }
 
-    public ResourceLocation(String resourceDomainIn, String resourcePathIn)
+    public ResourceLocation(String namespaceIn, String pathIn)
     {
-        this(0, resourceDomainIn, resourcePathIn);
+        this(0, namespaceIn, pathIn);
     }
 
     /**
@@ -55,19 +55,19 @@ public class ResourceLocation implements Comparable<ResourceLocation>
         return astring;
     }
 
-    public String getResourcePath()
+    public String getPath()
     {
-        return this.resourcePath;
+        return this.path;
     }
 
-    public String getResourceDomain()
+    public String getNamespace()
     {
-        return this.resourceDomain;
+        return this.namespace;
     }
 
     public String toString()
     {
-        return this.resourceDomain + ':' + this.resourcePath;
+        return this.namespace + ':' + this.path;
     }
 
     public boolean equals(Object p_equals_1_)
@@ -83,22 +83,22 @@ public class ResourceLocation implements Comparable<ResourceLocation>
         else
         {
             ResourceLocation resourcelocation = (ResourceLocation)p_equals_1_;
-            return this.resourceDomain.equals(resourcelocation.resourceDomain) && this.resourcePath.equals(resourcelocation.resourcePath);
+            return this.namespace.equals(resourcelocation.namespace) && this.path.equals(resourcelocation.path);
         }
     }
 
     public int hashCode()
     {
-        return 31 * this.resourceDomain.hashCode() + this.resourcePath.hashCode();
+        return 31 * this.namespace.hashCode() + this.path.hashCode();
     }
 
     public int compareTo(ResourceLocation p_compareTo_1_)
     {
-        int i = this.resourceDomain.compareTo(p_compareTo_1_.resourceDomain);
+        int i = this.namespace.compareTo(p_compareTo_1_.namespace);
 
         if (i == 0)
         {
-            i = this.resourcePath.compareTo(p_compareTo_1_.resourcePath);
+            i = this.path.compareTo(p_compareTo_1_.path);
         }
 
         return i;

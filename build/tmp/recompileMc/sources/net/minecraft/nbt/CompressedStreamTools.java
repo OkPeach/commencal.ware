@@ -138,7 +138,7 @@ public class CompressedStreamTools
         {
             NBTSizeTracker.readUTF(accounter, input.readUTF()); //Forge: Count this string.
             accounter.read(32); //Forge: 4 extra bytes for the object allocation.
-            NBTBase nbtbase = NBTBase.createNewByType(b0);
+            NBTBase nbtbase = NBTBase.create(b0);
 
             try
             {

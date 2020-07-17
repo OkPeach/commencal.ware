@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,41 +21,13 @@ package net.minecraftforge.fml.common;
 
 import java.util.List;
 
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraftforge.fml.client.GuiMultipleModsErrored;
-import net.minecraftforge.fml.client.IDisplayableError;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
-import net.minecraftforge.fml.common.EnhancedRuntimeException.WrappedPrintStream;
-
-public class MultipleModsErrored extends EnhancedRuntimeException implements IDisplayableError
+public class MultipleModsErrored extends RuntimeException
 {
     public final List<WrongMinecraftVersionException> wrongMinecraftExceptions;
-    public final List<MissingModsException> missingModsExceptions;
+    public final List<MissingModsException>missingModsExceptions;
     public MultipleModsErrored(List<WrongMinecraftVersionException> wrongMinecraftExceptions, List<MissingModsException> missingModsExceptions)
     {
         this.wrongMinecraftExceptions = wrongMinecraftExceptions;
         this.missingModsExceptions = missingModsExceptions;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public GuiScreen createGui()
-    {
-        return new GuiMultipleModsErrored(this);
-    }
-
-    @Override
-    protected void printStackTrace(WrappedPrintStream stream)
-    {
-        for (WrongMinecraftVersionException wrongMinecraftVersionException : this.wrongMinecraftExceptions)
-        {
-            wrongMinecraftVersionException.printStackTrace(stream);
-        }
-        for (MissingModsException missingModsException : this.missingModsExceptions)
-        {
-            missingModsException.printStackTrace(stream);
-        }
     }
 }

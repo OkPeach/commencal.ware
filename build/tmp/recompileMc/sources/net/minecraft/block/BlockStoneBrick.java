@@ -76,13 +76,13 @@ public class BlockStoneBrick extends Block
         private static final BlockStoneBrick.EnumType[] META_LOOKUP = new BlockStoneBrick.EnumType[values().length];
         private final int meta;
         private final String name;
-        private final String unlocalizedName;
+        private final String translationKey;
 
         private EnumType(int meta, String name, String unlocalizedName)
         {
             this.meta = meta;
             this.name = name;
-            this.unlocalizedName = unlocalizedName;
+            this.translationKey = unlocalizedName;
         }
 
         public int getMetadata()
@@ -110,9 +110,9 @@ public class BlockStoneBrick extends Block
             return this.name;
         }
 
-        public String getUnlocalizedName()
+        public String getTranslationKey()
         {
-            return this.unlocalizedName;
+            return this.translationKey;
         }
 
         static

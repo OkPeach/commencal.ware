@@ -398,7 +398,6 @@ public class Village implements net.minecraftforge.common.capabilities.ICapabili
                 villagedoorinfo.resetDoorOpeningRestrictionCounter();
             }
 
-            if (world.isBlockLoaded(villagedoorinfo.getDoorBlockPos())) // Forge: check that the door block is loaded to avoid loading chunks
             if (!this.isWoodDoor(villagedoorinfo.getDoorBlockPos()) || Math.abs(this.tickCounter - villagedoorinfo.getLastActivityTimestamp()) > 1200)
             {
                 this.centerHelper = this.centerHelper.subtract(villagedoorinfo.getDoorBlockPos());
@@ -647,7 +646,6 @@ public class Village implements net.minecraftforge.common.capabilities.ICapabili
         return capabilities == null ? false : capabilities.hasCapability(capability, facing);
     }
 
-    @Nullable
     public <T> T getCapability(net.minecraftforge.common.capabilities.Capability<T> capability, @Nullable net.minecraft.util.EnumFacing facing)
     {
         return capabilities == null ? null : capabilities.getCapability(capability, facing);

@@ -295,17 +295,15 @@ public abstract class WorldProvider
      * EXA: DIM1, DIM-1
      * @return The sub-folder name to save this world's chunks to.
      */
-    @Nullable
     public String getSaveFolder()
     {
         return (dimensionId == 0 ? null : "DIM" + dimensionId);
     }
 
     /**
-     * The dimension's movement factor.
-     * Whenever a player or entity changes dimension from world A to world B, their coordinates are multiplied by
-     * worldA.provider.getMovementFactor() / worldB.provider.getMovementFactor()
-     * Example: Overworld factor is 1, nether factor is 8. Traveling from overworld to nether multiplies coordinates by 1/8.
+     * The dimensions movement factor. Relative to normal overworld.
+     * It is applied to the players position when they transfer dimensions.
+     * Exa: Nether movement is 8.0
      * @return The movement factor
      */
     public double getMovementFactor()
@@ -317,23 +315,6 @@ public abstract class WorldProvider
         return 1.0;
     }
 
-    /**
-     * If this method returns true, then chunks received by the client will
-     * have {@link net.minecraft.world.chunk.Chunk#resetRelightChecks} called
-     * on them, queuing lighting checks for all air blocks in the chunk (and
-     * any adjacent light-emitting blocks).
-     *
-     * Returning true here is recommended if the chunk generator used also
-     * does this for newly generated chunks.
-     *
-     * @return true if lighting checks should be performed
-     */
-    public boolean shouldClientCheckLighting()
-    {
-        return !(this instanceof WorldProviderSurface);
-    }
-
-    @Nullable
     @SideOnly(Side.CLIENT)
     public net.minecraftforge.client.IRenderHandler getSkyRenderer()
     {
@@ -346,7 +327,6 @@ public abstract class WorldProvider
         this.skyRenderer = skyRenderer;
     }
 
-    @Nullable
     @SideOnly(Side.CLIENT)
     public net.minecraftforge.client.IRenderHandler getCloudRenderer()
     {
@@ -359,7 +339,6 @@ public abstract class WorldProvider
         cloudRenderer = renderer;
     }
 
-    @Nullable
     @SideOnly(Side.CLIENT)
     public net.minecraftforge.client.IRenderHandler getWeatherRenderer()
     {
@@ -438,42 +417,9 @@ public abstract class WorldProvider
      * Note that this method is always called before the world load event.
      * @return initial holder for capabilities on the world
      */
-    @Nullable
     public net.minecraftforge.common.capabilities.ICapabilityProvider initCapabilities() {
         return null;
     }
-
-    /**
-     * Called on the client to get the music type to play when in this world type.
-     * At the time of calling, the client player and world are guaranteed to be non-null
-     * @return null to use vanilla logic, otherwise a MusicType to play in this world
-     */
-    @Nullable
-    @SideOnly(Side.CLIENT)
-    public net.minecraft.client.audio.MusicTicker.MusicType getMusicType()
-    {
-        return null;
-    }
-
-    /**
-     * Determines if the player can sleep in this world (or if the bed should explode for example).
-     *
-     * @param player The player that is attempting to sleep
-     * @param pos The location where the player tries to sleep at (the position of the clicked on bed for example)
-     * @return the result of a player trying to sleep at the given location
-     */
-    public WorldSleepResult canSleepAt(net.minecraft.entity.player.EntityPlayer player, BlockPos pos)
-    {
-        return (this.canRespawnHere() && this.world.getBiome(pos) != net.minecraft.init.Biomes.HELL) ? WorldSleepResult.ALLOW : WorldSleepResult.BED_EXPLODES;
-    }
-
-    public static enum WorldSleepResult
-    {
-        ALLOW,
-        DENY,
-        BED_EXPLODES;
-    }
-
     /*======================================= Start Moved From World =========================================*/
 
     public Biome getBiomeForCoords(BlockPos pos)

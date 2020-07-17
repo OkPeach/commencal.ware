@@ -19,15 +19,15 @@ public class RenderAbstractHorse extends RenderLiving<AbstractHorse>
     private static final Map < Class<?>, ResourceLocation > MAP = Maps. < Class<?>, ResourceLocation > newHashMap();
     private final float scale;
 
-    public RenderAbstractHorse(RenderManager p_i47212_1_)
+    public RenderAbstractHorse(RenderManager manager)
     {
-        this(p_i47212_1_, 1.0F);
+        this(manager, 1.0F);
     }
 
-    public RenderAbstractHorse(RenderManager p_i47213_1_, float p_i47213_2_)
+    public RenderAbstractHorse(RenderManager renderManagerIn, float scaleIn)
     {
-        super(p_i47213_1_, new ModelHorse(), 0.75F);
-        this.scale = p_i47213_2_;
+        super(renderManagerIn, new ModelHorse(), 0.75F);
+        this.scale = scaleIn;
     }
 
     /**

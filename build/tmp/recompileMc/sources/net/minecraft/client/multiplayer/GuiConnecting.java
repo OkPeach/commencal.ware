@@ -24,11 +24,11 @@ import org.apache.logging.log4j.Logger;
 @SideOnly(Side.CLIENT)
 public class GuiConnecting extends GuiScreen
 {
-    private static final AtomicInteger CONNECTION_ID = new AtomicInteger(0);
-    private static final Logger LOGGER = LogManager.getLogger();
-    private NetworkManager networkManager;
-    private boolean cancel;
-    private final GuiScreen previousGuiScreen;
+    public static final AtomicInteger CONNECTION_ID = new AtomicInteger(0);
+    public static final Logger LOGGER = LogManager.getLogger();
+    public NetworkManager networkManager;
+    public boolean cancel;
+    public final GuiScreen previousGuiScreen;
 
     public GuiConnecting(GuiScreen parent, Minecraft mcIn, ServerData serverDataIn)
     {
@@ -115,7 +115,7 @@ public class GuiConnecting extends GuiScreen
             }
             else
             {
-                this.networkManager.checkDisconnected();
+                this.networkManager.handleDisconnection();
             }
         }
     }

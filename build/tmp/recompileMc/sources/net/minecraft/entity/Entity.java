@@ -87,21 +87,25 @@ import org.apache.logging.log4j.Logger;
 
 public abstract class Entity implements ICommandSender, net.minecraftforge.common.capabilities.ICapabilitySerializable<NBTTagCompound>
 {
-    private static final Logger LOGGER = LogManager.getLogger();
-    private static final List<ItemStack> EMPTY_EQUIPMENT = Collections.<ItemStack>emptyList();
-    private static final AxisAlignedBB ZERO_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
-    private static double renderDistanceWeight = 1.0D;
-    private static int nextEntityID;
-    private int entityId;
+    public static final Logger LOGGER = LogManager.getLogger();
+    public static final List<ItemStack> EMPTY_EQUIPMENT = Collections.<ItemStack>emptyList();
+    public static final AxisAlignedBB ZERO_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
+    public static double renderDistanceWeight = 1.0D;
+    public static int nextEntityID;
+    public int entityId;
     /**
      * Blocks entities from spawning when they do their AABB check to make sure the spot is clear of entities that can
      * prevent spawning.
      */
     public boolean preventEntitySpawning;
     /** List of entities that are riding this entity */
-    private final List<Entity> riddenByEntities;
-    protected int rideCooldown;
-    private Entity ridingEntity;
+    public final List<Entity> riddenByEntities;
+    public int rideCooldown;
+    public Entity ridingEntity;
+    /**
+     * If true, forces the World to spawn the entity and send it to clients even if the Chunk it is located in has not
+     * yet been loaded.
+     */
     public boolean forceSpawn;
     /** Reference to the World object. */
     public World world;
@@ -127,7 +131,7 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
     public float prevRotationYaw;
     public float prevRotationPitch;
     /** Axis aligned bounding box. */
-    private AxisAlignedBB boundingBox;
+    public AxisAlignedBB boundingBox;
     public boolean onGround;
     /** True if after a move this entity has collided with something on X- or Z-axis */
     public boolean collidedHorizontally;
@@ -137,8 +141,8 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
     public boolean collided;
     /** If true, an {@link SPacketEntityVelocity} will be sent updating this entity's velocity. */
     public boolean velocityChanged;
-    protected boolean isInWeb;
-    private boolean isOutsideBorder;
+    public boolean isInWeb;
+    public boolean isOutsideBorder;
     /** gets set by setEntityDead, so this must be the flag whether an Entity is dead (inactive may be better term) */
     public boolean isDead;
     /** How wide this entity is considered to be */
@@ -152,8 +156,8 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
     public float distanceWalkedOnStepModified;
     public float fallDistance;
     /** The distance that has to be exceeded in order to triger a new step sound and an onEntityWalking event on a block */
-    private int nextStepDistance;
-    private float nextFlap;
+    public int nextStepDistance;
+    public float nextFlap;
     /** The entity's X coordinate at the previous tick, used to calculate position during rendering routines */
     public double lastTickPosX;
     /** The entity's Y coordinate at the previous tick, used to calculate position during rendering routines */
@@ -169,23 +173,23 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
     public boolean noClip;
     /** Reduces the velocity applied by entity collisions by the specified percent. */
     public float entityCollisionReduction;
-    protected Random rand;
+    public Random rand;
     /** How many ticks has this entity had ran since being alive */
     public int ticksExisted;
-    private int fire;
+    public int fire;
     /** Whether this entity is currently inside of water (if it handles water movement that is) */
-    protected boolean inWater;
+    public boolean inWater;
     /** Remaining time an entity will be "immune" to further damage after being hurt. */
     public int hurtResistantTime;
-    protected boolean firstUpdate;
-    protected boolean isImmuneToFire;
-    protected EntityDataManager dataManager;
-    protected static final DataParameter<Byte> FLAGS = EntityDataManager.<Byte>createKey(Entity.class, DataSerializers.BYTE);
-    private static final DataParameter<Integer> AIR = EntityDataManager.<Integer>createKey(Entity.class, DataSerializers.VARINT);
-    private static final DataParameter<String> CUSTOM_NAME = EntityDataManager.<String>createKey(Entity.class, DataSerializers.STRING);
-    private static final DataParameter<Boolean> CUSTOM_NAME_VISIBLE = EntityDataManager.<Boolean>createKey(Entity.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Boolean> SILENT = EntityDataManager.<Boolean>createKey(Entity.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Boolean> NO_GRAVITY = EntityDataManager.<Boolean>createKey(Entity.class, DataSerializers.BOOLEAN);
+    public boolean firstUpdate;
+    public boolean isImmuneToFire;
+    public EntityDataManager dataManager;
+    public static final DataParameter<Byte> FLAGS = EntityDataManager.<Byte>createKey(Entity.class, DataSerializers.BYTE);
+    public static final DataParameter<Integer> AIR = EntityDataManager.<Integer>createKey(Entity.class, DataSerializers.VARINT);
+    public static final DataParameter<String> CUSTOM_NAME = EntityDataManager.<String>createKey(Entity.class, DataSerializers.STRING);
+    public static final DataParameter<Boolean> CUSTOM_NAME_VISIBLE = EntityDataManager.<Boolean>createKey(Entity.class, DataSerializers.BOOLEAN);
+    public static final DataParameter<Boolean> SILENT = EntityDataManager.<Boolean>createKey(Entity.class, DataSerializers.BOOLEAN);
+    public static final DataParameter<Boolean> NO_GRAVITY = EntityDataManager.<Boolean>createKey(Entity.class, DataSerializers.BOOLEAN);
     /** Has this entity been added to the chunk its within */
     public boolean addedToChunk;
     public int chunkCoordX;
@@ -205,26 +209,26 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
     public boolean isAirBorne;
     public int timeUntilPortal;
     /** Whether the entity is inside a Portal */
-    protected boolean inPortal;
-    protected int portalCounter;
+    public boolean inPortal;
+    public int portalCounter;
     /** Which dimension the player is in (-1 = the Nether, 0 = normal world) */
     public int dimension;
     /** The position of the last portal the entity was in */
-    protected BlockPos lastPortalPos;
+    public BlockPos lastPortalPos;
     /** A horizontal vector related to the position of the last portal the entity was in */
-    protected Vec3d lastPortalVec;
+    public Vec3d lastPortalVec;
     /** A direction related to the position of the last portal the entity was in */
-    protected EnumFacing teleportDirection;
-    private boolean invulnerable;
-    protected UUID entityUniqueID;
-    protected String cachedUniqueIdString;
+    public EnumFacing teleportDirection;
+    public boolean invulnerable;
+    public UUID entityUniqueID;
+    public String cachedUniqueIdString;
     /** The command result statistics for this Entity. */
-    private final CommandResultStats cmdResultStats;
-    protected boolean glowing;
-    private final Set<String> tags;
-    private boolean isPositionDirty;
-    private final double[] pistonDeltas;
-    private long pistonDeltasGameTime;
+    public final CommandResultStats cmdResultStats;
+    public boolean glowing;
+    public final Set<String> tags;
+    public boolean isPositionDirty;
+    public final double[] pistonDeltas;
+    public long pistonDeltasGameTime;
     /**
      * Setting this to true will prevent the world from calling {@link #onUpdate()} for this entity.
      */
@@ -426,7 +430,6 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
         this.posX = x;
         this.posY = y;
         this.posZ = z;
-        if (this.isAddedToWorld() && !this.world.isRemote) this.world.updateEntityWithOptionalForce(this, false); // Forge - Process chunk registration after moving.
         float f = this.width / 2.0F;
         float f1 = this.height;
         this.setEntityBoundingBox(new AxisAlignedBB(x - (double)f, y, z - (double)f, x + (double)f, y + (double)f1, z + (double)f));
@@ -1118,7 +1121,6 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
         this.posX = (axisalignedbb.minX + axisalignedbb.maxX) / 2.0D;
         this.posY = axisalignedbb.minY;
         this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
-        if (this.isAddedToWorld() && !this.world.isRemote) this.world.updateEntityWithOptionalForce(this, false); // Forge - Process chunk registration after moving.
     }
 
     protected SoundEvent getSwimSound()
@@ -1151,7 +1153,7 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
 
                         try
                         {
-                            iblockstate.getBlock().onEntityCollidedWithBlock(this.world, blockpos$pooledmutableblockpos2, iblockstate, this);
+                            iblockstate.getBlock().onEntityCollision(this.world, blockpos$pooledmutableblockpos2, iblockstate, this);
                             this.onInsideBlock(iblockstate);
                         }
                         catch (Throwable throwable)
@@ -1421,7 +1423,6 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
         BlockPos blockpos = new BlockPos(i, j, k);
         IBlockState iblockstate = this.world.getBlockState(blockpos);
 
-        if(!iblockstate.getBlock().addRunningEffects(iblockstate, world, blockpos, this))
         if (iblockstate.getRenderType() != EnumBlockRenderType.INVISIBLE)
         {
             this.world.spawnParticle(EnumParticleTypes.BLOCK_CRACK, this.posX + ((double)this.rand.nextFloat() - 0.5D) * (double)this.width, this.getEntityBoundingBox().minY + 0.1D, this.posZ + ((double)this.rand.nextFloat() - 0.5D) * (double)this.width, -this.motionX * 4.0D, 1.5D, -this.motionZ * 4.0D, Block.getStateId(iblockstate));
@@ -1557,7 +1558,6 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
             this.prevRotationYaw -= 360.0F;
         }
 
-        if (!this.world.isRemote) this.world.getChunkFromChunkCoords((int) Math.floor(this.posX) >> 4, (int) Math.floor(this.posZ) >> 4); // Forge - ensure target chunk is loaded.
         this.setPosition(this.posX, this.posY, this.posZ);
         this.setRotation(yaw, pitch);
     }
@@ -1778,7 +1778,7 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
     {
         Vec3d vec3d = this.getPositionEyes(partialTicks);
         Vec3d vec3d1 = this.getLook(partialTicks);
-        Vec3d vec3d2 = vec3d.addVector(vec3d1.x * blockReachDistance, vec3d1.y * blockReachDistance, vec3d1.z * blockReachDistance);
+        Vec3d vec3d2 = vec3d.add(vec3d1.x * blockReachDistance, vec3d1.y * blockReachDistance, vec3d1.z * blockReachDistance);
         return this.world.rayTraceBlocks(vec3d, vec3d2, false, false, true);
     }
 
@@ -1972,7 +1972,7 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
                     }
                 }
 
-                if (!nbttaglist1.hasNoTags())
+                if (!nbttaglist1.isEmpty())
                 {
                     compound.setTag("Passengers", nbttaglist1);
                 }
@@ -2405,7 +2405,7 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
     }
 
     /**
-     * Set the position and rotation values directly without any clamping.
+     * Sets a target for the client to interpolate towards over the next few ticks
      */
     @SideOnly(Side.CLIENT)
     public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean teleport)
@@ -2439,7 +2439,7 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
     @SideOnly(Side.CLIENT)
     public Vec3d getForward()
     {
-        return Vec3d.fromPitchYawVector(this.getPitchYaw());
+        return Vec3d.fromPitchYaw(this.getPitchYaw());
     }
 
     /**
@@ -2600,8 +2600,8 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
 
     /**
      * Only used by renderer in EntityLivingBase subclasses.
-     * Determines if an entity is visible or not to a specfic player, if the entity is normally invisible.
-     * For EntityLivingBase subclasses, returning false when invisible will render the entity semitransparent.
+     * Determines if an entity is visible or not to a specific player, if the entity is normally invisible.
+     * For EntityLivingBase subclasses, returning false when invisible will render the entity semi-transparent.
      */
     @SideOnly(Side.CLIENT)
     public boolean isInvisibleToPlayer(EntityPlayer player)
@@ -2783,7 +2783,39 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
     }
 
     /**
-     * Get the name of this object. For players this returns their username
+     * Gets the name of this thing. This method has slightly different behavior depending on the interface (for <a
+     * href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method is used for
+     * both IWorldNameable and ICommandSender):
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#getName() INameable.getName()}</dt>
+     * <dd>Returns the name of this inventory. If this {@linkplain net.minecraft.inventory#hasCustomName() has a custom
+     * name} then this <em>should</em> be a direct string; otherwise it <em>should</em> be a valid translation
+     * string.</dd>
+     * <dd>However, note that <strong>the translation string may be invalid</strong>, as is the case for {@link
+     * net.minecraft.tileentity.TileEntityBanner TileEntityBanner} (always returns nonexistent translation code
+     * <code>banner</code> without a custom name), {@link net.minecraft.block.BlockAnvil.Anvil BlockAnvil$Anvil} (always
+     * returns <code>anvil</code>), {@link net.minecraft.block.BlockWorkbench.InterfaceCraftingTable
+     * BlockWorkbench$InterfaceCraftingTable} (always returns <code>crafting_table</code>), {@link
+     * net.minecraft.inventory.InventoryCraftResult InventoryCraftResult} (always returns <code>Result</code>) and the
+     * {@link net.minecraft.entity.item.EntityMinecart EntityMinecart} family (uses the entity definition). This is not
+     * an exaustive list.</dd>
+     * <dd>In general, this method should be safe to use on tile entities that implement IInventory.</dd>
+     * <dt>{@link net.minecraft.command.ICommandSender#getName() ICommandSender.getName()} and {@link
+     * net.minecraft.entity.Entity#getName() Entity.getName()}</dt>
+     * <dd>Returns a valid, displayable name (which may be localized). For most entities, this is the translated version
+     * of its translation string (obtained via {@link net.minecraft.entity.EntityList#getEntityString
+     * EntityList.getEntityString}).</dd>
+     * <dd>If this entity has a custom name set, this will return that name.</dd>
+     * <dd>For some entities, this will attempt to translate a nonexistent translation string; see <a
+     * href="https://bugs.mojang.com/browse/MC-68446">MC-68446</a>. For {@linkplain
+     * net.minecraft.entity.player.EntityPlayer#getName() players} this returns the player's name. For {@linkplain
+     * net.minecraft.entity.passive.EntityOcelot ocelots} this may return the translation of
+     * <code>entity.Cat.name</code> if it is tamed. For {@linkplain net.minecraft.entity.item.EntityItem#getName() item
+     * entities}, this will attempt to return the name of the item in that item entity. In all cases other than players,
+     * the custom name will overrule this.</dd>
+     * <dd>For non-entity command senders, this will return some arbitrary name, such as "Rcon" or "Server".</dd>
+     * </dl>
      */
     public String getName()
     {
@@ -2805,7 +2837,10 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
     }
 
     /**
-     * Return the Entity parts making up this Entity (currently only for dragons)
+     * Return all subparts of this entity. These parts are not saved in the chunk and do not tick, but are detected by
+     * getEntitiesInAABB and are put in the entity ID map. Vanilla makes the assumption that the entities in this array
+     * have consecutive entity ID's after their owner ID, so you must construct all parts in the constructor of the
+     * parent.
      */
     @Nullable
     public Entity[] getParts()
@@ -2907,13 +2942,6 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
     @Nullable
     public Entity changeDimension(int dimensionIn)
     {
-        if (this.world.isRemote || this.isDead) return null;
-        return changeDimension(dimensionIn, this.getServer().getWorld(dimensionIn).getDefaultTeleporter());
-    }
-
-    @Nullable // Forge: Entities that require custom handling should override this method, not the other
-    public Entity changeDimension(int dimensionIn, net.minecraftforge.common.util.ITeleporter teleporter)
-    {
         if (!this.world.isRemote && !this.isDead)
         {
             if (!net.minecraftforge.common.ForgeHooks.onTravelToDimension(this, dimensionIn)) return null;
@@ -2924,7 +2952,7 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
             WorldServer worldserver1 = minecraftserver.getWorld(dimensionIn);
             this.dimension = dimensionIn;
 
-            if (i == 1 && dimensionIn == 1 && teleporter.isVanilla())
+            if (i == 1 && dimensionIn == 1)
             {
                 worldserver1 = minecraftserver.getWorld(0);
                 this.dimension = 0;
@@ -2935,23 +2963,22 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
             this.world.profiler.startSection("reposition");
             BlockPos blockpos;
 
-            if (dimensionIn == 1 && teleporter.isVanilla())
+            if (dimensionIn == 1)
             {
                 blockpos = worldserver1.getSpawnCoordinate();
             }
             else
             {
-                double moveFactor = worldserver.provider.getMovementFactor() / worldserver1.provider.getMovementFactor();
-                double d0 = MathHelper.clamp(this.posX * moveFactor, worldserver1.getWorldBorder().minX() + 16.0D, worldserver1.getWorldBorder().maxX() - 16.0D);
-                double d1 = MathHelper.clamp(this.posZ * moveFactor, worldserver1.getWorldBorder().minZ() + 16.0D, worldserver1.getWorldBorder().maxZ() - 16.0D);
+                double d0 = this.posX;
+                double d1 = this.posZ;
                 double d2 = 8.0D;
 
-                if (false && dimensionIn == -1)
+                if (dimensionIn == -1)
                 {
                     d0 = MathHelper.clamp(d0 / 8.0D, worldserver1.getWorldBorder().minX() + 16.0D, worldserver1.getWorldBorder().maxX() - 16.0D);
                     d1 = MathHelper.clamp(d1 / 8.0D, worldserver1.getWorldBorder().minZ() + 16.0D, worldserver1.getWorldBorder().maxZ() - 16.0D);
                 }
-                else if (false && dimensionIn == 0)
+                else if (dimensionIn == 0)
                 {
                     d0 = MathHelper.clamp(d0 * 8.0D, worldserver1.getWorldBorder().minX() + 16.0D, worldserver1.getWorldBorder().maxX() - 16.0D);
                     d1 = MathHelper.clamp(d1 * 8.0D, worldserver1.getWorldBorder().minZ() + 16.0D, worldserver1.getWorldBorder().maxZ() - 16.0D);
@@ -2961,7 +2988,8 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
                 d1 = (double)MathHelper.clamp((int)d1, -29999872, 29999872);
                 float f = this.rotationYaw;
                 this.setLocationAndAngles(d0, this.posY, d1, 90.0F, 0.0F);
-                teleporter.placeEntity(worldserver1, this, f);
+                Teleporter teleporter = worldserver1.getDefaultTeleporter();
+                teleporter.placeInExistingPortal(this, f);
                 blockpos = new BlockPos(this);
             }
 
@@ -2973,7 +3001,7 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
             {
                 entity.copyDataFromOld(this);
 
-                if (i == 1 && dimensionIn == 1 && teleporter.isVanilla())
+                if (i == 1 && dimensionIn == 1)
                 {
                     BlockPos blockpos1 = worldserver1.getTopSolidOrLiquidBlock(worldserver1.getSpawnPoint());
                     entity.moveToBlockPosAndAngles(blockpos1, entity.rotationYaw, entity.rotationPitch);
@@ -3132,7 +3160,25 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
     }
 
     /**
-     * Get the formatted ChatComponent that will be used for the sender's username in chat
+     * Returns a displayable component representing this thing's name. This method should be implemented slightly
+     * differently depending on the interface (for <a href="https://github.com/ModCoderPack/MCPBot-
+     * Issues/issues/14">technical reasons</a> the same method is used for both IWorldNameable and ICommandSender), but
+     * unlike {@link #getName()} this method will generally behave sanely.
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#getDisplayName() INameable.getDisplayName()}</dt>
+     * <dd>A normal component. Might be a translation component or a text component depending on the context. Usually
+     * implemented as:</dd>
+     * <dd><pre><code>return this.{@link net.minecraft.util.INameable#hasCustomName() hasCustomName()} ? new
+     * TextComponentString(this.{@link #getName()}) : new TextComponentTranslation(this.{@link
+     * #getName()});</code></pre></dd>
+     * <dt>{@link net.minecraft.command.ICommandSender#getDisplayName() ICommandSender.getDisplayName()} and {@link
+     * net.minecraft.entity.Entity#getDisplayName() Entity.getDisplayName()}</dt>
+     * <dd>For most entities, this returns the result of {@link #getName()}, with {@linkplain
+     * net.minecraft.scoreboard.ScorePlayerTeam#formatPlayerName scoreboard formatting} and a {@linkplain
+     * net.minecraft.entity.Entity#getHoverEvent special hover event}.</dd>
+     * <dd>For non-entity command senders, this will return the result of {@link #getName()} in a text component.</dd>
+     * </dl>
      */
     public ITextComponent getDisplayName()
     {
@@ -3150,13 +3196,27 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
         this.dataManager.set(CUSTOM_NAME, name);
     }
 
+    /**
+     * Gets the custom name assigned to this entity. If no custom name has been assigned, returns an empty string.
+     */
     public String getCustomNameTag()
     {
         return (String)this.dataManager.get(CUSTOM_NAME);
     }
 
     /**
-     * Returns true if this thing is named
+     * Checks if this thing has a custom name. This method has slightly different behavior depending on the interface
+     * (for <a href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method is
+     * used for both IWorldNameable and Entity):
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#hasCustomName() INameable.hasCustomName()}</dt>
+     * <dd>If true, then {@link #getName()} probably returns a preformatted name; otherwise, it probably returns a
+     * translation string. However, exact behavior varies.</dd>
+     * <dt>{@link net.minecraft.entity.Entity#hasCustomName() Entity.hasCustomName()}</dt>
+     * <dd>If true, then {@link net.minecraft.entity.Entity#getCustomNameTag() Entity.getCustomNameTag()} will return a
+     * non-empty string, which will be used by {@link #getName()}.</dd>
+     * </dl>
      */
     public boolean hasCustomName()
     {
@@ -3198,7 +3258,7 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
      */
     public EnumFacing getHorizontalFacing()
     {
-        return EnumFacing.getHorizontal(MathHelper.floor((double)(this.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3);
+        return EnumFacing.byHorizontalIndex(MathHelper.floor((double)(this.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3);
     }
 
     /**
@@ -3383,41 +3443,6 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
 
     /* ================================== Forge Start =====================================*/
     /**
-     * Internal use for keeping track of entities that are tracked by a world, to
-     * allow guarantees that entity position changes will force a chunk load, avoiding
-     * potential issues with entity desyncing and bad chunk data.
-     */
-    private boolean isAddedToWorld;
-
-    /**
-     * Gets whether this entity has been added to a world (for tracking). Specifically
-     * between the times when an entity is added to a world and the entity being removed
-     * from the world's tracked lists. See {@link World#onEntityAdded(Entity)} and
-     * {@link World#onEntityRemoved(Entity)}.
-     *
-     * @return True if this entity is being tracked by a world
-     */
-    public final boolean isAddedToWorld() { return this.isAddedToWorld; }
-
-    /**
-     * Called after the entity has been added to the world's
-     * ticking list. Can be overriden, but needs to call super
-     * to prevent MC-136995.
-     */
-    public void onAddedToWorld() {
-        this.isAddedToWorld = true;
-    }
-
-    /**
-     * Called after the entity has been removed to the world's
-     * ticking list. Can be overriden, but needs to call super
-     * to prevent MC-136995.
-     */
-    public void onRemovedFromWorld() {
-        this.isAddedToWorld = false;
-    }
-
-    /**
      * Returns a NBTTagCompound that can be used to store custom data for this entity.
      * It will be written, and read from disc, so it persists over world saves.
      * @return A NBTTagCompound
@@ -3553,7 +3578,9 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
     @Override
     public boolean hasCapability(net.minecraftforge.common.capabilities.Capability<?> capability, @Nullable net.minecraft.util.EnumFacing facing)
     {
-        return capabilities != null && capabilities.hasCapability(capability, facing);
+        if (getCapability(capability, facing) != null)
+            return true;
+        return capabilities == null ? false : capabilities.hasCapability(capability, facing);
     }
 
     @Override
@@ -3588,7 +3615,7 @@ public abstract class Entity implements ICommandSender, net.minecraftforge.commo
     {
         return world.rand.nextFloat() < fallDistance - 0.5F
             && this instanceof EntityLivingBase
-            && (this instanceof EntityPlayer || net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(world, this))
+            && (this instanceof EntityPlayer || world.getGameRules().getBoolean("mobGriefing"))
             && this.width * this.width * this.height > 0.512F;
     }
     /* ================================== Forge End =====================================*/

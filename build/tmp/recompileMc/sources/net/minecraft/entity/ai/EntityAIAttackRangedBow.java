@@ -19,12 +19,12 @@ public class EntityAIAttackRangedBow<T extends EntityMob & IRangedAttackMob> ext
     private boolean strafingBackwards;
     private int strafingTime = -1;
 
-    public EntityAIAttackRangedBow(T p_i47515_1_, double p_i47515_2_, int p_i47515_4_, float p_i47515_5_)
+    public EntityAIAttackRangedBow(T mob, double moveSpeedAmpIn, int attackCooldownIn, float maxAttackDistanceIn)
     {
-        this.entity = p_i47515_1_;
-        this.moveSpeedAmp = p_i47515_2_;
-        this.attackCooldown = p_i47515_4_;
-        this.maxAttackDistance = p_i47515_5_ * p_i47515_5_;
+        this.entity = mob;
+        this.moveSpeedAmp = moveSpeedAmpIn;
+        this.attackCooldown = attackCooldownIn;
+        this.maxAttackDistance = maxAttackDistanceIn * maxAttackDistanceIn;
         this.setMutexBits(3);
     }
 
@@ -43,7 +43,7 @@ public class EntityAIAttackRangedBow<T extends EntityMob & IRangedAttackMob> ext
 
     protected boolean isBowInMainhand()
     {
-        return !this.entity.getHeldItemMainhand().isEmpty() && this.entity.getHeldItemMainhand().getItem() instanceof ItemBow;
+        return !this.entity.getHeldItemMainhand().isEmpty() && this.entity.getHeldItemMainhand().getItem() == Items.BOW;
     }
 
     /**

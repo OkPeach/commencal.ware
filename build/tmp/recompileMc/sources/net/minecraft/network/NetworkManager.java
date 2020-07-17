@@ -48,7 +48,7 @@ import org.apache.logging.log4j.MarkerManager;
 
 public class NetworkManager extends SimpleChannelInboundHandler < Packet<? >>
 {
-    private static final Logger LOGGER = LogManager.getLogger();
+    public static final Logger LOGGER = LogManager.getLogger();
     public static final Marker NETWORK_MARKER = MarkerManager.getMarker("NETWORK");
     public static final Marker NETWORK_PACKETS_MARKER = MarkerManager.getMarker("NETWORK_PACKETS", NETWORK_MARKER);
     public static final AttributeKey<EnumConnectionState> PROTOCOL_ATTRIBUTE_KEY = AttributeKey.<EnumConnectionState>valueOf("protocol");
@@ -73,20 +73,20 @@ public class NetworkManager extends SimpleChannelInboundHandler < Packet<? >>
             return new LocalEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Local Client IO #%d").setDaemon(true).build());
         }
     };
-    private final EnumPacketDirection direction;
+    public final EnumPacketDirection direction;
     /** The queue for packets that require transmission */
-    private final Queue<NetworkManager.InboundHandlerTuplePacketListener> outboundPacketsQueue = Queues.<NetworkManager.InboundHandlerTuplePacketListener>newConcurrentLinkedQueue();
-    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    public final Queue<NetworkManager.InboundHandlerTuplePacketListener> outboundPacketsQueue = Queues.<NetworkManager.InboundHandlerTuplePacketListener>newConcurrentLinkedQueue();
+    public final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     /** The active channel */
-    private Channel channel;
+    public Channel channel;
     /** The address of the remote party */
-    private SocketAddress socketAddress;
+    public SocketAddress socketAddress;
     /** The INetHandler instance responsible for processing received packets */
-    private INetHandler packetListener;
+    public INetHandler packetListener;
     /** A String indicating why the network has shutdown. */
-    private ITextComponent terminationReason;
-    private boolean isEncrypted;
-    private boolean disconnected;
+    public ITextComponent terminationReason;
+    public boolean isEncrypted;
+    public boolean disconnected;
 
     public NetworkManager(EnumPacketDirection packetDirection)
     {
@@ -348,7 +348,6 @@ public class NetworkManager extends SimpleChannelInboundHandler < Packet<? >>
     @SideOnly(Side.CLIENT)
     public static NetworkManager createNetworkManagerAndConnect(InetAddress address, int serverPort, boolean useNativeTransport)
     {
-        if (address instanceof java.net.Inet6Address) System.setProperty("java.net.preferIPv4Stack", "false");
         final NetworkManager networkmanager = new NetworkManager(EnumPacketDirection.CLIENTBOUND);
         Class <? extends SocketChannel > oclass;
         LazyLoadBase <? extends EventLoopGroup > lazyloadbase;
@@ -490,7 +489,7 @@ public class NetworkManager extends SimpleChannelInboundHandler < Packet<? >>
         }
     }
 
-    public void checkDisconnected()
+    public void handleDisconnection()
     {
         if (this.channel != null && !this.channel.isOpen())
         {

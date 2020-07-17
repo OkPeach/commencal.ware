@@ -35,6 +35,10 @@ public class BlockStem extends BlockBush implements IGrowable
         this.setCreativeTab((CreativeTabs)null);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         return STEM_AABB[((Integer)state.getValue(AGE)).intValue()];
@@ -73,7 +77,6 @@ public class BlockStem extends BlockBush implements IGrowable
     {
         super.updateTick(worldIn, pos, state, rand);
 
-        if (!worldIn.isAreaLoaded(pos, 1)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light
         if (worldIn.getLightFromNeighbors(pos.up()) >= 9)
         {
             float f = BlockCrops.getGrowthChance(this, worldIn, pos);

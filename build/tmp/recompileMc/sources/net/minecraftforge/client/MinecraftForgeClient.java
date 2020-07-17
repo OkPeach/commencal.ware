@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,22 +19,12 @@
 
 package net.minecraftforge.client;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.BitSet;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
-
-import javax.annotation.Nonnull;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.client.resources.IResource;
-import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ChunkCache;
 import net.minecraft.world.World;
@@ -110,7 +100,7 @@ public class MinecraftForgeClient
         .build(new CacheLoader<Pair<World, BlockPos>, ChunkCache>()
         {
             @Override
-            public ChunkCache load(Pair<World, BlockPos> key)
+            public ChunkCache load(Pair<World, BlockPos> key) throws Exception
             {
                 return new ChunkCache(key.getLeft(), key.getRight().add(-1, -1, -1), key.getRight().add(16, 16, 16), 1);
             }
@@ -127,30 +117,5 @@ public class MinecraftForgeClient
         int y = pos.getY() & ~0xF;
         int z = pos.getZ() & ~0xF;
         return regionCache.getUnchecked(Pair.of(world, new BlockPos(x, y, z)));
-    }
-
-    public static void clearRenderCache()
-    {
-        regionCache.invalidateAll();
-        regionCache.cleanUp();
-    }
-
-    private static HashMap<ResourceLocation, Supplier<BufferedImage>> bufferedImageSuppliers = new HashMap<ResourceLocation, Supplier<BufferedImage>>();
-    public static void registerImageLayerSupplier(ResourceLocation resourceLocation, Supplier<BufferedImage> supplier)
-    {
-        bufferedImageSuppliers.put(resourceLocation, supplier);
-    }
-
-    @Nonnull
-    public static BufferedImage getImageLayer(ResourceLocation resourceLocation, IResourceManager resourceManager) throws IOException
-    {
-        Supplier<BufferedImage> supplier = bufferedImageSuppliers.get(resourceLocation);
-        if (supplier != null)
-            return supplier.get();
-
-        try (IResource iresource1 = resourceManager.getResource(resourceLocation))
-        {
-            return TextureUtil.readBufferedImage(iresource1.getInputStream());
-        }
     }
 }

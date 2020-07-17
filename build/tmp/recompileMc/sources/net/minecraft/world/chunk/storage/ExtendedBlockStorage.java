@@ -9,24 +9,24 @@ import net.minecraft.world.chunk.NibbleArray;
 public class ExtendedBlockStorage
 {
     /** Contains the bottom-most Y block represented by this ExtendedBlockStorage. Typically a multiple of 16. */
-    private final int yBase;
+    public final int yBase;
     /** A total count of the number of non-air blocks in this block storage's Chunk. */
-    private int blockRefCount;
+    public int blockRefCount;
     /**
      * Contains the number of blocks in this block storage's parent chunk that require random ticking. Used to cull the
      * Chunk from random tick updates for performance reasons.
      */
-    private int tickRefCount;
-    private final BlockStateContainer data;
+    public int tickRefCount;
+    public final BlockStateContainer data;
     /** The NibbleArray containing a block of Block-light data. */
-    private NibbleArray blockLight;
+    public NibbleArray blockLight;
     /**
      * The NibbleArray containing skylight data.
      *  
      * Will be null if the provider for the world the chunk containing this block storage does not {@linkplain
      * net.minecraft.world.WorldProvider#hasSkylight have skylight}.
      */
-    private NibbleArray skyLight;
+    public NibbleArray skyLight;
 
     public ExtendedBlockStorage(int y, boolean storeSkylight)
     {

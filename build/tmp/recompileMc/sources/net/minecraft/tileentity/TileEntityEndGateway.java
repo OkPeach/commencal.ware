@@ -126,12 +126,20 @@ public class TileEntityEndGateway extends TileEntityEndPortal implements ITickab
         return 1.0F - MathHelper.clamp(((float)this.teleportCooldown - p_184305_1_) / 40.0F, 0.0F, 1.0F);
     }
 
+    /**
+     * Retrieves packet to send to the client whenever this Tile Entity is resynced via World.notifyBlockUpdate. For
+     * modded TE's, this packet comes back to you clientside in {@link #onDataPacket}
+     */
     @Nullable
     public SPacketUpdateTileEntity getUpdatePacket()
     {
         return new SPacketUpdateTileEntity(this.pos, 8, this.getUpdateTag());
     }
 
+    /**
+     * Get an NBT compound to sync to the client with SPacketChunkData, used for initial loading of the chunk or when
+     * many blocks change at once. This compound comes back to you clientside in {@link handleUpdateTag}
+     */
     public NBTTagCompound getUpdateTag()
     {
         return this.writeToNBT(new NBTTagCompound());
@@ -147,6 +155,10 @@ public class TileEntityEndGateway extends TileEntityEndPortal implements ITickab
         }
     }
 
+    /**
+     * See {@link Block#eventReceived} for more information. This must return true serverside before it is called
+     * clientside.
+     */
     public boolean receiveClientEvent(int id, int type)
     {
         if (id == 1)
@@ -255,7 +267,7 @@ public class TileEntityEndGateway extends TileEntityEndPortal implements ITickab
 
     private static Chunk getChunk(World worldIn, Vec3d vec3)
     {
-        return worldIn.getChunkFromChunkCoords(MathHelper.floor(vec3.x / 16.0D), MathHelper.floor(vec3.z / 16.0D));
+        return worldIn.getChunk(MathHelper.floor(vec3.x / 16.0D), MathHelper.floor(vec3.z / 16.0D));
     }
 
     @Nullable

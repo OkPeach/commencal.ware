@@ -55,20 +55,20 @@ public final class ItemStack implements net.minecraftforge.common.capabilities.I
     public static final ItemStack EMPTY = new ItemStack((Item)null);
     public static final DecimalFormat DECIMALFORMAT = new DecimalFormat("#.##");
     /** Size of the stack. */
-    private int stackSize;
+    public int stackSize;
     /** Number of animation frames to go when receiving an item (by walking into it, for example). */
-    private int animationsToGo;
-    private final Item item;
+    public int animationsToGo;
+    public final Item item;
     /** An NBTTagCompound containing data about an ItemStack. */
-    private NBTTagCompound stackTagCompound;
-    private boolean isEmpty;
-    int itemDamage;
+    public NBTTagCompound stackTagCompound;
+    public boolean isEmpty;
+    public int itemDamage;
     /** Item frame this stack is on, or null if not on an item frame. */
-    private EntityItemFrame itemFrame;
-    private Block canDestroyCacheBlock;
-    private boolean canDestroyCacheResult;
-    private Block canPlaceOnCacheBlock;
-    private boolean canPlaceOnCacheResult;
+    public EntityItemFrame itemFrame;
+    public Block canDestroyCacheBlock;
+    public boolean canDestroyCacheResult;
+    public Block canPlaceOnCacheBlock;
+    public boolean canPlaceOnCacheResult;
 
     private net.minecraftforge.registries.IRegistryDelegate<Item> delegate;
     private net.minecraftforge.common.capabilities.CapabilityDispatcher capabilities;
@@ -124,7 +124,7 @@ public final class ItemStack implements net.minecraftforge.common.capabilities.I
     public ItemStack(NBTTagCompound compound)
     {
         this.capNBT = compound.hasKey("ForgeCaps") ? compound.getCompoundTag("ForgeCaps") : null;
-        this.item = compound.hasKey("id", 8) ? Item.getByNameOrId(compound.getString("id")) : Items.AIR; //Forge fix tons of NumberFormatExceptions that are caused by deserializing EMPTY ItemStacks.
+        this.item = compound.hasKey("id", 8) ? Item.getByNameOrId(compound.getString("id")) : Item.getItemFromBlock(Blocks.AIR); //Forge fix tons of NumberFormatExceptions that are caused by deserializing EMPTY ItemStacks.
         this.stackSize = compound.getByte("Count");
         this.itemDamage = Math.max(0, compound.getShort("Damage"));
 
@@ -148,7 +148,7 @@ public final class ItemStack implements net.minecraftforge.common.capabilities.I
         {
             return true;
         }
-        else if (this.getItemRaw() != null && this.getItemRaw() != Items.AIR)
+        else if (this.getItemRaw() != null && this.getItemRaw() != Item.getItemFromBlock(Blocks.AIR))
         {
             if (this.stackSize <= 0)
             {
@@ -188,7 +188,7 @@ public final class ItemStack implements net.minecraftforge.common.capabilities.I
      */
     public Item getItem()
     {
-        return this.isEmpty || this.delegate == null ? Items.AIR : this.delegate.get();
+        return this.isEmpty || this.delegate == null ? Item.getItemFromBlock(Blocks.AIR) : this.delegate.get();
     }
 
     /**
@@ -260,7 +260,7 @@ public final class ItemStack implements net.minecraftforge.common.capabilities.I
         if (this.capabilities != null)
         {
             NBTTagCompound cnbt = this.capabilities.serializeNBT();
-            if (!cnbt.hasNoTags()) nbt.setTag("ForgeCaps", cnbt);
+            if (!cnbt.isEmpty()) nbt.setTag("ForgeCaps", cnbt);
         }
 
         return nbt;
@@ -577,14 +577,14 @@ public final class ItemStack implements net.minecraftforge.common.capabilities.I
         }
     }
 
-    public String getUnlocalizedName()
+    public String getTranslationKey()
     {
-        return this.getItem().getUnlocalizedName(this);
+        return this.getItem().getTranslationKey(this);
     }
 
     public String toString()
     {
-        return this.stackSize + "x" + this.getItem().getUnlocalizedName() + "@" + this.itemDamage;
+        return this.stackSize + "x" + this.getItem().getTranslationKey() + "@" + this.itemDamage;
     }
 
     /**
@@ -735,13 +735,13 @@ public final class ItemStack implements net.minecraftforge.common.capabilities.I
         {
             nbttagcompound.removeTag("Name");
 
-            if (nbttagcompound.hasNoTags())
+            if (nbttagcompound.isEmpty())
             {
                 this.removeSubCompound("display");
             }
         }
 
-        if (this.stackTagCompound != null && this.stackTagCompound.hasNoTags())
+        if (this.stackTagCompound != null && this.stackTagCompound.isEmpty())
         {
             this.stackTagCompound = null;
         }
@@ -851,7 +851,7 @@ public final class ItemStack implements net.minecraftforge.common.capabilities.I
                 {
                     NBTTagList nbttaglist3 = nbttagcompound1.getTagList("Lore", 8);
 
-                    if (!nbttaglist3.hasNoTags())
+                    if (!nbttaglist3.isEmpty())
                     {
                         for (int l1 = 0; l1 < nbttaglist3.tagCount(); ++l1)
                         {
@@ -929,7 +929,7 @@ public final class ItemStack implements net.minecraftforge.common.capabilities.I
         {
             NBTTagList nbttaglist1 = this.stackTagCompound.getTagList("CanDestroy", 8);
 
-            if (!nbttaglist1.hasNoTags())
+            if (!nbttaglist1.isEmpty())
             {
                 list.add("");
                 list.add(TextFormatting.GRAY + I18n.translateToLocal("item.canBreak"));
@@ -954,7 +954,7 @@ public final class ItemStack implements net.minecraftforge.common.capabilities.I
         {
             NBTTagList nbttaglist2 = this.stackTagCompound.getTagList("CanPlaceOn", 8);
 
-            if (!nbttaglist2.hasNoTags())
+            if (!nbttaglist2.isEmpty())
             {
                 list.add("");
                 list.add(TextFormatting.GRAY + I18n.translateToLocal("item.canPlace"));
@@ -1000,7 +1000,6 @@ public final class ItemStack implements net.minecraftforge.common.capabilities.I
         return this.getItem().hasEffect(this);
     }
 
-    @Deprecated // use Forge version on item
     public EnumRarity getRarity()
     {
         return this.getItem().getRarity(this);
@@ -1050,7 +1049,7 @@ public final class ItemStack implements net.minecraftforge.common.capabilities.I
     {
         if (this.stackTagCompound != null && this.stackTagCompound.hasKey("ench", 9))
         {
-            return !this.stackTagCompound.getTagList("ench", 10).hasNoTags();
+            return !this.stackTagCompound.getTagList("ench", 10).isEmpty();
         }
         else
         {
@@ -1200,7 +1199,7 @@ public final class ItemStack implements net.minecraftforge.common.capabilities.I
         {
             NBTTagCompound nbttagcompound = this.writeToNBT(new NBTTagCompound());
             itextcomponent.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new TextComponentString(nbttagcompound.toString())));
-            itextcomponent.getStyle().setColor(this.getItem().getForgeRarity(this).getColor());
+            itextcomponent.getStyle().setColor(this.getRarity().color);
         }
 
         return itextcomponent;
@@ -1373,7 +1372,6 @@ public final class ItemStack implements net.minecraftforge.common.capabilities.I
      * Internal call to get the actual item, not the delegate.
      * In all other methods, FML replaces calls to this.item with the item delegate.
      */
-    @Nullable
     private Item getItemRaw()
     {
         return this.item;

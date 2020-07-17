@@ -43,7 +43,7 @@ public class EntityLargeFireball extends EntityFireball
                 this.applyEnchantments(this.shootingEntity, result.entityHit);
             }
 
-            boolean flag = net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.world, this.shootingEntity);
+            boolean flag = this.world.getGameRules().getBoolean("mobGriefing");
             this.world.newExplosion((Entity)null, this.posX, this.posY, this.posZ, (float)this.explosionPower, flag, flag);
             this.setDead();
         }

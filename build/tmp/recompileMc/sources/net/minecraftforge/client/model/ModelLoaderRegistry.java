@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -52,8 +52,6 @@ public class ModelLoaderRegistry
     private static final Map<ResourceLocation, IModel> cache = Maps.newHashMap();
     private static final Deque<ResourceLocation> loadingModels = Queues.newArrayDeque();
     private static final Set<ResourceLocation> textures = Sets.newHashSet();
-    private static final Map<ResourceLocation, ResourceLocation> aliases = Maps.newHashMap();
-
     private static IResourceManager manager;
 
     // Forge built-in loaders
@@ -85,8 +83,8 @@ public class ModelLoaderRegistry
     public static ResourceLocation getActualLocation(ResourceLocation location)
     {
         if(location instanceof ModelResourceLocation) return location;
-        if(location.getResourcePath().startsWith("builtin/")) return location;
-        return new ResourceLocation(location.getResourceDomain(), "models/" + location.getResourcePath());
+        if(location.getPath().startsWith("builtin/")) return location;
+        return new ResourceLocation(location.getNamespace(), "models/" + location.getPath());
     }
 
     /**
@@ -97,10 +95,7 @@ public class ModelLoaderRegistry
     public static IModel getModel(ResourceLocation location) throws Exception
     {
         IModel model;
-
-        IModel cached = cache.get(location);
-        if (cached != null) return cached;
-
+        if(cache.containsKey(location)) return cache.get(location);
         for(ResourceLocation loading : loadingModels)
         {
             if(location.getClass() == loading.getClass() && location.equals(loading))
@@ -111,9 +106,6 @@ public class ModelLoaderRegistry
         loadingModels.addLast(location);
         try
         {
-            ResourceLocation aliased = aliases.get(location);
-            if (aliased != null) return getModel(aliased);
-
             ResourceLocation actual = getActualLocation(location);
             ICustomModelLoader accepted = null;
             for(ICustomModelLoader loader : loaders)
@@ -235,16 +227,9 @@ public class ModelLoaderRegistry
         return model;
     }
 
-    static void addAlias(ResourceLocation from, ResourceLocation to)
-    {
-        aliases.put(from, to);
-    }
-
     public static void clearModelCache(IResourceManager manager)
     {
         ModelLoaderRegistry.manager = manager;
-        aliases.clear();
-        textures.clear();
         cache.clear();
         // putting the builtin models in
         cache.put(new ResourceLocation("minecraft:builtin/generated"), ItemLayerModel.INSTANCE);

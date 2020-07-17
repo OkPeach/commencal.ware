@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,11 +24,12 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
 import io.netty.util.AttributeKey;
 
-import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.Level;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -303,19 +304,13 @@ public enum NetworkRegistry
 
     public boolean isVanillaAccepted(Side from)
     {
-        return registry.values().stream()
-                .allMatch(mod -> mod.acceptsVanilla(from));
+        boolean result = true;
+        for (Entry<ModContainer, NetworkModHolder> e : registry.entrySet())
+        {
+            result &= e.getValue().acceptsVanilla(from);
+        }
+        return result;
     }
-
-    public Collection<String> getRequiredMods(Side from)
-    {
-        return registry.values().stream()
-                .filter(mod -> !mod.acceptsVanilla(from))
-                .map(mod -> mod.getContainer().getName())
-                .sorted()
-                .collect(Collectors.toList());
-    }
-
     public Map<ModContainer,NetworkModHolder> registry()
     {
         return ImmutableMap.copyOf(registry);
@@ -339,16 +334,11 @@ public enum NetworkRegistry
     public void fireNetworkHandshake(NetworkDispatcher networkDispatcher, Side origin)
     {
         NetworkHandshakeEstablished handshake = new NetworkHandshakeEstablished(networkDispatcher, networkDispatcher.getNetHandler(), origin);
-        for (FMLEmbeddedChannel channel : channels.get(origin).values())
+        for (Entry<String, FMLEmbeddedChannel> channel : channels.get(origin).entrySet())
         {
-            channel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(OutboundTarget.DISPATCHER);
-            channel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(networkDispatcher);
-            channel.pipeline().fireUserEventTriggered(handshake);
+            channel.getValue().attr(FMLOutboundHandler.FML_MESSAGETARGET).set(OutboundTarget.DISPATCHER);
+            channel.getValue().attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(networkDispatcher);
+            channel.getValue().pipeline().fireUserEventTriggered(handshake);
         }
-    }
-
-    public void cleanAttributes()
-    {
-        channels.values().forEach(map -> map.values().forEach(FMLEmbeddedChannel::cleanAttributes));
     }
 }

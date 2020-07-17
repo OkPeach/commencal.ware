@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -89,7 +89,7 @@ public class GuiConfig extends GuiScreen
     /**
      * This constructor handles the {@code @Config} configuration classes
      * @param parentScreen the parent GuiScreen object
-     * @param modid the mod for which to create a screen
+     * @param mod the mod for which to create a screen
      */
     public GuiConfig(GuiScreen parentScreen, String modid, String title)
     {
@@ -249,10 +249,10 @@ public class GuiConfig extends GuiScreen
     public static String getAbridgedConfigPath(String path)
     {
         Minecraft mc = Minecraft.getMinecraft();
-        if (mc.mcDataDir.getAbsolutePath().endsWith("."))
-            return path.replace("\\", "/").replace(mc.mcDataDir.getAbsolutePath().replace("\\", "/").substring(0, mc.mcDataDir.getAbsolutePath().length() - 1), "/.minecraft/");
+        if (mc.gameDir.getAbsolutePath().endsWith("."))
+            return path.replace("\\", "/").replace(mc.gameDir.getAbsolutePath().replace("\\", "/").substring(0, mc.gameDir.getAbsolutePath().length() - 1), "/.minecraft/");
         else
-            return path.replace("\\", "/").replace(mc.mcDataDir.getAbsolutePath().replace("\\", "/"), "/.minecraft");
+            return path.replace("\\", "/").replace(mc.gameDir.getAbsolutePath().replace("\\", "/"), "/.minecraft");
     }
 
     /**

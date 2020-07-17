@@ -321,13 +321,13 @@ public class BiomeMesa extends Biome
     @SideOnly(Side.CLIENT)
     public int getFoliageColorAtPos(BlockPos pos)
     {
-        return getModdedBiomeFoliageColor(10387789);
+        return 10387789;
     }
 
     @SideOnly(Side.CLIENT)
     public int getGrassColorAtPos(BlockPos pos)
     {
-        return getModdedBiomeGrassColor(9470285);
+        return 9470285;
     }
 
     class Decorator extends BiomeDecorator

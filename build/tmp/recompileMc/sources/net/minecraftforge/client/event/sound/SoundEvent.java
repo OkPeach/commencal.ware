@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -45,7 +45,7 @@ public class SoundEvent extends Event
         public SoundSourceEvent(SoundManager manager, ISound sound, String uuid)
         {
             super(manager);
-            this.name = sound.getSoundLocation().getResourcePath();
+            this.name = sound.getSoundLocation().getPath();
             this.sound = sound;
             this.uuid = uuid;
         }

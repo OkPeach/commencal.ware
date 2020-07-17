@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -33,7 +33,7 @@ public interface IEntityAdditionalSpawnData
      *
      * @param buffer The packet data stream
      */
-    void writeSpawnData(ByteBuf buffer);
+    public void writeSpawnData(ByteBuf buffer);
 
     /**
      * Called by the client when it receives a Entity spawn packet.
@@ -41,5 +41,5 @@ public interface IEntityAdditionalSpawnData
      *
      * @param additionalData The packet data stream
      */
-    void readSpawnData(ByteBuf additionalData);
+    public void readSpawnData(ByteBuf additionalData);
 }

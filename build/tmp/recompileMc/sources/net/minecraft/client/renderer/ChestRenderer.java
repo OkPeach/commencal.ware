@@ -13,7 +13,6 @@ public class ChestRenderer
     {
         GlStateManager.color(color, color, color, 1.0F);
         GlStateManager.rotate(90.0F, 0.0F, 1.0F, 0.0F);
-        ItemStack stack = new ItemStack(blockIn);
-        stack.getItem().getTileEntityItemStackRenderer().renderByItem(stack);
+        TileEntityItemStackRenderer.instance.renderByItem(new ItemStack(blockIn));
     }
 }

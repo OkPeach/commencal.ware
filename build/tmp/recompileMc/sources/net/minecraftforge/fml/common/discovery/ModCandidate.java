@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,7 +23,9 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
+import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.common.discovery.asm.ASMModParser;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -35,7 +37,9 @@ public class ModCandidate
     private File modContainer;
     private ContainerType sourceType;
     private boolean classpath;
+    private List<String> baseModTypes = Lists.newArrayList();
     private boolean isMinecraft;
+    private List<ASMModParser> baseModCandidateTypes = Lists.newArrayListWithCapacity(1);
     private Set<String> foundClasses = Sets.newHashSet();
     private List<ModContainer> mods;
     private List<String> packages = Lists.newArrayList();
@@ -72,6 +76,11 @@ public class ModCandidate
     {
         this.table = table;
         this.mods = sourceType.findMods(this, table);
+        if (!baseModCandidateTypes.isEmpty())
+        {
+            FMLLog.log.info("Attempting to reparse the mod container {}", getModContainer().getName());
+            this.mods = sourceType.findMods(this, table);
+        }
         return this.mods;
     }
 
@@ -93,9 +102,21 @@ public class ModCandidate
     {
         return classpath;
     }
+    public void rememberBaseModType(String className)
+    {
+        baseModTypes.add(className);
+    }
+    public List<String> getRememberedBaseMods()
+    {
+        return baseModTypes;
+    }
     public boolean isMinecraftJar()
     {
         return isMinecraft;
+    }
+    public void rememberModCandidateType(ASMModParser modParser)
+    {
+        baseModCandidateTypes.add(modParser);
     }
     public Set<String> getClassList()
     {

@@ -52,7 +52,7 @@ public class ModelSkeleton extends ModelBiped
         this.leftArmPose = ModelBiped.ArmPose.EMPTY;
         ItemStack itemstack = entitylivingbaseIn.getHeldItem(EnumHand.MAIN_HAND);
 
-        if (itemstack.getItem() instanceof net.minecraft.item.ItemBow && ((AbstractSkeleton)entitylivingbaseIn).isSwingingArms())
+        if (itemstack.getItem() == Items.BOW && ((AbstractSkeleton)entitylivingbaseIn).isSwingingArms())
         {
             if (entitylivingbaseIn.getPrimaryHand() == EnumHandSide.RIGHT)
             {
@@ -78,7 +78,7 @@ public class ModelSkeleton extends ModelBiped
         ItemStack itemstack = ((EntityLivingBase)entityIn).getHeldItemMainhand();
         AbstractSkeleton abstractskeleton = (AbstractSkeleton)entityIn;
 
-        if (abstractskeleton.isSwingingArms() && (itemstack.isEmpty() || !(itemstack.getItem() instanceof net.minecraft.item.ItemBow)))
+        if (abstractskeleton.isSwingingArms() && (itemstack.isEmpty() || itemstack.getItem() != Items.BOW))
         {
             float f = MathHelper.sin(this.swingProgress * (float)Math.PI);
             float f1 = MathHelper.sin((1.0F - (1.0F - this.swingProgress) * (1.0F - this.swingProgress)) * (float)Math.PI);

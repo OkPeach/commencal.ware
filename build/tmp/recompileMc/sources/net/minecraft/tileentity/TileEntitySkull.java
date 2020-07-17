@@ -111,12 +111,20 @@ public class TileEntitySkull extends TileEntity implements ITickable
         return this.playerProfile;
     }
 
+    /**
+     * Retrieves packet to send to the client whenever this Tile Entity is resynced via World.notifyBlockUpdate. For
+     * modded TE's, this packet comes back to you clientside in {@link #onDataPacket}
+     */
     @Nullable
     public SPacketUpdateTileEntity getUpdatePacket()
     {
         return new SPacketUpdateTileEntity(this.pos, 4, this.getUpdateTag());
     }
 
+    /**
+     * Get an NBT compound to sync to the client with SPacketChunkData, used for initial loading of the chunk or when
+     * many blocks change at once. This compound comes back to you clientside in {@link handleUpdateTag}
+     */
     public NBTTagCompound getUpdateTag()
     {
         return this.writeToNBT(new NBTTagCompound());
@@ -137,11 +145,11 @@ public class TileEntitySkull extends TileEntity implements ITickable
 
     private void updatePlayerProfile()
     {
-        this.playerProfile = updateGameprofile(this.playerProfile);
+        this.playerProfile = updateGameProfile(this.playerProfile);
         this.markDirty();
     }
 
-    public static GameProfile updateGameprofile(GameProfile input)
+    public static GameProfile updateGameProfile(GameProfile input)
     {
         if (input != null && !StringUtils.isNullOrEmpty(input.getName()))
         {

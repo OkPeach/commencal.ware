@@ -425,9 +425,9 @@ public class BlockStateContainer
                 return this.block.getStrongPower(this, blockAccess, pos, side);
             }
 
-            public EnumPushReaction getMobilityFlag()
+            public EnumPushReaction getPushReaction()
             {
-                return this.block.getMobilityFlag(this);
+                return this.block.getPushReaction(this);
             }
 
             public IBlockState getActualState(IBlockAccess blockAccess, BlockPos pos)
@@ -502,6 +502,9 @@ public class BlockStateContainer
              * Called when a neighboring block was changed and marks that this state should perform any checks during a
              * neighbor change. Cases may include when redstone power is updated, cactus blocks popping off due to a
              * neighboring solid block, etc.
+             *  
+             * @param blockIn The neighboring block causing this block update
+             * @param fromPos The neighboring position causing this block update
              */
             public void neighborChanged(World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
             {
@@ -519,7 +522,6 @@ public class BlockStateContainer
             }
 
             //Forge Start
-            @Override
             public ImmutableTable<IProperty<?>, Comparable<?>, IBlockState> getPropertyValueTable()
             {
                 return propertyValueTable;
@@ -537,16 +539,9 @@ public class BlockStateContainer
                 return this.block.getLightValue(this, world, pos);
             }
 
-            @Override
             public boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side)
             {
                 return this.block.isSideSolid(this, world, pos, side);
-            }
-
-            @Override
-            public boolean doesSideBlockChestOpening(IBlockAccess world, BlockPos pos, EnumFacing side)
-            {
-                return this.block.doesSideBlockChestOpening(this, world, pos, side);
             }
 
             @Override

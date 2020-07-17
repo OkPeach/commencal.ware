@@ -59,6 +59,10 @@ public class BlockBeetroot extends BlockCrops
         return new BlockStateContainer(this, new IProperty[] {BEETROOT_AGE});
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         return BEETROOT_AABB[((Integer)state.getValue(this.getAgeProperty())).intValue()];

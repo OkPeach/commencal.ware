@@ -23,11 +23,11 @@ public class RecipeBookClient extends RecipeBook
     public static final Map<CreativeTabs, List<RecipeList>> RECIPES_BY_TAB = Maps.<CreativeTabs, List<RecipeList>>newHashMap();
     public static final List<RecipeList> ALL_RECIPES = Lists.<RecipeList>newArrayList();
 
-    private static RecipeList newRecipeList(CreativeTabs p_194082_0_)
+    private static RecipeList newRecipeList(CreativeTabs srcTab)
     {
         RecipeList recipelist = new RecipeList();
         ALL_RECIPES.add(recipelist);
-        (RECIPES_BY_TAB.computeIfAbsent(p_194082_0_, (p_194085_0_) ->
+        (RECIPES_BY_TAB.computeIfAbsent(srcTab, (p_194085_0_) ->
         {
             return new ArrayList();
         })).add(recipelist);
@@ -38,9 +38,9 @@ public class RecipeBookClient extends RecipeBook
         return recipelist;
     }
 
-    private static CreativeTabs getItemStackTab(ItemStack p_194084_0_)
+    private static CreativeTabs getItemStackTab(ItemStack stackIn)
     {
-        CreativeTabs creativetabs = p_194084_0_.getItem().getCreativeTab();
+        CreativeTabs creativetabs = stackIn.getItem().getCreativeTab();
 
         if (creativetabs != CreativeTabs.BUILDING_BLOCKS && creativetabs != CreativeTabs.TOOLS && creativetabs != CreativeTabs.REDSTONE)
         {

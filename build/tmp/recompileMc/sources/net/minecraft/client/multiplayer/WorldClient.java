@@ -181,7 +181,7 @@ public class WorldClient extends World
                 int j = chunkpos.x * 16;
                 int k = chunkpos.z * 16;
                 this.profiler.startSection("getChunk");
-                Chunk chunk = this.getChunkFromChunkCoords(chunkpos.x, chunkpos.z);
+                Chunk chunk = this.getChunk(chunkpos.x, chunkpos.z);
                 this.playMoodSoundAndCheckLight(j, k, chunk);
                 this.profiler.endSection();
                 this.previousActiveChunkSet.add(chunkpos);
@@ -337,9 +337,9 @@ public class WorldClient extends World
     {
     }
 
-    protected void playMoodSoundAndCheckLight(int p_147467_1_, int p_147467_2_, Chunk chunkIn)
+    protected void playMoodSoundAndCheckLight(int x, int z, Chunk chunkIn)
     {
-        super.playMoodSoundAndCheckLight(p_147467_1_, p_147467_2_, chunkIn);
+        super.playMoodSoundAndCheckLight(x, z, chunkIn);
 
         if (this.ambienceTicks == 0)
         {
@@ -348,10 +348,10 @@ public class WorldClient extends World
             int j = i & 15;
             int k = i >> 8 & 15;
             int l = i >> 16 & 255;
-            BlockPos blockpos = new BlockPos(j + p_147467_1_, l, k + p_147467_2_);
+            BlockPos blockpos = new BlockPos(j + x, l, k + z);
             IBlockState iblockstate = chunkIn.getBlockState(blockpos);
-            j = j + p_147467_1_;
-            k = k + p_147467_2_;
+            j = j + x;
+            k = k + z;
 
             if (iblockstate.getMaterial() == Material.AIR && this.getLight(blockpos) <= this.rand.nextInt(8) && this.getLightFor(EnumSkyBlock.SKY, blockpos) <= 0)
             {
@@ -411,7 +411,7 @@ public class WorldClient extends World
 
             if (entity.addedToChunk && this.isChunkLoaded(j, k, true))
             {
-                this.getChunkFromChunkCoords(j, k).removeEntity(entity);
+                this.getChunk(j, k).removeEntity(entity);
             }
         }
 
@@ -444,7 +444,7 @@ public class WorldClient extends World
 
                 if (entity1.addedToChunk && this.isChunkLoaded(k1, l, true))
                 {
-                    this.getChunkFromChunkCoords(k1, l).removeEntity(entity1);
+                    this.getChunk(k1, l).removeEntity(entity1);
                 }
 
                 this.loadedEntityList.remove(j1--);

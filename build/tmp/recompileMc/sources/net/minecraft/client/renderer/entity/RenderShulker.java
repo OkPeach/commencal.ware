@@ -86,9 +86,9 @@ public class RenderShulker extends RenderLiving<EntityShulker>
         return SHULKER_ENDERGOLEM_TEXTURE[entity.getColor().getMetadata()];
     }
 
-    protected void applyRotations(EntityShulker entityLiving, float p_77043_2_, float rotationYaw, float partialTicks)
+    protected void applyRotations(EntityShulker entityLiving, float ageInTicks, float rotationYaw, float partialTicks)
     {
-        super.applyRotations(entityLiving, p_77043_2_, rotationYaw, partialTicks);
+        super.applyRotations(entityLiving, ageInTicks, rotationYaw, partialTicks);
 
         switch (entityLiving.getAttachmentFacing())
         {

@@ -79,7 +79,7 @@ public class BiomeSwamp extends Biome
     {
         super.decorate(worldIn, rand, pos);
 
-        if(net.minecraftforge.event.terraingen.TerrainGen.decorate(worldIn, rand, new net.minecraft.util.math.ChunkPos(pos), net.minecraftforge.event.terraingen.DecorateBiomeEvent.Decorate.EventType.FOSSIL))
+        if(net.minecraftforge.event.terraingen.TerrainGen.decorate(worldIn, rand, pos, net.minecraftforge.event.terraingen.DecorateBiomeEvent.Decorate.EventType.FOSSIL))
         if (rand.nextInt(64) == 0)
         {
             (new WorldGenFossils()).generate(worldIn, rand, pos);
@@ -90,13 +90,13 @@ public class BiomeSwamp extends Biome
     public int getGrassColorAtPos(BlockPos pos)
     {
         double d0 = GRASS_COLOR_NOISE.getValue((double)pos.getX() * 0.0225D, (double)pos.getZ() * 0.0225D);
-        return getModdedBiomeGrassColor(d0 < -0.1D ? 5011004 : 6975545);
+        return d0 < -0.1D ? 5011004 : 6975545;
     }
 
     @SideOnly(Side.CLIENT)
     public int getFoliageColorAtPos(BlockPos pos)
     {
-        return getModdedBiomeFoliageColor(6975545);
+        return 6975545;
     }
 
     @Override

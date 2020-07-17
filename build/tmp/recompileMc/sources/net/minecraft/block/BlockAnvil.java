@@ -48,6 +48,9 @@ public class BlockAnvil extends BlockFalling
         this.setCreativeTab(CreativeTabs.DECORATIONS);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
@@ -61,6 +64,8 @@ public class BlockAnvil extends BlockFalling
      * does not fit the other descriptions and will generally cause other things not to connect to the face.
      * 
      * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
@@ -69,6 +74,7 @@ public class BlockAnvil extends BlockFalling
 
     /**
      * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
      */
     public boolean isOpaqueCube(IBlockState state)
     {
@@ -125,6 +131,10 @@ public class BlockAnvil extends BlockFalling
         return ((Integer)state.getValue(DAMAGE)).intValue();
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         EnumFacing enumfacing = (EnumFacing)state.getValue(FACING);
@@ -146,7 +156,7 @@ public class BlockAnvil extends BlockFalling
         fallingEntity.setHurtEntities(true);
     }
 
-    public void onEndFalling(World worldIn, BlockPos pos, IBlockState p_176502_3_, IBlockState p_176502_4_)
+    public void onEndFalling(World worldIn, BlockPos pos, IBlockState fallingState, IBlockState hitState)
     {
         worldIn.playEvent(1031, pos, 0);
     }
@@ -156,6 +166,10 @@ public class BlockAnvil extends BlockFalling
         worldIn.playEvent(1029, pos, 0);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#shouldSideBeRendered(IBlockAccess,BlockPos,EnumFacing)} whenever
+     * possible. Implementing/overriding is fine.
+     */
     @SideOnly(Side.CLIENT)
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
@@ -167,7 +181,7 @@ public class BlockAnvil extends BlockFalling
      */
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(FACING, EnumFacing.getHorizontal(meta & 3)).withProperty(DAMAGE, Integer.valueOf((meta & 15) >> 2));
+        return this.getDefaultState().withProperty(FACING, EnumFacing.byHorizontalIndex(meta & 3)).withProperty(DAMAGE, Integer.valueOf((meta & 15) >> 2));
     }
 
     /**
@@ -184,6 +198,8 @@ public class BlockAnvil extends BlockFalling
     /**
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
+     * fine.
      */
     public IBlockState withRotation(IBlockState state, Rotation rot)
     {
@@ -207,7 +223,40 @@ public class BlockAnvil extends BlockFalling
             }
 
             /**
-             * Get the name of this object. For players this returns their username
+             * Gets the name of this thing. This method has slightly different behavior depending on the interface (for
+             * <a href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method
+             * is used for both IWorldNameable and ICommandSender):
+             *  
+             * <dl>
+             * <dt>{@link net.minecraft.util.INameable#getName() INameable.getName()}</dt>
+             * <dd>Returns the name of this inventory. If this {@linkplain net.minecraft.inventory#hasCustomName() has a
+             * custom name} then this <em>should</em> be a direct string; otherwise it <em>should</em> be a valid
+             * translation string.</dd>
+             * <dd>However, note that <strong>the translation string may be invalid</strong>, as is the case for {@link
+             * net.minecraft.tileentity.TileEntityBanner TileEntityBanner} (always returns nonexistent translation code
+             * <code>banner</code> without a custom name), {@link net.minecraft.block.BlockAnvil.Anvil BlockAnvil$Anvil}
+             * (always returns <code>anvil</code>), {@link net.minecraft.block.BlockWorkbench.InterfaceCraftingTable
+             * BlockWorkbench$InterfaceCraftingTable} (always returns <code>crafting_table</code>), {@link
+             * net.minecraft.inventory.InventoryCraftResult InventoryCraftResult} (always returns <code>Result</code>)
+             * and the {@link net.minecraft.entity.item.EntityMinecart EntityMinecart} family (uses the entity
+             * definition). This is not an exaustive list.</dd>
+             * <dd>In general, this method should be safe to use on tile entities that implement IInventory.</dd>
+             * <dt>{@link net.minecraft.command.ICommandSender#getName() ICommandSender.getName()} and {@link
+             * net.minecraft.entity.Entity#getName() Entity.getName()}</dt>
+             * <dd>Returns a valid, displayable name (which may be localized). For most entities, this is the translated
+             * version of its translation string (obtained via {@link net.minecraft.entity.EntityList#getEntityString
+             * EntityList.getEntityString}).</dd>
+             * <dd>If this entity has a custom name set, this will return that name.</dd>
+             * <dd>For some entities, this will attempt to translate a nonexistent translation string; see <a
+             * href="https://bugs.mojang.com/browse/MC-68446">MC-68446</a>. For {@linkplain
+             * net.minecraft.entity.player.EntityPlayer#getName() players} this returns the player's name. For
+             * {@linkplain net.minecraft.entity.passive.EntityOcelot ocelots} this may return the translation of
+             * <code>entity.Cat.name</code> if it is tamed. For {@linkplain
+             * net.minecraft.entity.item.EntityItem#getName() item entities}, this will attempt to return the name of
+             * the item in that item entity. In all cases other than players, the custom name will overrule this.</dd>
+             * <dd>For non-entity command senders, this will return some arbitrary name, such as "Rcon" or
+             * "Server".</dd>
+             * </dl>
              */
             public String getName()
             {
@@ -215,7 +264,18 @@ public class BlockAnvil extends BlockFalling
             }
 
             /**
-             * Returns true if this thing is named
+             * Checks if this thing has a custom name. This method has slightly different behavior depending on the
+             * interface (for <a href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a>
+             * the same method is used for both IWorldNameable and Entity):
+             *  
+             * <dl>
+             * <dt>{@link net.minecraft.util.INameable#hasCustomName() INameable.hasCustomName()}</dt>
+             * <dd>If true, then {@link #getName()} probably returns a preformatted name; otherwise, it probably returns
+             * a translation string. However, exact behavior varies.</dd>
+             * <dt>{@link net.minecraft.entity.Entity#hasCustomName() Entity.hasCustomName()}</dt>
+             * <dd>If true, then {@link net.minecraft.entity.Entity#getCustomNameTag() Entity.getCustomNameTag()} will
+             * return a non-empty string, which will be used by {@link #getName()}.</dd>
+             * </dl>
              */
             public boolean hasCustomName()
             {
@@ -223,11 +283,30 @@ public class BlockAnvil extends BlockFalling
             }
 
             /**
-             * Get the formatted ChatComponent that will be used for the sender's username in chat
+             * Returns a displayable component representing this thing's name. This method should be implemented
+             * slightly differently depending on the interface (for <a href="https://github.com/ModCoderPack/MCPBot-
+             * Issues/issues/14">technical reasons</a> the same method is used for both IWorldNameable and
+             * ICommandSender), but unlike {@link #getName()} this method will generally behave sanely.
+             *  
+             * <dl>
+             * <dt>{@link net.minecraft.util.INameable#getDisplayName() INameable.getDisplayName()}</dt>
+             * <dd>A normal component. Might be a translation component or a text component depending on the context.
+             * Usually implemented as:</dd>
+             * <dd><pre><code>return this.{@link net.minecraft.util.INameable#hasCustomName() hasCustomName()} ? new
+             * TextComponentString(this.{@link #getName()}) : new TextComponentTranslation(this.{@link
+             * #getName()});</code></pre></dd>
+             * <dt>{@link net.minecraft.command.ICommandSender#getDisplayName() ICommandSender.getDisplayName()} and
+             * {@link net.minecraft.entity.Entity#getDisplayName() Entity.getDisplayName()}</dt>
+             * <dd>For most entities, this returns the result of {@link #getName()}, with {@linkplain
+             * net.minecraft.scoreboard.ScorePlayerTeam#formatPlayerName scoreboard formatting} and a {@linkplain
+             * net.minecraft.entity.Entity#getHoverEvent special hover event}.</dd>
+             * <dd>For non-entity command senders, this will return the result of {@link #getName()} in a text
+             * component.</dd>
+             * </dl>
              */
             public ITextComponent getDisplayName()
             {
-                return new TextComponentTranslation(Blocks.ANVIL.getUnlocalizedName() + ".name", new Object[0]);
+                return new TextComponentTranslation(Blocks.ANVIL.getTranslationKey() + ".name", new Object[0]);
             }
 
             public Container createContainer(InventoryPlayer playerInventory, EntityPlayer playerIn)

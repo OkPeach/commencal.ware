@@ -91,8 +91,8 @@ public class WorldGenSavannaTree extends WorldGenAbstractTree
 
                         if (l1 >= k2 && l2 > 0)
                         {
-                            i3 += enumfacing.getFrontOffsetX();
-                            j1 += enumfacing.getFrontOffsetZ();
+                            i3 += enumfacing.getXOffset();
+                            j1 += enumfacing.getZOffset();
                             --l2;
                         }
 
@@ -148,8 +148,8 @@ public class WorldGenSavannaTree extends WorldGenAbstractTree
                             if (l4 >= 1)
                             {
                                 int j2 = position.getY() + l4;
-                                i3 += enumfacing1.getFrontOffsetX();
-                                j1 += enumfacing1.getFrontOffsetZ();
+                                i3 += enumfacing1.getXOffset();
+                                j1 += enumfacing1.getZOffset();
                                 BlockPos blockpos1 = new BlockPos(i3, j2, j1);
                                 state = worldIn.getBlockState(blockpos1);
 

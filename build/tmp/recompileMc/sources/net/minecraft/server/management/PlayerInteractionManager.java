@@ -32,20 +32,20 @@ public class PlayerInteractionManager
     public World world;
     /** The EntityPlayerMP object that this object is connected to. */
     public EntityPlayerMP player;
-    private GameType gameType = GameType.NOT_SET;
+    public GameType gameType = GameType.NOT_SET;
     /** True if the player is destroying a block */
-    private boolean isDestroyingBlock;
-    private int initialDamage;
-    private BlockPos destroyPos = BlockPos.ORIGIN;
-    private int curblockDamage;
+    public boolean isDestroyingBlock;
+    public int initialDamage;
+    public BlockPos destroyPos = BlockPos.ORIGIN;
+    public int curblockDamage;
     /**
      * Set to true when the "finished destroying block" packet is received but the block wasn't fully damaged yet. The
      * block will not be destroyed while this is false.
      */
-    private boolean receivedFinishDiggingPacket;
-    private BlockPos delayedDestroyPos = BlockPos.ORIGIN;
-    private int initialBlockDamage;
-    private int durabilityRemainingOnBlock = -1;
+    public boolean receivedFinishDiggingPacket;
+    public BlockPos delayedDestroyPos = BlockPos.ORIGIN;
+    public int initialBlockDamage;
+    public int durabilityRemainingOnBlock = -1;
 
     public PlayerInteractionManager(World worldIn)
     {
@@ -57,7 +57,7 @@ public class PlayerInteractionManager
         this.gameType = type;
         type.configurePlayerCapabilities(this.player.capabilities);
         this.player.sendPlayerAbilities();
-        this.player.mcServer.getPlayerList().sendPacketToAllPlayers(new SPacketPlayerListItem(SPacketPlayerListItem.Action.UPDATE_GAME_MODE, new EntityPlayerMP[] {this.player}));
+        this.player.server.getPlayerList().sendPacketToAllPlayers(new SPacketPlayerListItem(SPacketPlayerListItem.Action.UPDATE_GAME_MODE, new EntityPlayerMP[] {this.player}));
         this.world.updateAllPlayersSleepingFlag();
     }
 
@@ -295,7 +295,7 @@ public class PlayerInteractionManager
 
         if (flag)
         {
-            iblockstate.getBlock().onBlockDestroyedByPlayer(this.world, pos, iblockstate);
+            iblockstate.getBlock().onPlayerDestroy(this.world, pos, iblockstate);
         }
 
         return flag;
@@ -459,14 +459,11 @@ public class PlayerInteractionManager
                     .onRightClickBlock(player, hand, pos, facing, net.minecraftforge.common.ForgeHooks.rayTraceEyeHitVec(player, reachDist + 1));
             if (event.isCanceled()) return event.getCancellationResult();
 
-            EnumActionResult result = EnumActionResult.PASS;
-            if (event.getUseItem() != net.minecraftforge.fml.common.eventhandler.Event.Result.DENY)
-            {
-                result = stack.onItemUseFirst(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
-                if (result != EnumActionResult.PASS) return result ;
-            }
+            EnumActionResult ret = stack.onItemUseFirst(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
+            if (ret != EnumActionResult.PASS) return ret;
 
             boolean bypass = player.getHeldItemMainhand().doesSneakBypassUse(worldIn, pos, player) && player.getHeldItemOffhand().doesSneakBypassUse(worldIn, pos, player);
+            EnumActionResult result = EnumActionResult.PASS;
 
             if (!player.isSneaking() || bypass || event.getUseBlock() == net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW)
             {

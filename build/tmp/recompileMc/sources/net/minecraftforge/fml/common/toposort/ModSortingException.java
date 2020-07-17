@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,17 +21,12 @@ package net.minecraftforge.fml.common.toposort;
 
 import java.util.Set;
 
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraftforge.fml.client.GuiSortingProblem;
-import net.minecraftforge.fml.client.IDisplayableError;
 import net.minecraftforge.fml.common.EnhancedRuntimeException;
 import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import net.minecraftforge.fml.common.EnhancedRuntimeException.WrappedPrintStream;
 
-public class ModSortingException extends EnhancedRuntimeException implements IDisplayableError
+public class ModSortingException extends EnhancedRuntimeException
 {
     private static final long serialVersionUID = 1L;
 
@@ -83,11 +78,4 @@ public class ModSortingException extends EnhancedRuntimeException implements IDi
         }
     }
 
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public GuiScreen createGui()
-    {
-        return new GuiSortingProblem(this);
-    }
 }

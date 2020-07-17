@@ -12,7 +12,7 @@ public class EntityAIWatchClosest extends EntityAIBase
     /** The closest entity which is being watched by this one. */
     protected Entity closestEntity;
     /** This is the Maximum distance that the AI will look for the Entity */
-    protected float maxDistanceForPlayer;
+    protected float maxDistance;
     private int lookTime;
     private final float chance;
     protected Class <? extends Entity > watchedClass;
@@ -21,7 +21,7 @@ public class EntityAIWatchClosest extends EntityAIBase
     {
         this.entity = entityIn;
         this.watchedClass = watchTargetClass;
-        this.maxDistanceForPlayer = maxDistance;
+        this.maxDistance = maxDistance;
         this.chance = 0.02F;
         this.setMutexBits(2);
     }
@@ -30,7 +30,7 @@ public class EntityAIWatchClosest extends EntityAIBase
     {
         this.entity = entityIn;
         this.watchedClass = watchTargetClass;
-        this.maxDistanceForPlayer = maxDistance;
+        this.maxDistance = maxDistance;
         this.chance = chanceIn;
         this.setMutexBits(2);
     }
@@ -53,11 +53,11 @@ public class EntityAIWatchClosest extends EntityAIBase
 
             if (this.watchedClass == EntityPlayer.class)
             {
-                this.closestEntity = this.entity.world.getClosestPlayer(this.entity.posX, this.entity.posY, this.entity.posZ, (double)this.maxDistanceForPlayer, Predicates.and(EntitySelectors.NOT_SPECTATING, EntitySelectors.notRiding(this.entity)));
+                this.closestEntity = this.entity.world.getClosestPlayer(this.entity.posX, this.entity.posY, this.entity.posZ, (double)this.maxDistance, Predicates.and(EntitySelectors.NOT_SPECTATING, EntitySelectors.notRiding(this.entity)));
             }
             else
             {
-                this.closestEntity = this.entity.world.findNearestEntityWithinAABB(this.watchedClass, this.entity.getEntityBoundingBox().grow((double)this.maxDistanceForPlayer, 3.0D, (double)this.maxDistanceForPlayer), this.entity);
+                this.closestEntity = this.entity.world.findNearestEntityWithinAABB(this.watchedClass, this.entity.getEntityBoundingBox().grow((double)this.maxDistance, 3.0D, (double)this.maxDistance), this.entity);
             }
 
             return this.closestEntity != null;
@@ -73,7 +73,7 @@ public class EntityAIWatchClosest extends EntityAIBase
         {
             return false;
         }
-        else if (this.entity.getDistanceSq(this.closestEntity) > (double)(this.maxDistanceForPlayer * this.maxDistanceForPlayer))
+        else if (this.entity.getDistanceSq(this.closestEntity) > (double)(this.maxDistance * this.maxDistance))
         {
             return false;
         }

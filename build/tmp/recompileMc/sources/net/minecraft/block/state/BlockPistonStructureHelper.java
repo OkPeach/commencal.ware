@@ -47,7 +47,7 @@ public class BlockPistonStructureHelper
 
         if (!BlockPistonBase.canPush(iblockstate, this.world, this.blockToMove, this.moveDirection, false, this.moveDirection))
         {
-            if (iblockstate.getMobilityFlag() == EnumPushReaction.DESTROY)
+            if (iblockstate.getPushReaction() == EnumPushReaction.DESTROY)
             {
                 this.toDestroy.add(this.blockToMove);
                 return true;
@@ -67,7 +67,7 @@ public class BlockPistonStructureHelper
             {
                 BlockPos blockpos = this.toMove.get(i);
 
-                if (this.world.getBlockState(blockpos).getBlock().isStickyBlock(this.world.getBlockState(blockpos)) && !this.addBranchingBlocks(blockpos))
+                if (this.world.getBlockState(blockpos).getBlock() == Blocks.SLIME_BLOCK && !this.addBranchingBlocks(blockpos))
                 {
                     return false;
                 }
@@ -108,7 +108,7 @@ public class BlockPistonStructureHelper
             }
             else
             {
-                while (block.isStickyBlock(iblockstate))
+                while (block == Blocks.SLIME_BLOCK)
                 {
                     BlockPos blockpos = origin.offset(this.moveDirection.getOpposite(), i);
                     iblockstate = this.world.getBlockState(blockpos);
@@ -150,7 +150,7 @@ public class BlockPistonStructureHelper
                         {
                             BlockPos blockpos2 = this.toMove.get(l);
 
-                            if (this.world.getBlockState(blockpos2).getBlock().isStickyBlock(this.world.getBlockState(blockpos2)) && !this.addBranchingBlocks(blockpos2))
+                            if (this.world.getBlockState(blockpos2).getBlock() == Blocks.SLIME_BLOCK && !this.addBranchingBlocks(blockpos2))
                             {
                                 return false;
                             }
@@ -171,7 +171,7 @@ public class BlockPistonStructureHelper
                         return false;
                     }
 
-                    if (iblockstate.getMobilityFlag() == EnumPushReaction.DESTROY)
+                    if (iblockstate.getPushReaction() == EnumPushReaction.DESTROY)
                     {
                         this.toDestroy.add(blockpos1);
                         return true;

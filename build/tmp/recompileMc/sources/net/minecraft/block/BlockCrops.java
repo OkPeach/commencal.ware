@@ -31,6 +31,10 @@ public class BlockCrops extends BlockBush implements IGrowable
         this.disableStats();
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         return CROPS_AABB[((Integer)state.getValue(this.getAgeProperty())).intValue()];
@@ -73,7 +77,6 @@ public class BlockCrops extends BlockBush implements IGrowable
     {
         super.updateTick(worldIn, pos, state, rand);
 
-        if (!worldIn.isAreaLoaded(pos, 1)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light
         if (worldIn.getLightFromNeighbors(pos.up()) >= 9)
         {
             int i = this.getAge(state);

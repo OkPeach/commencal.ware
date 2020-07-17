@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -131,42 +131,54 @@ public final class MultiLayerModel implements IModel
         private final ImmutableMap<TransformType, TRSRTransformation> cameraTransforms;
         private final IBakedModel base;
         private final IBakedModel missing;
+        private final ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> quads;
 
         public MultiLayerBakedModel(ImmutableMap<Optional<BlockRenderLayer>, IBakedModel> models, IBakedModel missing, ImmutableMap<TransformType, TRSRTransformation> cameraTransforms)
         {
             this.models = models;
             this.cameraTransforms = cameraTransforms;
             this.missing = missing;
-            this.base = models.getOrDefault(Optional.empty(), missing);
+            base = models.getOrDefault(Optional.empty(), missing);
+            ImmutableMap.Builder<Optional<EnumFacing>, ImmutableList<BakedQuad>> quadBuilder = ImmutableMap.builder();
+            quadBuilder.put(Optional.empty(), buildQuads(models, Optional.empty()));
+            for(EnumFacing side: EnumFacing.values())
+            {
+                quadBuilder.put(Optional.of(side), buildQuads(models, Optional.of(side)));
+            }
+            quads = quadBuilder.build();
+        }
+
+        private static ImmutableList<BakedQuad> buildQuads(ImmutableMap<Optional<BlockRenderLayer>, IBakedModel> models, Optional<EnumFacing> side)
+        {
+            ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
+            for(IBakedModel model : models.values())
+            {
+                builder.addAll(model.getQuads(null, side.orElse(null), 0));
+            }
+            return builder.build();
         }
 
         @Override
         public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand)
         {
+            IBakedModel model;
             BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
-            if (layer == null)
+            if(layer == null)
             {
-                ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
-                for (IBakedModel model : models.values())
-                {
-                    builder.addAll(model.getQuads(state, side, rand));
-                }
-                return builder.build();
+                return quads.get(Optional.ofNullable(side));
+            }
+            else
+            {
+                model = models.getOrDefault(Optional.of(layer), missing);
             }
             // assumes that child model will handle this state properly. FIXME?
-            return models.getOrDefault(Optional.of(layer), missing).getQuads(state, side, rand);
+            return model.getQuads(state, side, rand);
         }
 
         @Override
         public boolean isAmbientOcclusion()
         {
             return base.isAmbientOcclusion();
-        }
-
-        @Override
-        public boolean isAmbientOcclusion(IBlockState state)
-        {
-            return base.isAmbientOcclusion(state);
         }
 
         @Override
@@ -210,10 +222,10 @@ public final class MultiLayerModel implements IModel
         @Override
         public boolean accepts(ResourceLocation modelLocation)
         {
-            return modelLocation.getResourceDomain().equals(ForgeVersion.MOD_ID) && (
-                modelLocation.getResourcePath().equals("multi-layer") ||
-                modelLocation.getResourcePath().equals("models/block/multi-layer") ||
-                modelLocation.getResourcePath().equals("models/item/multi-layer"));
+            return modelLocation.getNamespace().equals(ForgeVersion.MOD_ID) && (
+                modelLocation.getPath().equals("multi-layer") ||
+                modelLocation.getPath().equals("models/block/multi-layer") ||
+                modelLocation.getPath().equals("models/item/multi-layer"));
         }
 
         @Override

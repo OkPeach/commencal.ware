@@ -51,23 +51,23 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class PlayerControllerMP
 {
     /** The Minecraft instance. */
-    private final Minecraft mc;
-    private final NetHandlerPlayClient connection;
-    private BlockPos currentBlock = new BlockPos(-1, -1, -1);
+    public final Minecraft mc;
+    public final NetHandlerPlayClient connection;
+    public BlockPos currentBlock = new BlockPos(-1, -1, -1);
     /** The Item currently being used to destroy a block */
-    private ItemStack currentItemHittingBlock = ItemStack.EMPTY;
+    public ItemStack currentItemHittingBlock = ItemStack.EMPTY;
     /** Current block damage (MP) */
-    private float curBlockDamageMP;
+    public float curBlockDamageMP;
     /** Tick counter, when it hits 4 it resets back to 0 and plays the step sound */
-    private float stepSoundTickCounter;
+    public float stepSoundTickCounter;
     /** Delays the first damage on the block after the first click on the block */
-    private int blockHitDelay;
+    public int blockHitDelay;
     /** Tells if the player is hitting a block */
-    private boolean isHittingBlock;
+    public boolean isHittingBlock;
     /** Current game type for the player */
-    private GameType currentGameType = GameType.SURVIVAL;
+    public GameType currentGameType = GameType.SURVIVAL;
     /** Index of the current item held by the player in the inventory hotbar */
-    private int currentPlayerItem;
+    public int currentPlayerItem;
 
     public PlayerControllerMP(Minecraft mcIn, NetHandlerPlayClient netHandler)
     {
@@ -197,7 +197,7 @@ public class PlayerControllerMP
 
                 if (flag)
                 {
-                    block.onBlockDestroyedByPlayer(world, pos, iblockstate);
+                    block.onPlayerDestroy(world, pos, iblockstate);
                 }
                 return flag;
             }
@@ -380,11 +380,11 @@ public class PlayerControllerMP
         }
         else
         {
-            this.connection.getNetworkManager().checkDisconnected();
+            this.connection.getNetworkManager().handleDisconnection();
         }
     }
 
-    private boolean isHittingPosition(BlockPos pos)
+    public boolean isHittingPosition(BlockPos pos)
     {
         ItemStack itemstack = this.mc.player.getHeldItemMainhand();
         boolean flag = this.currentItemHittingBlock.isEmpty() && itemstack.isEmpty();
@@ -400,7 +400,7 @@ public class PlayerControllerMP
     /**
      * Syncs the current player item with the server
      */
-    private void syncCurrentPlayItem()
+    public void syncCurrentPlayItem()
     {
         int i = this.mc.player.inventory.currentItem;
 

@@ -23,38 +23,38 @@ import net.minecraft.world.chunk.Chunk;
 
 public class PlayerChunkMap
 {
-    private static final Predicate<EntityPlayerMP> NOT_SPECTATOR = new Predicate<EntityPlayerMP>()
+    public static final Predicate<EntityPlayerMP> NOT_SPECTATOR = new Predicate<EntityPlayerMP>()
     {
         public boolean apply(@Nullable EntityPlayerMP p_apply_1_)
         {
             return p_apply_1_ != null && !p_apply_1_.isSpectator();
         }
     };
-    private static final Predicate<EntityPlayerMP> CAN_GENERATE_CHUNKS = new Predicate<EntityPlayerMP>()
+    public static final Predicate<EntityPlayerMP> CAN_GENERATE_CHUNKS = new Predicate<EntityPlayerMP>()
     {
         public boolean apply(@Nullable EntityPlayerMP p_apply_1_)
         {
             return p_apply_1_ != null && (!p_apply_1_.isSpectator() || p_apply_1_.getServerWorld().getGameRules().getBoolean("spectatorsGenerateChunks"));
         }
     };
-    private final WorldServer world;
+    public final WorldServer world;
     /** players in the current instance */
-    private final List<EntityPlayerMP> players = Lists.<EntityPlayerMP>newArrayList();
+    public final List<EntityPlayerMP> players = Lists.<EntityPlayerMP>newArrayList();
     /** the hash of all playerInstances created */
-    private final Long2ObjectMap<PlayerChunkMapEntry> entryMap = new Long2ObjectOpenHashMap<PlayerChunkMapEntry>(4096);
+    public final Long2ObjectMap<PlayerChunkMapEntry> entryMap = new Long2ObjectOpenHashMap<PlayerChunkMapEntry>(4096);
     /** the playerInstances(chunks) that need to be updated */
-    private final Set<PlayerChunkMapEntry> dirtyEntries = Sets.<PlayerChunkMapEntry>newHashSet();
-    private final List<PlayerChunkMapEntry> pendingSendToPlayers = Lists.<PlayerChunkMapEntry>newLinkedList();
+    public final Set<PlayerChunkMapEntry> dirtyEntries = Sets.<PlayerChunkMapEntry>newHashSet();
+    public final List<PlayerChunkMapEntry> pendingSendToPlayers = Lists.<PlayerChunkMapEntry>newLinkedList();
     /** List of player instances whose chunk field is unassigned, and need the chunk at their pos to be loaded. */
-    private final List<PlayerChunkMapEntry> entriesWithoutChunks = Lists.<PlayerChunkMapEntry>newLinkedList();
+    public final List<PlayerChunkMapEntry> entriesWithoutChunks = Lists.<PlayerChunkMapEntry>newLinkedList();
     /** This field is using when chunk should be processed (every 8000 ticks) */
-    private final List<PlayerChunkMapEntry> entries = Lists.<PlayerChunkMapEntry>newArrayList();
-    /** Number of chunks the server sends to the client. Valid 3<=x<=15. In server.properties. */
-    private int playerViewRadius;
+    public final List<PlayerChunkMapEntry> entries = Lists.<PlayerChunkMapEntry>newArrayList();
+    /** Player view distance, in chunks. */
+    public int playerViewRadius;
     /** time what is using to check if InhabitedTime should be calculated */
-    private long previousTotalWorldTime;
-    private boolean sortMissingChunks = true;
-    private boolean sortSendToPlayers = true;
+    public long previousTotalWorldTime;
+    public boolean sortMissingChunks = true;
+    public boolean sortSendToPlayers = true;
 
     public PlayerChunkMap(WorldServer serverWorld)
     {
@@ -245,7 +245,7 @@ public class PlayerChunkMap
         return (PlayerChunkMapEntry)this.entryMap.get(getIndex(x, z));
     }
 
-    private PlayerChunkMapEntry getOrCreateEntry(int chunkX, int chunkZ)
+    public PlayerChunkMapEntry getOrCreateEntry(int chunkX, int chunkZ)
     {
         long i = getIndex(chunkX, chunkZ);
         PlayerChunkMapEntry playerchunkmapentry = (PlayerChunkMapEntry)this.entryMap.get(i);
@@ -333,7 +333,7 @@ public class PlayerChunkMap
      * Determine if two rectangles centered at the given points overlap for the provided radius. Arguments: x1, z1, x2,
      * z2, radius.
      */
-    private boolean overlaps(int x1, int z1, int x2, int z2, int radius)
+    public boolean overlaps(int x1, int z1, int x2, int z2, int radius)
     {
         int i = x1 - x2;
         int j = z1 - z2;
@@ -403,6 +403,11 @@ public class PlayerChunkMap
         return playerchunkmapentry != null && playerchunkmapentry.containsPlayer(player) && playerchunkmapentry.isSentToPlayers();
     }
 
+    /**
+     * Called when the server's view distance changes, sending or rescinding chunks as needed.
+     *  
+     * @param radius Radius in chunks
+     */
     public void setPlayerViewRadius(int radius)
     {
         radius = MathHelper.clamp(radius, 3, 32);
@@ -451,23 +456,25 @@ public class PlayerChunkMap
         }
     }
 
-    private void markSortPending()
+    public void markSortPending()
     {
         this.sortMissingChunks = true;
         this.sortSendToPlayers = true;
     }
 
     /**
-     * Get the furthest viewable block given player's view distance
+     * Gets the max entity track distance (in blocks) for the given view distance.
+     *  
+     * @param distance The view distance in chunks
      */
     public static int getFurthestViewableBlock(int distance)
     {
         return distance * 16 - 16;
     }
 
-    private static long getIndex(int p_187307_0_, int p_187307_1_)
+    public static long getIndex(int chunkX, int chunkZ)
     {
-        return (long)p_187307_0_ + 2147483647L | (long)p_187307_1_ + 2147483647L << 32;
+        return (long)chunkX + 2147483647L | (long)chunkZ + 2147483647L << 32;
     }
 
     /**

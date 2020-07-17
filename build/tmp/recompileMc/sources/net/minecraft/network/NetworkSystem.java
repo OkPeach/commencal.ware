@@ -67,7 +67,7 @@ public class NetworkSystem
         }
     };
     /** Reference to the MinecraftServer object. */
-    private final MinecraftServer mcServer;
+    private final MinecraftServer server;
     /** True if this NetworkSystem has never had his endpoints terminated */
     public volatile boolean isAlive;
     /** Contains all endpoints added to this NetworkSystem */
@@ -77,22 +77,21 @@ public class NetworkSystem
 
     public NetworkSystem(MinecraftServer server)
     {
-        this.mcServer = server;
+        this.server = server;
         this.isAlive = true;
     }
 
     /**
      * Adds a channel that listens on publicly accessible network ports
      */
-    public void addLanEndpoint(InetAddress address, int port) throws IOException
+    public void addEndpoint(InetAddress address, int port) throws IOException
     {
-        if (address instanceof java.net.Inet6Address) System.setProperty("java.net.preferIPv4Stack", "false");
         synchronized (this.endpoints)
         {
             Class <? extends ServerSocketChannel > oclass;
             LazyLoadBase <? extends EventLoopGroup > lazyloadbase;
 
-            if (Epoll.isAvailable() && this.mcServer.shouldUseNativeTransport())
+            if (Epoll.isAvailable() && this.server.shouldUseNativeTransport())
             {
                 oclass = EpollServerSocketChannel.class;
                 lazyloadbase = SERVER_EPOLL_EVENTLOOP;
@@ -122,7 +121,7 @@ public class NetworkSystem
                     NetworkManager networkmanager = new NetworkManager(EnumPacketDirection.SERVERBOUND);
                     NetworkSystem.this.networkManagers.add(networkmanager);
                     p_initChannel_1_.pipeline().addLast("packet_handler", networkmanager);
-                    networkmanager.setNetHandler(new NetHandlerHandshakeTCP(NetworkSystem.this.mcServer, networkmanager));
+                    networkmanager.setNetHandler(new NetHandlerHandshakeTCP(NetworkSystem.this.server, networkmanager));
                 }
             }).group(lazyloadbase.getValue()).localAddress(address, port)).bind().syncUninterruptibly());
         }
@@ -143,7 +142,7 @@ public class NetworkSystem
                 protected void initChannel(Channel p_initChannel_1_) throws Exception
                 {
                     NetworkManager networkmanager = new NetworkManager(EnumPacketDirection.SERVERBOUND);
-                    networkmanager.setNetHandler(new NetHandlerHandshakeMemory(NetworkSystem.this.mcServer, networkmanager));
+                    networkmanager.setNetHandler(new NetHandlerHandshakeMemory(NetworkSystem.this.server, networkmanager));
                     NetworkSystem.this.networkManagers.add(networkmanager);
                     p_initChannel_1_.pipeline().addLast("packet_handler", networkmanager);
                 }
@@ -227,7 +226,7 @@ public class NetworkSystem
                     else
                     {
                         iterator.remove();
-                        networkmanager.checkDisconnected();
+                        networkmanager.handleDisconnection();
                     }
                 }
             }
@@ -236,6 +235,6 @@ public class NetworkSystem
 
     public MinecraftServer getServer()
     {
-        return this.mcServer;
+        return this.server;
     }
 }

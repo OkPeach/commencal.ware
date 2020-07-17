@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -32,6 +32,7 @@ import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 import net.minecraftforge.fml.relauncher.FMLSecurityManager;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 
 import com.google.common.collect.Lists;
@@ -45,10 +46,7 @@ public class FMLTweaker implements ITweaker {
 
     public FMLTweaker()
     {
-        if (System.getProperty("java.net.preferIPv4Stack") == null)
-        {
-            System.setProperty("java.net.preferIPv4Stack", "true");
-        }
+        System.setProperty("java.net.preferIPv4Stack", "true"); //Lets do this as early as possible. Vanilla does it in Main.main
         try
         {
             System.setSecurityManager(new FMLSecurityManager());
@@ -122,15 +120,13 @@ public class FMLTweaker implements ITweaker {
 
         Yggdrasil.login(launchArgs);
 
-        Launch.blackboard.put("forgeLaunchArgs", Maps.newHashMap(launchArgs));
-
         try
         {
             jarLocation = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
         }
         catch (URISyntaxException e)
         {
-            LogManager.getLogger("FML.TWEAK").error("Missing URI information for FML tweak");
+            LogManager.getLogger("FMLTWEAK").log(Level.ERROR, "Missing URI information for FML tweak");
             throw new RuntimeException(e);
         }
     }

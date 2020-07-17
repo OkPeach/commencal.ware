@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,15 +19,15 @@
 
 package net.minecraftforge.client.model.pipeline;
 
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.ForgeHooksClient;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,9 +35,12 @@ import java.util.concurrent.ConcurrentMap;
 
 public class LightUtil
 {
+    private static final float s2 = (float)Math.pow(2, .5);
+
     public static float diffuseLight(float x, float y, float z)
     {
-        return Math.min(x * x * 0.6f + y * y * ((3f + y) / 4f) + z * z * 0.8f, 1f);
+        float y1 = y + 3 - 2 * s2;
+        return (x * x * 0.6f + (y1 * y1 * (3 + 2 * s2)) / 8 + z * z * 0.8f);
     }
 
     public static float diffuseLight(EnumFacing side)
@@ -120,14 +123,8 @@ public class LightUtil
         }
     }
 
-    private static final VertexFormat DEFAULT_FROM = VertexLighterFlat.withNormal(DefaultVertexFormats.BLOCK);
-    private static final VertexFormat DEFAULT_TO = DefaultVertexFormats.ITEM;
-    private static final int[] DEFAULT_MAPPING = generateMapping(DEFAULT_FROM, DEFAULT_TO);
     public static int[] mapFormats(VertexFormat from, VertexFormat to)
     {
-        //Speedup: in 99.99% this is the mapping, no need to go make a pair, and go through the slower hash map
-        if (from.equals(DEFAULT_FROM) && to.equals(DEFAULT_TO))
-            return DEFAULT_MAPPING;
         return formatMaps.computeIfAbsent(Pair.of(from, to), pair -> generateMapping(pair.getLeft(), pair.getRight()));
     }
 
@@ -158,7 +155,7 @@ public class LightUtil
     {
         int length = 4 < to.length ? 4 : to.length;
         VertexFormatElement element = formatFrom.getElement(e);
-        int vertexStart = v * formatFrom.getNextOffset() + formatFrom.getOffset(e);
+        int vertexStart = v * formatFrom.getSize() + formatFrom.getOffset(e);
         int count = element.getElementCount();
         VertexFormatElement.EnumType type = element.getType();
         int size = type.getSize();
@@ -212,7 +209,7 @@ public class LightUtil
     public static void pack(float[] from, int[] to, VertexFormat formatTo, int v, int e)
     {
         VertexFormatElement element = formatTo.getElement(e);
-        int vertexStart = v * formatTo.getNextOffset() + formatTo.getOffset(e);
+        int vertexStart = v * formatTo.getSize() + formatTo.getOffset(e);
         int count = element.getElementCount();
         VertexFormatElement.EnumType type = element.getType();
         int size = type.getSize();
@@ -250,7 +247,6 @@ public class LightUtil
     }
 
     private static IVertexConsumer tessellator = null;
-    @Deprecated // TODO: remove
     public static IVertexConsumer getTessellator()
     {
         if(tessellator == null)
@@ -263,7 +259,6 @@ public class LightUtil
     }
 
     private static ItemConsumer itemConsumer = null;
-    @Deprecated // TODO: remove
     public static ItemConsumer getItemConsumer()
     {
         if(itemConsumer == null)
@@ -273,29 +268,20 @@ public class LightUtil
         return itemConsumer;
     }
 
-    private static final class ItemPipeline
-    {
-        final VertexBufferConsumer bufferConsumer;
-        final ItemConsumer itemConsumer;
-
-        ItemPipeline()
-        {
-            this.bufferConsumer = new VertexBufferConsumer();
-            this.itemConsumer = new ItemConsumer(bufferConsumer);
-        }
-    }
-
-    private static final ThreadLocal<ItemPipeline> itemPipeline = ThreadLocal.withInitial(ItemPipeline::new);
-
     // renders quad in any Vertex Format, but is slower
-    public static void renderQuadColorSlow(BufferBuilder buffer, BakedQuad quad, int auxColor)
+    public static void renderQuadColorSlow(BufferBuilder wr, BakedQuad quad, int auxColor)
     {
-        ItemPipeline pipeline = itemPipeline.get();
-        pipeline.bufferConsumer.setBuffer(buffer);
-        ItemConsumer cons = pipeline.itemConsumer;
-
-        float b = (float)( auxColor         & 0xFF) / 0xFF;
-        float g = (float)((auxColor >>>  8) & 0xFF) / 0xFF;
+        ItemConsumer cons;
+        if(wr == Tessellator.getInstance().getBuffer())
+        {
+            cons = getItemConsumer();
+        }
+        else
+        {
+            cons = new ItemConsumer(new VertexBufferConsumer(wr));
+        }
+        float b = (float)(auxColor & 0xFF) / 0xFF;
+        float g = (float)((auxColor >>> 8) & 0xFF) / 0xFF;
         float r = (float)((auxColor >>> 16) & 0xFF) / 0xFF;
         float a = (float)((auxColor >>> 24) & 0xFF) / 0xFF;
 
@@ -303,19 +289,16 @@ public class LightUtil
         quad.pipe(cons);
     }
 
-    public static void renderQuadColor(BufferBuilder buffer, BakedQuad quad, int auxColor)
+    public static void renderQuadColor(BufferBuilder wr, BakedQuad quad, int auxColor)
     {
-        if (quad.getFormat().equals(buffer.getVertexFormat()))
+        if (quad.getFormat().equals(wr.getVertexFormat())) 
         {
-            buffer.addVertexData(quad.getVertexData());
-            if (buffer.getVertexFormat().hasColor())
-            {
-                ForgeHooksClient.putQuadColor(buffer, quad, auxColor);
-            }
+            wr.addVertexData(quad.getVertexData());
+            ForgeHooksClient.putQuadColor(wr, quad, auxColor);
         }
         else
         {
-            renderQuadColorSlow(buffer, quad, auxColor);
+            renderQuadColorSlow(wr, quad, auxColor);
         }
     }
 
@@ -342,8 +325,7 @@ public class LightUtil
             if(getVertexFormat().getElement(element).getUsage() == EnumUsage.COLOR)
             {
                 System.arraycopy(auxColor, 0, buf, 0, buf.length);
-                int n = Math.min(4, data.length);
-                for(int i = 0; i < n; i++)
+                for(int i = 0; i < 4; i++)
                 {
                     buf[i] *= data[i];
                 }

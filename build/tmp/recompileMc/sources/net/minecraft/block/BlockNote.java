@@ -118,6 +118,8 @@ public class BlockNote extends BlockContainer
      * Called on server when World#addBlockEvent is called. If server returns true, then also called on the client. On
      * the Server, this may perform additional changes to the world, like pistons replacing the block with an extended
      * base. On the client, the update may involve replacing tile entities or effects such as sounds or particles
+     * @deprecated call via {@link IBlockState#onBlockEventReceived(World,BlockPos,int,int)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public boolean eventReceived(IBlockState state, World worldIn, BlockPos pos, int id, int param)
     {
@@ -134,6 +136,7 @@ public class BlockNote extends BlockContainer
     /**
      * The type of render function called. MODEL for mixed tesr and static model, MODELBLOCK_ANIMATED for TESR-only,
      * LIQUID for vanilla liquids, INVISIBLE to skip all rendering
+     * @deprecated call via {@link IBlockState#getRenderType()} whenever possible. Implementing/overriding is fine.
      */
     public EnumBlockRenderType getRenderType(IBlockState state)
     {

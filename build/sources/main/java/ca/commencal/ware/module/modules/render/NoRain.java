@@ -7,7 +7,7 @@ import ca.commencal.ware.module.ModuleCategory;
 
 public class NoRain extends Module {
 	public NoRain() {
-		super("Fullbright", ModuleCategory.RENDER);
+		super("Anti Weather", ModuleCategory.RENDER);
 	}
 
 

@@ -162,7 +162,7 @@ public class ShaderManager
         catch (Exception exception3)
         {
             JsonException jsonexception = JsonException.forException(exception3);
-            jsonexception.setFilenameAndFlush(resourcelocation.getResourcePath());
+            jsonexception.setFilenameAndFlush(resourcelocation.getPath());
             throw jsonexception;
         }
         finally

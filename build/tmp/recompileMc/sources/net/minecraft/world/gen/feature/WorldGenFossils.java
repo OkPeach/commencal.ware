@@ -36,7 +36,7 @@ public class WorldGenFossils extends WorldGenerator
 
     public boolean generate(World worldIn, Random rand, BlockPos position)
     {
-        Random random = worldIn.getChunkFromBlockCoords(position).getRandomWithSeed(987234911L);
+        Random random = worldIn.getChunk(position).getRandomWithSeed(987234911L);
         MinecraftServer minecraftserver = worldIn.getMinecraftServer();
         Rotation[] arotation = Rotation.values();
         Rotation rotation = arotation[random.nextInt(arotation.length)];

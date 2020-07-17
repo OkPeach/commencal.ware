@@ -10,12 +10,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class SPacketEffect implements Packet<INetHandlerPlayClient>
 {
-    private int soundType;
-    private BlockPos soundPos;
+    public int soundType;
+    public BlockPos soundPos;
     /** can be a block/item id or other depending on the soundtype */
-    private int soundData;
+    public int soundData;
     /** If true the sound is played across the server */
-    private boolean serverWide;
+    public boolean serverWide;
 
     public SPacketEffect()
     {

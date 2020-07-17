@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,16 +20,11 @@
 package net.minecraftforge.fml.common;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
 import java.net.MalformedURLException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -47,8 +42,6 @@ import net.minecraftforge.fml.common.LoaderState.ModState;
 import net.minecraftforge.fml.common.ModContainer.Disableable;
 import net.minecraftforge.fml.common.ProgressManager.ProgressBar;
 import net.minecraftforge.fml.common.discovery.ASMDataTable;
-import net.minecraftforge.fml.common.discovery.ContainerType;
-import net.minecraftforge.fml.common.discovery.ModCandidate;
 import net.minecraftforge.fml.common.discovery.ModDiscoverer;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.event.FMLLoadEvent;
@@ -61,11 +54,8 @@ import net.minecraftforge.fml.common.toposort.ModSortingException.SortingExcepti
 import net.minecraftforge.fml.common.versioning.ArtifactVersion;
 import net.minecraftforge.fml.common.versioning.DependencyParser;
 import net.minecraftforge.fml.common.versioning.VersionParser;
-import net.minecraftforge.fml.relauncher.CoreModManager;
+import net.minecraftforge.fml.relauncher.ModListHelper;
 import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.libraries.Artifact;
-import net.minecraftforge.fml.relauncher.libraries.LibraryManager;
-import net.minecraftforge.fml.relauncher.libraries.Repository;
 import net.minecraftforge.registries.GameData;
 import net.minecraftforge.registries.ObjectHolderRegistry;
 
@@ -233,8 +223,8 @@ public class Loader
     private void sortModList()
     {
         FMLLog.log.trace("Verifying mod requirements are satisfied");
-        List<WrongMinecraftVersionException> wrongMinecraftExceptions = new ArrayList<>();
-        List<MissingModsException> missingModsExceptions = new ArrayList<>();
+        List<WrongMinecraftVersionException> wrongMinecraftExceptions = new ArrayList<WrongMinecraftVersionException>();
+        List<MissingModsException> missingModsExceptions = new ArrayList<MissingModsException>();
         try
         {
             BiMap<String, ArtifactVersion> modVersions = HashBiMap.create();
@@ -254,32 +244,40 @@ public class Loader
                     wrongMinecraftExceptions.add(ret);
                     continue;
                 }
+                Map<String,ArtifactVersion> names = Maps.uniqueIndex(mod.getRequirements(), ArtifactVersion::getLabel);
+                Set<ArtifactVersion> versionMissingMods = Sets.newHashSet();
 
-                reqList.putAll(mod.getModId(), Iterables.transform(mod.getRequirements(), ArtifactVersion::getLabel));
-
-                Set<ArtifactVersion> allDeps = Sets.newHashSet();
-
-                allDeps.addAll(mod.getDependants());
-                allDeps.addAll(mod.getDependencies());
-                allDeps.addAll(mod.getRequirements());
-
-                MissingModsException missingModsException = new MissingModsException(mod.getModId(), mod.getName());
-                for (ArtifactVersion acceptedVersion : allDeps)
+                Set<String> missingMods = Sets.difference(names.keySet(), modVersions.keySet());
+                if (!missingMods.isEmpty())
                 {
-                    boolean required = mod.getRequirements().contains(acceptedVersion);
-                    if (required || modVersions.containsKey(acceptedVersion.getLabel()))
+                    FMLLog.log.fatal("The mod {} ({}) requires mods {} to be available", mod.getModId(), mod.getName(), missingMods);
+                    for (String modid : missingMods)
                     {
-                        ArtifactVersion currentVersion = modVersions.get(acceptedVersion.getLabel());
-                        if (currentVersion == null || !acceptedVersion.containsVersion(currentVersion))
+                        versionMissingMods.add(names.get(modid));
+                    }
+                    MissingModsException ret = new MissingModsException(versionMissingMods, mod.getModId(), mod.getName());
+                    FMLLog.log.fatal(ret.getMessage());
+                    missingModsExceptions.add(ret);
+                    continue;
+                }
+                reqList.putAll(mod.getModId(), names.keySet());
+                ImmutableList<ArtifactVersion> allDeps = ImmutableList.<ArtifactVersion>builder().addAll(mod.getDependants()).addAll(mod.getDependencies()).build();
+                for (ArtifactVersion v : allDeps)
+                {
+                    if (modVersions.containsKey(v.getLabel()))
+                    {
+                        if (!v.containsVersion(modVersions.get(v.getLabel())))
                         {
-                            missingModsException.addMissingMod(acceptedVersion, currentVersion, required);
+                            versionMissingMods.add(v);
                         }
                     }
                 }
-                if (!missingModsException.getMissingModInfos().isEmpty())
+                if (!versionMissingMods.isEmpty())
                 {
-                    FMLLog.log.fatal(missingModsException.toString());
-                    missingModsExceptions.add(missingModsException);
+                    FMLLog.log.fatal("The mod {} ({}) requires mod versions {} to be available", mod.getModId(), mod.getName(), versionMissingMods);
+                    MissingModsException ret = new MissingModsException(versionMissingMods, mod.getModId(), mod.getName());
+                    FMLLog.log.fatal(ret.toString());
+                    missingModsExceptions.add(ret);
                 }
             }
 
@@ -300,7 +298,7 @@ public class Loader
                 throw new MultipleModsErrored(wrongMinecraftExceptions, missingModsExceptions);
             }
 
-            reverseDependencies = Multimaps.invertFrom(reqList, ArrayListMultimap.create());
+            reverseDependencies = Multimaps.invertFrom(reqList, ArrayListMultimap.<String,String>create());
             ModSorter sorter = new ModSorter(getActiveModList(), namedMods);
 
             try
@@ -386,42 +384,18 @@ public class Loader
             mods.add(new InjectedModContainer(mc,mc.getSource()));
         }
         ModDiscoverer discoverer = new ModDiscoverer();
+        FMLLog.log.debug("Attempting to load mods contained in the minecraft jar file and associated classes");
+        discoverer.findClasspathMods(modClassLoader);
+        FMLLog.log.debug("Minecraft jar mods loaded successfully");
 
-        //if (!FMLForgePlugin.RUNTIME_DEOBF) //Only descover mods in the classpath if we're in the dev env.
-        {                                  //TODO: Move this to GradleStart? And add a specific mod canidate for Forge itself.
-            FMLLog.log.debug("Attempting to load mods contained in the minecraft jar file and associated classes");
-            discoverer.findClasspathMods(modClassLoader);
-            FMLLog.log.debug("Minecraft jar mods loaded successfully");
-        }
-
-        List<Artifact> maven_canidates = LibraryManager.flattenLists(minecraftDir);
-        List<File> file_canidates = LibraryManager.gatherLegacyCanidates(minecraftDir);
-
-        for (Artifact artifact : maven_canidates)
+        FMLLog.log.info("Found {} mods from the command line. Injecting into mod discoverer", ModListHelper.additionalMods.size());
+        FMLLog.log.info("Searching {} for mods", canonicalModsDir.getAbsolutePath());
+        discoverer.findModDirMods(canonicalModsDir, ModListHelper.additionalMods.values().toArray(new File[0]));
+        File versionSpecificModsDir = new File(canonicalModsDir,mccversion);
+        if (versionSpecificModsDir.isDirectory())
         {
-            artifact = Repository.resolveAll(artifact);
-            if (artifact != null)
-            {
-                File target = artifact.getFile();
-                if (!file_canidates.contains(target))
-                    file_canidates.add(target);
-            }
-        }
-        //Do we want to sort the full list after resolving artifacts?
-        //TODO: Add dependency gathering?
-
-        for (File mod : file_canidates)
-        {
-            // skip loaded coremods
-            if (CoreModManager.getIgnoredMods().contains(mod.getName()))
-            {
-                FMLLog.log.trace("Skipping already parsed coremod or tweaker {}", mod.getName());
-            }
-            else
-            {
-                FMLLog.log.debug("Found a candidate zip or jar file {}", mod.getName());
-                discoverer.addCandidate(new ModCandidate(mod, mod, ContainerType.JAR));
-            }
+            FMLLog.log.info("Also searching {} for mods", versionSpecificModsDir);
+            discoverer.findModDirMods(versionSpecificModsDir);
         }
 
         mods.addAll(discoverer.identifyMods());
@@ -549,10 +523,9 @@ public class Loader
         ObjectHolderRegistry.INSTANCE.findObjectHolders(new ASMDataTable());
         modController.forceActiveContainer(containers[0]);
     }
-
     /**
      * Called from the hook to start mod loading. We trigger the
-     * {@link #identifyMods(List)} and Constructing, Preinitalization, and Initalization phases here. Finally,
+     * {@link #identifyMods()} and Constructing, Preinitalization, and Initalization phases here. Finally,
      * the mod list is frozen completely and is consider immutable from then on.
      * @param injectedModContainers containers to inject
      */
@@ -652,10 +625,7 @@ public class Loader
             FMLLog.log.trace("Found a mod state file {}", forcedModFile.getName());
             try
             {
-                try (Reader reader = new InputStreamReader(new FileInputStream(forcedModFile), StandardCharsets.UTF_8))
-                {
-                    forcedModListProperties.load(reader);
-                }
+                forcedModListProperties.load(new FileReader(forcedModFile));
                 FMLLog.log.trace("Loaded states for {} mods from file", forcedModListProperties.size());
             }
             catch (Exception e)
@@ -738,7 +708,7 @@ public class Loader
 
     public Map<String,ModContainer> getIndexedModList()
     {
-        return namedMods != null ? ImmutableMap.copyOf(namedMods) : ImmutableMap.of();
+        return ImmutableMap.copyOf(namedMods);
     }
 
     public void initializeMods()
@@ -794,8 +764,16 @@ public class Loader
 
     public boolean serverStarting(Object server)
     {
-        modController.distributeStateMessage(LoaderState.SERVER_STARTING, server);
-        modController.transition(LoaderState.SERVER_STARTING, false);
+        try
+        {
+            modController.distributeStateMessage(LoaderState.SERVER_STARTING, server);
+            modController.transition(LoaderState.SERVER_STARTING, false);
+        }
+        catch (Throwable t)
+        {
+            FMLLog.log.error("A fatal exception occurred during the server starting event", t);
+            return false;
+        }
         return true;
     }
 
@@ -849,6 +827,7 @@ public class Loader
 
     public void serverStopped()
     {
+        GameData.revertToFrozen();
         modController.distributeStateMessage(LoaderState.SERVER_STOPPED);
         modController.transition(LoaderState.SERVER_STOPPED, true);
         modController.transition(LoaderState.AVAILABLE, true);
@@ -856,8 +835,16 @@ public class Loader
 
     public boolean serverAboutToStart(Object server)
     {
-        modController.distributeStateMessage(LoaderState.SERVER_ABOUT_TO_START, server);
-        modController.transition(LoaderState.SERVER_ABOUT_TO_START, false);
+        try
+        {
+            modController.distributeStateMessage(LoaderState.SERVER_ABOUT_TO_START, server);
+            modController.transition(LoaderState.SERVER_ABOUT_TO_START, false);
+        }
+        catch (Throwable t)
+        {
+            FMLLog.log.error("A fatal exception occurred during the server about to start event", t);
+            return false;
+        }
         return true;
     }
 
@@ -868,10 +855,7 @@ public class Loader
             Properties loaded = new Properties();
             try
             {
-                try (InputStream stream = getClass().getClassLoader().getResourceAsStream("fmlbranding.properties"))
-                {
-                    loaded.load(stream);
-                }
+                loaded.load(getClass().getClassLoader().getResourceAsStream("fmlbranding.properties"));
             }
             catch (Exception e)
             {
@@ -943,15 +927,9 @@ public class Loader
         try
         {
             Properties props = new Properties();
-            try (Reader reader = new InputStreamReader(new FileInputStream(forcedModFile), StandardCharsets.UTF_8))
-            {
-                props.load(reader);
-            }
+            props.load(new FileReader(forcedModFile));
             props.put(modId, "false");
-            try (Writer writer = new OutputStreamWriter(new FileOutputStream(forcedModFile), StandardCharsets.UTF_8))
-            {
-                props.store(writer, null);
-            }
+            props.store(new FileWriter(forcedModFile), null);
         }
         catch (Exception e)
         {
@@ -980,10 +958,7 @@ public class Loader
         JsonElement injectedDeps;
         try
         {
-            try (Reader reader = new InputStreamReader(new FileInputStream(injectedDepFile), StandardCharsets.UTF_8))
-            {
-                injectedDeps = parser.parse(reader);
-            }
+            injectedDeps = parser.parse(new FileReader(injectedDepFile));
             for (JsonElement el : injectedDeps.getAsJsonArray())
             {
                 JsonObject jo = el.getAsJsonObject();

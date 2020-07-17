@@ -16,10 +16,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemTool extends Item
 {
+    /** Hardcoded set of blocks this tool can properly dig at full speed. Modders see {@link #getToolClasses} instead. */
     private final Set<Block> effectiveBlocks;
     protected float efficiency;
-    /** Damage versus entities. */
-    protected float attackDamage;
+    /** Total combined attack damage of this item (tool damage + material damage) */
+    public float attackDamage;
     protected float attackSpeed;
     /** The material this tool is made from. */
     protected Item.ToolMaterial toolMaterial;

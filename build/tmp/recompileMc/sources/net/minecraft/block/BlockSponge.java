@@ -38,7 +38,7 @@ public class BlockSponge extends Block
      */
     public String getLocalizedName()
     {
-        return I18n.translateToLocal(this.getUnlocalizedName() + ".dry.name");
+        return I18n.translateToLocal(this.getTranslationKey() + ".dry.name");
     }
 
     /**
@@ -152,6 +152,11 @@ public class BlockSponge extends Block
         return new BlockStateContainer(this, new IProperty[] {WET});
     }
 
+    /**
+     * Called periodically clientside on blocks near the player to show effects (like furnace fire particles). Note that
+     * this method is unrelated to {@link randomTick} and {@link #needsRandomTick}, and will always be called regardless
+     * of whether the block can receive random update ticks
+     */
     @SideOnly(Side.CLIENT)
     public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {

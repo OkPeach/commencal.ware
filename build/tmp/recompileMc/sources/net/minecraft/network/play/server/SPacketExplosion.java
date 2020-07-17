@@ -13,14 +13,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class SPacketExplosion implements Packet<INetHandlerPlayClient>
 {
-    private double posX;
-    private double posY;
-    private double posZ;
-    private float strength;
-    private List<BlockPos> affectedBlockPositions;
-    private float motionX;
-    private float motionY;
-    private float motionZ;
+    public double posX;
+    public double posY;
+    public double posZ;
+    public float strength;
+    public List<BlockPos> affectedBlockPositions;
+    public float motionX;
+    public float motionY;
+    public float motionZ;
 
     public SPacketExplosion()
     {

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -34,13 +34,13 @@ public interface IModGuiFactory {
      *
      * @param minecraftInstance the instance
      */
-    void initialize(Minecraft minecraftInstance);
+    public void initialize(Minecraft minecraftInstance);
     
     /**
      * If this method returns false, the config button in the mod list will be disabled
      * @return true if this object provides a config gui screen, false otherwise
      */
-    boolean hasConfigGui();
+    public boolean hasConfigGui();
     
     /**
      * Return an initialized {@link GuiScreen}. This screen will be displayed
@@ -62,7 +62,7 @@ public interface IModGuiFactory {
      * @return A class that will be instantiated on clicks on the config button
      *  or null if no GUI is desired.
      */
-    GuiScreen createConfigGui(GuiScreen parentScreen);
+    public GuiScreen createConfigGui(GuiScreen parentScreen);
 
     /**
      * Return a list of the "runtime" categories this mod wishes to populate with
@@ -84,7 +84,7 @@ public interface IModGuiFactory {
      *
      * @return the set of options this mod wishes to have available, or empty if none
      */
-    Set<RuntimeOptionCategoryElement> runtimeGuiCategories();
+    public Set<RuntimeOptionCategoryElement> runtimeGuiCategories();
 
     /**
      * Represents an option category and entry in the runtime gui options list.

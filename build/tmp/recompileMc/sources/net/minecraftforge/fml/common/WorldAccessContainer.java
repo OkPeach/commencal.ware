@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,6 +27,6 @@ import net.minecraft.world.storage.*;
 
 public interface WorldAccessContainer
 {
-    NBTTagCompound getDataForWriting(SaveHandler handler, WorldInfo info);
-    void readData(SaveHandler handler, WorldInfo info, Map<String, NBTBase> propertyMap, NBTTagCompound tag);
+    public NBTTagCompound getDataForWriting(SaveHandler handler, WorldInfo info);
+    public void readData(SaveHandler handler, WorldInfo info, Map<String,NBTBase> propertyMap, NBTTagCompound tag);
 }

@@ -31,7 +31,7 @@ public class Sound implements ISoundEventAccessor<Sound>
 
     public ResourceLocation getSoundAsOggLocation()
     {
-        return new ResourceLocation(this.name.getResourceDomain(), "sounds/" + this.name.getResourcePath() + ".ogg");
+        return new ResourceLocation(this.name.getNamespace(), "sounds/" + this.name.getPath() + ".ogg");
     }
 
     public float getVolume()

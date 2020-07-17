@@ -270,7 +270,7 @@ public class EntityWither extends EntityMob implements IRangedAttackMob
 
             if (j1 <= 0)
             {
-                this.world.newExplosion(this, this.posX, this.posY + (double)this.getEyeHeight(), this.posZ, 7.0F, false, net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.world, this));
+                this.world.newExplosion(this, this.posX, this.posY + (double)this.getEyeHeight(), this.posZ, 7.0F, false, this.world.getGameRules().getBoolean("mobGriefing"));
                 this.world.playBroadcastSound(1023, new BlockPos(this), 0);
             }
 
@@ -377,7 +377,7 @@ public class EntityWither extends EntityMob implements IRangedAttackMob
             {
                 --this.blockBreakCounter;
 
-                if (this.blockBreakCounter == 0 && net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.world, this))
+                if (this.blockBreakCounter == 0 && this.world.getGameRules().getBoolean("mobGriefing"))
                 {
                     int i1 = MathHelper.floor(this.posY);
                     int l1 = MathHelper.floor(this.posX);

@@ -1,0 +1,7 @@
+{
+	"required"           : true,
+	"compatibilityLevel" : "JAVA_8",
+	"package"            : "commencal.client.mixins",
+	"refmap"             : "mixins.commencal.refmap.json",
+	"mixins"             : []
+}

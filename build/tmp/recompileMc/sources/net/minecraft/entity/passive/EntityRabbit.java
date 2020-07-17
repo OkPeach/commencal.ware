@@ -136,7 +136,7 @@ public class EntityRabbit extends EntityAnimal
     }
 
     @SideOnly(Side.CLIENT)
-    public float setJumpCompletion(float p_175521_1_)
+    public float getJumpCompletion(float p_175521_1_)
     {
         return this.jumpDuration == 0 ? 0.0F : ((float)this.jumpTicks + p_175521_1_) / (float)this.jumpDuration;
     }
@@ -440,7 +440,17 @@ public class EntityRabbit extends EntityAnimal
 
     /**
      * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
-     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
+     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory.
+     *  
+     * The livingdata parameter is used to pass data between all instances during a pack spawn. It will be null on the
+     * first call. Subclasses may check if it's null, and then create a new one and return it if so, initializing all
+     * entities in the pack with the contained data.
+     *  
+     * @return The IEntityLivingData to pass to this method for other instances of this entity class within the same
+     * pack
+     *  
+     * @param difficulty The current local difficulty
+     * @param livingdata Shared spawn data. Will usually be null. (See return value for more information)
      */
     @Nullable
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)
@@ -593,7 +603,7 @@ public class EntityRabbit extends EntityAnimal
             {
                 if (this.runDelay <= 0)
                 {
-                    if (!net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.rabbit.world, this.rabbit))
+                    if (!this.rabbit.world.getGameRules().getBoolean("mobGriefing"))
                     {
                         return false;
                     }

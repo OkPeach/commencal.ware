@@ -145,7 +145,7 @@ public class WoodlandMansionPieces
             {
                 for (EnumFacing enumfacing : EnumFacing.Plane.HORIZONTAL.facings())
                 {
-                    if (this.isRoomId(p_191113_1_, p_191113_2_ + enumfacing.getFrontOffsetX(), p_191113_3_ + enumfacing.getFrontOffsetZ(), p_191113_4_, p_191113_5_))
+                    if (this.isRoomId(p_191113_1_, p_191113_2_ + enumfacing.getXOffset(), p_191113_3_ + enumfacing.getZOffset(), p_191113_4_, p_191113_5_))
                     {
                         return enumfacing;
                     }
@@ -159,20 +159,20 @@ public class WoodlandMansionPieces
                 if (p_191110_5_ > 0)
                 {
                     p_191110_1_.set(p_191110_2_, p_191110_3_, 1);
-                    p_191110_1_.setIf(p_191110_2_ + p_191110_4_.getFrontOffsetX(), p_191110_3_ + p_191110_4_.getFrontOffsetZ(), 0, 1);
+                    p_191110_1_.setIf(p_191110_2_ + p_191110_4_.getXOffset(), p_191110_3_ + p_191110_4_.getZOffset(), 0, 1);
 
                     for (int i = 0; i < 8; ++i)
                     {
-                        EnumFacing enumfacing = EnumFacing.getHorizontal(this.random.nextInt(4));
+                        EnumFacing enumfacing = EnumFacing.byHorizontalIndex(this.random.nextInt(4));
 
                         if (enumfacing != p_191110_4_.getOpposite() && (enumfacing != EnumFacing.EAST || !this.random.nextBoolean()))
                         {
-                            int j = p_191110_2_ + p_191110_4_.getFrontOffsetX();
-                            int k = p_191110_3_ + p_191110_4_.getFrontOffsetZ();
+                            int j = p_191110_2_ + p_191110_4_.getXOffset();
+                            int k = p_191110_3_ + p_191110_4_.getZOffset();
 
-                            if (p_191110_1_.get(j + enumfacing.getFrontOffsetX(), k + enumfacing.getFrontOffsetZ()) == 0 && p_191110_1_.get(j + enumfacing.getFrontOffsetX() * 2, k + enumfacing.getFrontOffsetZ() * 2) == 0)
+                            if (p_191110_1_.get(j + enumfacing.getXOffset(), k + enumfacing.getZOffset()) == 0 && p_191110_1_.get(j + enumfacing.getXOffset() * 2, k + enumfacing.getZOffset() * 2) == 0)
                             {
-                                this.recursiveCorridor(p_191110_1_, p_191110_2_ + p_191110_4_.getFrontOffsetX() + enumfacing.getFrontOffsetX(), p_191110_3_ + p_191110_4_.getFrontOffsetZ() + enumfacing.getFrontOffsetZ(), enumfacing, p_191110_5_ - 1);
+                                this.recursiveCorridor(p_191110_1_, p_191110_2_ + p_191110_4_.getXOffset() + enumfacing.getXOffset(), p_191110_3_ + p_191110_4_.getZOffset() + enumfacing.getZOffset(), enumfacing, p_191110_5_ - 1);
                                 break;
                             }
                         }
@@ -180,13 +180,13 @@ public class WoodlandMansionPieces
 
                     EnumFacing enumfacing1 = p_191110_4_.rotateY();
                     EnumFacing enumfacing2 = p_191110_4_.rotateYCCW();
-                    p_191110_1_.setIf(p_191110_2_ + enumfacing1.getFrontOffsetX(), p_191110_3_ + enumfacing1.getFrontOffsetZ(), 0, 2);
-                    p_191110_1_.setIf(p_191110_2_ + enumfacing2.getFrontOffsetX(), p_191110_3_ + enumfacing2.getFrontOffsetZ(), 0, 2);
-                    p_191110_1_.setIf(p_191110_2_ + p_191110_4_.getFrontOffsetX() + enumfacing1.getFrontOffsetX(), p_191110_3_ + p_191110_4_.getFrontOffsetZ() + enumfacing1.getFrontOffsetZ(), 0, 2);
-                    p_191110_1_.setIf(p_191110_2_ + p_191110_4_.getFrontOffsetX() + enumfacing2.getFrontOffsetX(), p_191110_3_ + p_191110_4_.getFrontOffsetZ() + enumfacing2.getFrontOffsetZ(), 0, 2);
-                    p_191110_1_.setIf(p_191110_2_ + p_191110_4_.getFrontOffsetX() * 2, p_191110_3_ + p_191110_4_.getFrontOffsetZ() * 2, 0, 2);
-                    p_191110_1_.setIf(p_191110_2_ + enumfacing1.getFrontOffsetX() * 2, p_191110_3_ + enumfacing1.getFrontOffsetZ() * 2, 0, 2);
-                    p_191110_1_.setIf(p_191110_2_ + enumfacing2.getFrontOffsetX() * 2, p_191110_3_ + enumfacing2.getFrontOffsetZ() * 2, 0, 2);
+                    p_191110_1_.setIf(p_191110_2_ + enumfacing1.getXOffset(), p_191110_3_ + enumfacing1.getZOffset(), 0, 2);
+                    p_191110_1_.setIf(p_191110_2_ + enumfacing2.getXOffset(), p_191110_3_ + enumfacing2.getZOffset(), 0, 2);
+                    p_191110_1_.setIf(p_191110_2_ + p_191110_4_.getXOffset() + enumfacing1.getXOffset(), p_191110_3_ + p_191110_4_.getZOffset() + enumfacing1.getZOffset(), 0, 2);
+                    p_191110_1_.setIf(p_191110_2_ + p_191110_4_.getXOffset() + enumfacing2.getXOffset(), p_191110_3_ + p_191110_4_.getZOffset() + enumfacing2.getZOffset(), 0, 2);
+                    p_191110_1_.setIf(p_191110_2_ + p_191110_4_.getXOffset() * 2, p_191110_3_ + p_191110_4_.getZOffset() * 2, 0, 2);
+                    p_191110_1_.setIf(p_191110_2_ + enumfacing1.getXOffset() * 2, p_191110_3_ + enumfacing1.getZOffset() * 2, 0, 2);
+                    p_191110_1_.setIf(p_191110_2_ + enumfacing2.getXOffset() * 2, p_191110_3_ + enumfacing2.getZOffset() * 2, 0, 2);
                 }
             }
 
@@ -261,8 +261,8 @@ public class WoodlandMansionPieces
                     int l1 = woodlandmansionpieces$simplegrid.get(((Integer)tuple.getFirst()).intValue(), ((Integer)tuple.getSecond()).intValue());
                     woodlandmansionpieces$simplegrid.set(((Integer)tuple.getFirst()).intValue(), ((Integer)tuple.getSecond()).intValue(), l1 | 4194304);
                     EnumFacing enumfacing1 = this.get1x2RoomDirection(this.baseGrid, ((Integer)tuple.getFirst()).intValue(), ((Integer)tuple.getSecond()).intValue(), 1, l1 & 65535);
-                    int i2 = ((Integer)tuple.getFirst()).intValue() + enumfacing1.getFrontOffsetX();
-                    int i1 = ((Integer)tuple.getSecond()).intValue() + enumfacing1.getFrontOffsetZ();
+                    int i2 = ((Integer)tuple.getFirst()).intValue() + enumfacing1.getXOffset();
+                    int i1 = ((Integer)tuple.getSecond()).intValue() + enumfacing1.getZOffset();
 
                     for (int j1 = 0; j1 < this.thirdFloorGrid.height; ++j1)
                     {
@@ -288,7 +288,7 @@ public class WoodlandMansionPieces
 
                     for (EnumFacing enumfacing : EnumFacing.Plane.HORIZONTAL.facings())
                     {
-                        if (this.thirdFloorGrid.get(i2 + enumfacing.getFrontOffsetX(), i1 + enumfacing.getFrontOffsetZ()) == 0)
+                        if (this.thirdFloorGrid.get(i2 + enumfacing.getXOffset(), i1 + enumfacing.getZOffset()) == 0)
                         {
                             list1.add(enumfacing);
                         }
@@ -302,7 +302,7 @@ public class WoodlandMansionPieces
                     else
                     {
                         EnumFacing enumfacing2 = list1.get(this.random.nextInt(list1.size()));
-                        this.recursiveCorridor(this.thirdFloorGrid, i2 + enumfacing2.getFrontOffsetX(), i1 + enumfacing2.getFrontOffsetZ(), enumfacing2, 4);
+                        this.recursiveCorridor(this.thirdFloorGrid, i2 + enumfacing2.getXOffset(), i1 + enumfacing2.getZOffset(), enumfacing2, 4);
 
                         while (this.cleanEdges(this.thirdFloorGrid))
                         {
@@ -678,7 +678,7 @@ public class WoodlandMansionPieces
                                 {
                                     for (EnumFacing enumfacing : EnumFacing.Plane.HORIZONTAL.facings())
                                     {
-                                        if (woodlandmansionpieces$simplegrid3.get(l1 + enumfacing.getFrontOffsetX(), k1 + enumfacing.getFrontOffsetZ()) == 1)
+                                        if (woodlandmansionpieces$simplegrid3.get(l1 + enumfacing.getXOffset(), k1 + enumfacing.getZOffset()) == 1)
                                         {
                                             list.add(enumfacing);
                                         }
@@ -738,7 +738,7 @@ public class WoodlandMansionPieces
                                 {
                                     EnumFacing enumfacing2 = enumfacing1.rotateY();
 
-                                    if (!p_191125_4_.isRoomId(woodlandmansionpieces$simplegrid3, l1 + enumfacing2.getFrontOffsetX(), k1 + enumfacing2.getFrontOffsetZ(), l2, k2))
+                                    if (!p_191125_4_.isRoomId(woodlandmansionpieces$simplegrid3, l1 + enumfacing2.getXOffset(), k1 + enumfacing2.getZOffset(), l2, k2))
                                     {
                                         enumfacing2 = enumfacing2.getOpposite();
                                     }
@@ -763,7 +763,7 @@ public class WoodlandMansionPieces
 
                 while (true)
                 {
-                    if (!WoodlandMansionPieces.Grid.isHouse(p_191130_3_, i + p_191130_4_.getFrontOffsetX(), j + p_191130_4_.getFrontOffsetZ()))
+                    if (!WoodlandMansionPieces.Grid.isHouse(p_191130_3_, i + p_191130_4_.getXOffset(), j + p_191130_4_.getZOffset()))
                     {
                         this.traverseTurn(p_191130_1_, p_191130_2_);
                         p_191130_4_ = p_191130_4_.rotateY();
@@ -773,17 +773,17 @@ public class WoodlandMansionPieces
                             this.traverseWallPiece(p_191130_1_, p_191130_2_);
                         }
                     }
-                    else if (WoodlandMansionPieces.Grid.isHouse(p_191130_3_, i + p_191130_4_.getFrontOffsetX(), j + p_191130_4_.getFrontOffsetZ()) && WoodlandMansionPieces.Grid.isHouse(p_191130_3_, i + p_191130_4_.getFrontOffsetX() + p_191130_4_.rotateYCCW().getFrontOffsetX(), j + p_191130_4_.getFrontOffsetZ() + p_191130_4_.rotateYCCW().getFrontOffsetZ()))
+                    else if (WoodlandMansionPieces.Grid.isHouse(p_191130_3_, i + p_191130_4_.getXOffset(), j + p_191130_4_.getZOffset()) && WoodlandMansionPieces.Grid.isHouse(p_191130_3_, i + p_191130_4_.getXOffset() + p_191130_4_.rotateYCCW().getXOffset(), j + p_191130_4_.getZOffset() + p_191130_4_.rotateYCCW().getZOffset()))
                     {
                         this.traverseInnerTurn(p_191130_1_, p_191130_2_);
-                        i += p_191130_4_.getFrontOffsetX();
-                        j += p_191130_4_.getFrontOffsetZ();
+                        i += p_191130_4_.getXOffset();
+                        j += p_191130_4_.getZOffset();
                         p_191130_4_ = p_191130_4_.rotateYCCW();
                     }
                     else
                     {
-                        i += p_191130_4_.getFrontOffsetX();
-                        j += p_191130_4_.getFrontOffsetZ();
+                        i += p_191130_4_.getXOffset();
+                        j += p_191130_4_.getZOffset();
 
                         if (i != p_191130_7_ || j != p_191130_8_ || enumfacing != p_191130_4_)
                         {

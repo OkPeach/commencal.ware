@@ -490,7 +490,7 @@ public class StructureMineshaftPieces
             {
                 super.readStructureFromNBT(tagCompound, p_143011_2_);
                 this.isMultipleFloors = tagCompound.getBoolean("tf");
-                this.corridorDirection = EnumFacing.getHorizontal(tagCompound.getInteger("D"));
+                this.corridorDirection = EnumFacing.byHorizontalIndex(tagCompound.getInteger("D"));
             }
 
             public Cross(int p_i47139_1_, Random p_i47139_2_, StructureBoundingBox p_i47139_3_, @Nullable EnumFacing p_i47139_4_, MapGenMineshaft.Type p_i47139_5_)

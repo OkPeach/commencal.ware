@@ -33,6 +33,8 @@ public class BlockMagma extends Block
 
     /**
      * Get the MapColor for this Block and the given BlockState
+     * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
@@ -52,6 +54,10 @@ public class BlockMagma extends Block
         super.onEntityWalk(worldIn, pos, entityIn);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getPackedLightmapCoords(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     @SideOnly(Side.CLIENT)
     public int getPackedLightmapCoords(IBlockState state, IBlockAccess source, BlockPos pos)
     {
@@ -75,6 +81,10 @@ public class BlockMagma extends Block
         }
     }
 
+    /**
+     * @return true if the passed entity is allowed to spawn on this block.
+     * @deprecated prefer calling {@link IBlockState#canEntitySpawn(Entity)}
+     */
     public boolean canEntitySpawn(IBlockState state, Entity entityIn)
     {
         return entityIn.isImmuneToFire();

@@ -37,6 +37,10 @@ public class BlockSapling extends BlockBush implements IGrowable
         this.setCreativeTab(CreativeTabs.DECORATIONS);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         return SAPLING_AABB;
@@ -47,7 +51,7 @@ public class BlockSapling extends BlockBush implements IGrowable
      */
     public String getLocalizedName()
     {
-        return I18n.translateToLocal(this.getUnlocalizedName() + "." + BlockPlanks.EnumType.OAK.getUnlocalizedName() + ".name");
+        return I18n.translateToLocal(this.getTranslationKey() + "." + BlockPlanks.EnumType.OAK.getTranslationKey() + ".name");
     }
 
     public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
@@ -56,7 +60,6 @@ public class BlockSapling extends BlockBush implements IGrowable
         {
             super.updateTick(worldIn, pos, state, rand);
 
-            if (!worldIn.isAreaLoaded(pos, 1)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light
             if (worldIn.getLightFromNeighbors(pos.up()) >= 9 && rand.nextInt(7) == 0)
             {
                 this.grow(worldIn, pos, state, rand);

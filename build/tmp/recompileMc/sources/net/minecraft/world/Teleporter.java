@@ -15,7 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 
-public class Teleporter implements net.minecraftforge.common.util.ITeleporter
+public class Teleporter
 {
     protected final WorldServer world;
     /** A private Random() function in Teleporter */
@@ -29,6 +29,9 @@ public class Teleporter implements net.minecraftforge.common.util.ITeleporter
         this.random = new Random(worldIn.getSeed());
     }
 
+    /**
+     * Finds a portal near the entity's current coordinates and places the entity there, creating it if necessary.
+     */
     public void placeInPortal(Entity entityIn, float rotationYaw)
     {
         if (this.world.provider.getDimensionType().getId() != 1)
@@ -434,14 +437,5 @@ public class Teleporter implements net.minecraftforge.common.util.ITeleporter
             super(pos.getX(), pos.getY(), pos.getZ());
             this.lastUpdateTime = lastUpdate;
         }
-    }
-
-    @Override
-    public void placeEntity(World world, Entity entity, float yaw)
-    {
-        if (entity instanceof EntityPlayerMP)
-            placeInPortal(entity, yaw);
-        else
-            placeInExistingPortal(entity, yaw);
     }
 }

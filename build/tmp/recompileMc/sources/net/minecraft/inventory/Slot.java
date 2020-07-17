@@ -190,12 +190,11 @@ public class Slot
      * Sets which icon index to use as the background image of the slot when it's empty.
      * @param name The icon to use, null for none
      */
-    public void setBackgroundName(@Nullable String name)
+    public void setBackgroundName(String name)
     {
         this.backgroundName = name;
     }
 
-    @Nullable
     @SideOnly(Side.CLIENT)
     public net.minecraft.client.renderer.texture.TextureAtlasSprite getBackgroundSprite()
     {

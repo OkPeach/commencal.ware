@@ -11,8 +11,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class CPacketUpdateSign implements Packet<INetHandlerPlayServer>
 {
-    private BlockPos pos;
-    private String[] lines;
+    public BlockPos pos;
+    public String[] lines;
 
     public CPacketUpdateSign()
     {

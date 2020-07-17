@@ -46,11 +46,11 @@ public class ParticleFlame extends Particle
         super.renderParticle(buffer, entityIn, partialTicks, rotationX, rotationZ, rotationYZ, rotationXY, rotationXZ);
     }
 
-    public int getBrightnessForRender(float p_189214_1_)
+    public int getBrightnessForRender(float partialTick)
     {
-        float f = ((float)this.particleAge + p_189214_1_) / (float)this.particleMaxAge;
+        float f = ((float)this.particleAge + partialTick) / (float)this.particleMaxAge;
         f = MathHelper.clamp(f, 0.0F, 1.0F);
-        int i = super.getBrightnessForRender(p_189214_1_);
+        int i = super.getBrightnessForRender(partialTick);
         int j = i & 255;
         int k = i >> 16 & 255;
         j = j + (int)(f * 15.0F * 16.0F);

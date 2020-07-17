@@ -88,7 +88,7 @@ public class PotionHelper
         {
             PotionHelper.MixPredicate<Item> mixpredicate = (PotionHelper.MixPredicate)POTION_ITEM_CONVERSIONS.get(i);
 
-            if (mixpredicate.input.get() == item && mixpredicate.reagent.apply(reagent))
+            if (mixpredicate.input == item && mixpredicate.reagent.apply(reagent))
             {
                 return true;
             }
@@ -106,7 +106,7 @@ public class PotionHelper
         {
             PotionHelper.MixPredicate<PotionType> mixpredicate = (PotionHelper.MixPredicate)POTION_TYPE_CONVERSIONS.get(i);
 
-            if (mixpredicate.input.get() == potiontype && mixpredicate.reagent.apply(reagent))
+            if (mixpredicate.input == potiontype && mixpredicate.reagent.apply(reagent))
             {
                 return true;
             }
@@ -127,9 +127,9 @@ public class PotionHelper
             {
                 PotionHelper.MixPredicate<Item> mixpredicate = (PotionHelper.MixPredicate)POTION_ITEM_CONVERSIONS.get(i);
 
-                if (mixpredicate.input.get() == item && mixpredicate.reagent.apply(reagent))
+                if (mixpredicate.input == item && mixpredicate.reagent.apply(reagent))
                 {
-                    return PotionUtils.addPotionToItemStack(new ItemStack((Item)mixpredicate.output.get()), potiontype);
+                    return PotionUtils.addPotionToItemStack(new ItemStack((Item)mixpredicate.output), potiontype);
                 }
             }
 
@@ -139,9 +139,9 @@ public class PotionHelper
             {
                 PotionHelper.MixPredicate<PotionType> mixpredicate1 = (PotionHelper.MixPredicate)POTION_TYPE_CONVERSIONS.get(i);
 
-                if (mixpredicate1.input.get() == potiontype && mixpredicate1.reagent.apply(reagent))
+                if (mixpredicate1.input == potiontype && mixpredicate1.reagent.apply(reagent))
                 {
-                    return PotionUtils.addPotionToItemStack(new ItemStack(item), (PotionType)mixpredicate1.output.get());
+                    return PotionUtils.addPotionToItemStack(new ItemStack(item), (PotionType)mixpredicate1.output);
                 }
             }
         }
@@ -227,17 +227,17 @@ public class PotionHelper
         POTION_TYPE_CONVERSIONS.add(new PotionHelper.MixPredicate(p_193356_0_, p_193356_1_, p_193356_2_));
     }
 
-    static class MixPredicate<T extends net.minecraftforge.registries.IForgeRegistryEntry.Impl<T>>
+    public static class MixPredicate<T>
         {
-            final net.minecraftforge.registries.IRegistryDelegate<T> input;
+            final T input;
             final Ingredient reagent;
-            final net.minecraftforge.registries.IRegistryDelegate<T> output;
+            final T output;
 
             public MixPredicate(T p_i47570_1_, Ingredient p_i47570_2_, T p_i47570_3_)
             {
-                this.input = p_i47570_1_.delegate;
+                this.input = p_i47570_1_;
                 this.reagent = p_i47570_2_;
-                this.output = p_i47570_3_.delegate;
+                this.output = p_i47570_3_;
             }
         }
 }

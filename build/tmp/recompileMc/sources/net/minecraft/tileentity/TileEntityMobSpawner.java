@@ -92,12 +92,20 @@ public class TileEntityMobSpawner extends TileEntity implements ITickable
         this.spawnerLogic.updateSpawner();
     }
 
+    /**
+     * Retrieves packet to send to the client whenever this Tile Entity is resynced via World.notifyBlockUpdate. For
+     * modded TE's, this packet comes back to you clientside in {@link #onDataPacket}
+     */
     @Nullable
     public SPacketUpdateTileEntity getUpdatePacket()
     {
         return new SPacketUpdateTileEntity(this.pos, 1, this.getUpdateTag());
     }
 
+    /**
+     * Get an NBT compound to sync to the client with SPacketChunkData, used for initial loading of the chunk or when
+     * many blocks change at once. This compound comes back to you clientside in {@link handleUpdateTag}
+     */
     public NBTTagCompound getUpdateTag()
     {
         NBTTagCompound nbttagcompound = this.writeToNBT(new NBTTagCompound());
@@ -105,6 +113,10 @@ public class TileEntityMobSpawner extends TileEntity implements ITickable
         return nbttagcompound;
     }
 
+    /**
+     * See {@link Block#eventReceived} for more information. This must return true serverside before it is called
+     * clientside.
+     */
     public boolean receiveClientEvent(int id, int type)
     {
         return this.spawnerLogic.setDelayToMin(id) ? true : super.receiveClientEvent(id, type);

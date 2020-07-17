@@ -138,7 +138,6 @@ public class ItemColors
                 return tintIndex == 0 ? -1 : ItemMap.getColor(stack);
             }
         }, Items.FILLED_MAP);
-        net.minecraftforge.client.ForgeHooksClient.onItemColorsInit(itemcolors, colors);
         return itemcolors;
     }
 

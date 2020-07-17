@@ -103,26 +103,26 @@ public abstract class EntityPlayer extends EntityLivingBase
     public static final net.minecraft.entity.ai.attributes.IAttribute REACH_DISTANCE = new net.minecraft.entity.ai.attributes.RangedAttribute(null, "generic.reachDistance", 5.0D, 0.0D, 1024.0D).setShouldWatch(true);
 
     /** The absorption data parameter */
-    private static final DataParameter<Float> ABSORPTION = EntityDataManager.<Float>createKey(EntityPlayer.class, DataSerializers.FLOAT);
-    private static final DataParameter<Integer> PLAYER_SCORE = EntityDataManager.<Integer>createKey(EntityPlayer.class, DataSerializers.VARINT);
-    protected static final DataParameter<Byte> PLAYER_MODEL_FLAG = EntityDataManager.<Byte>createKey(EntityPlayer.class, DataSerializers.BYTE);
-    protected static final DataParameter<Byte> MAIN_HAND = EntityDataManager.<Byte>createKey(EntityPlayer.class, DataSerializers.BYTE);
-    protected static final DataParameter<NBTTagCompound> LEFT_SHOULDER_ENTITY = EntityDataManager.<NBTTagCompound>createKey(EntityPlayer.class, DataSerializers.COMPOUND_TAG);
-    protected static final DataParameter<NBTTagCompound> RIGHT_SHOULDER_ENTITY = EntityDataManager.<NBTTagCompound>createKey(EntityPlayer.class, DataSerializers.COMPOUND_TAG);
+    public static final DataParameter<Float> ABSORPTION = EntityDataManager.<Float>createKey(EntityPlayer.class, DataSerializers.FLOAT);
+    public static final DataParameter<Integer> PLAYER_SCORE = EntityDataManager.<Integer>createKey(EntityPlayer.class, DataSerializers.VARINT);
+    public static final DataParameter<Byte> PLAYER_MODEL_FLAG = EntityDataManager.<Byte>createKey(EntityPlayer.class, DataSerializers.BYTE);
+    public static final DataParameter<Byte> MAIN_HAND = EntityDataManager.<Byte>createKey(EntityPlayer.class, DataSerializers.BYTE);
+    public static final DataParameter<NBTTagCompound> LEFT_SHOULDER_ENTITY = EntityDataManager.<NBTTagCompound>createKey(EntityPlayer.class, DataSerializers.COMPOUND_TAG);
+    public static final DataParameter<NBTTagCompound> RIGHT_SHOULDER_ENTITY = EntityDataManager.<NBTTagCompound>createKey(EntityPlayer.class, DataSerializers.COMPOUND_TAG);
     /** Inventory of the player */
     public InventoryPlayer inventory = new InventoryPlayer(this);
-    protected InventoryEnderChest enderChest = new InventoryEnderChest();
+    public InventoryEnderChest enderChest = new InventoryEnderChest();
     /** The Container for the player's inventory (which opens when they press E) */
     public Container inventoryContainer;
     /** The Container the player has open. */
     public Container openContainer;
     /** The food object of the player, the general hunger logic. */
-    protected FoodStats foodStats = new FoodStats();
+    public FoodStats foodStats = new FoodStats();
     /**
      * Used to tell if the player pressed jump twice. If this is at 0 and it's pressed (And they are allowed to fly, as
      * defined in the player's movementInput) it sets this to 7. If it's pressed and it's greater than 0 enable fly.
      */
-    protected int flyToggleTimer;
+    public int flyToggleTimer;
     public float prevCameraYaw;
     public float cameraYaw;
     /** Used by EntityPlayer to prevent too many xp orbs from getting absorbed at once. */
@@ -140,10 +140,10 @@ public abstract class EntityPlayer extends EntityLivingBase
     /** Current Z position of the player's cape */
     public double chasingPosZ;
     /** Boolean value indicating weather a player is sleeping or not */
-    protected boolean sleeping;
+    public boolean sleeping;
     /** The location of the bed the player is sleeping in, or {@code null} if they are not sleeping */
     public BlockPos bedLocation;
-    private int sleepTimer;
+    public int sleepTimer;
     /** Offset in the X axis used for rendering. This field is {@linkplain #setRenderOffsetForSleep() used by beds}. */
     public float renderOffsetX;
     /**
@@ -155,9 +155,9 @@ public abstract class EntityPlayer extends EntityLivingBase
     /** Offset in the Z axis used for rendering. This field is {@linkplain #setRenderOffsetForSleep() used by beds}. */
     public float renderOffsetZ;
     /** holds the spawn chunk of the player */
-    protected BlockPos spawnPos;
+    public BlockPos spawnPos;
     /** Whether this player's spawn point is forced, preventing execution of bed checks. */
-    protected boolean spawnForced;
+    public boolean spawnForced;
     /** The player's capabilities. (See class PlayerCapabilities) */
     public PlayerCapabilities capabilities = new PlayerCapabilities();
     /** The current experience level the player is on. */
@@ -169,15 +169,15 @@ public abstract class EntityPlayer extends EntityLivingBase
     public int experienceTotal;
     /** The current amount of experience the player has within their Experience Bar. */
     public float experience;
-    protected int xpSeed;
-    protected float speedInAir = 0.02F;
-    private int lastXPSound;
+    public int xpSeed;
+    public float speedInAir = 0.02F;
+    public int lastXPSound;
     /** The player's unique game profile */
-    private final GameProfile gameProfile;
+    public final GameProfile gameProfile;
     @SideOnly(Side.CLIENT)
-    private boolean hasReducedDebug;
-    private ItemStack itemStackMainHand = ItemStack.EMPTY;
-    private final CooldownTracker cooldownTracker = this.createCooldownTracker();
+    public boolean hasReducedDebug;
+    public ItemStack itemStackMainHand = ItemStack.EMPTY;
+    public final CooldownTracker cooldownTracker = this.createCooldownTracker();
     /** An instance of a fishing rod's hook. If this isn't null, the icon image of the fishing rod is slightly different */
     @Nullable
     public EntityFishHook fishEntity;
@@ -253,7 +253,7 @@ public abstract class EntityPlayer extends EntityLivingBase
                 {
                     this.wakeUpPlayer(true, true, false);
                 }
-                else if (!net.minecraftforge.event.ForgeEventFactory.fireSleepingTimeCheck(this, this.bedLocation))
+                else if (this.world.isDaytime())
                 {
                     this.wakeUpPlayer(false, true, true);
                 }
@@ -784,6 +784,8 @@ public abstract class EntityPlayer extends EntityLivingBase
 
     /**
      * Drops an item into the world.
+     *  
+     * @param unused Whether to trace the item to the player
      */
     @Nullable
     public EntityItem dropItem(ItemStack itemStackIn, boolean unused)
@@ -791,6 +793,15 @@ public abstract class EntityPlayer extends EntityLivingBase
         return net.minecraftforge.common.ForgeHooks.onPlayerTossEvent(this, itemStackIn, false);
     }
 
+    /**
+     * Creates and drops the provided item. Depending on the dropAround, it will drop teh item around the player,
+     * instead of dropping the item from where the player is pointing at. Likewise, if traceItem is true, the dropped
+     * item entity will have the thrower set as the player.
+     *  
+     * @param dropAround Whether the item is dropped around the player, otherwise dropped in front of the player in the
+     * direction the player is pointing at
+     * @param traceItem Whether to trace the item to this player as the thrower
+     */
     @Nullable
     public EntityItem dropItem(ItemStack droppedItem, boolean dropAround, boolean traceItem)
     {
@@ -1064,12 +1075,12 @@ public abstract class EntityPlayer extends EntityLivingBase
         this.capabilities.writeCapabilitiesToNBT(compound);
         compound.setTag("EnderItems", this.enderChest.saveInventoryToNBT());
 
-        if (!this.getLeftShoulderEntity().hasNoTags())
+        if (!this.getLeftShoulderEntity().isEmpty())
         {
             compound.setTag("ShoulderEntityLeft", this.getLeftShoulderEntity());
         }
 
-        if (!this.getRightShoulderEntity().hasNoTags())
+        if (!this.getRightShoulderEntity().isEmpty())
         {
             compound.setTag("ShoulderEntityRight", this.getRightShoulderEntity());
         }
@@ -1080,7 +1091,7 @@ public abstract class EntityPlayer extends EntityLivingBase
      */
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
-        if (!net.minecraftforge.common.ForgeHooks.onPlayerAttack(this, source, amount)) return false;
+        if (!net.minecraftforge.common.ForgeHooks.onLivingAttack(this, source, amount)) return false;
         if (this.isEntityInvulnerable(source))
         {
             return false;
@@ -1278,51 +1289,51 @@ public abstract class EntityPlayer extends EntityLivingBase
     {
     }
 
-    public EnumActionResult interactOn(Entity p_190775_1_, EnumHand p_190775_2_)
+    public EnumActionResult interactOn(Entity entityToInteractOn, EnumHand hand)
     {
         if (this.isSpectator())
         {
-            if (p_190775_1_ instanceof IInventory)
+            if (entityToInteractOn instanceof IInventory)
             {
-                this.displayGUIChest((IInventory)p_190775_1_);
+                this.displayGUIChest((IInventory)entityToInteractOn);
             }
 
             return EnumActionResult.PASS;
         }
         else
         {
-            EnumActionResult cancelResult = net.minecraftforge.common.ForgeHooks.onInteractEntity(this, p_190775_1_, p_190775_2_);
+            EnumActionResult cancelResult = net.minecraftforge.common.ForgeHooks.onInteractEntity(this, entityToInteractOn, hand);
             if (cancelResult != null) return cancelResult;
-            ItemStack itemstack = this.getHeldItem(p_190775_2_);
+            ItemStack itemstack = this.getHeldItem(hand);
             ItemStack itemstack1 = itemstack.isEmpty() ? ItemStack.EMPTY : itemstack.copy();
 
-            if (p_190775_1_.processInitialInteract(this, p_190775_2_))
+            if (entityToInteractOn.processInitialInteract(this, hand))
             {
-                if (this.capabilities.isCreativeMode && itemstack == this.getHeldItem(p_190775_2_) && itemstack.getCount() < itemstack1.getCount())
+                if (this.capabilities.isCreativeMode && itemstack == this.getHeldItem(hand) && itemstack.getCount() < itemstack1.getCount())
                 {
                     itemstack.setCount(itemstack1.getCount());
                 }
                 if (!this.capabilities.isCreativeMode && itemstack.isEmpty())
                 {
-                    net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(this, itemstack1, p_190775_2_);
+                    net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(this, itemstack1, hand);
                 }
                 return EnumActionResult.SUCCESS;
             }
             else
             {
-                if (!itemstack.isEmpty() && p_190775_1_ instanceof EntityLivingBase)
+                if (!itemstack.isEmpty() && entityToInteractOn instanceof EntityLivingBase)
                 {
                     if (this.capabilities.isCreativeMode)
                     {
                         itemstack = itemstack1;
                     }
 
-                    if (itemstack.interactWithEntity(this, (EntityLivingBase)p_190775_1_, p_190775_2_))
+                    if (itemstack.interactWithEntity(this, (EntityLivingBase)entityToInteractOn, hand))
                     {
                         if (itemstack.isEmpty() && !this.capabilities.isCreativeMode)
                         {
-                            net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(this, itemstack1, p_190775_2_);
-                            this.setHeldItem(p_190775_2_, ItemStack.EMPTY);
+                            net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(this, itemstack1, hand);
+                            this.setHeldItem(hand, ItemStack.EMPTY);
                         }
 
                         return EnumActionResult.SUCCESS;
@@ -1656,9 +1667,7 @@ public abstract class EntityPlayer extends EntityLivingBase
     {
         EntityPlayer.SleepResult ret = net.minecraftforge.event.ForgeEventFactory.onPlayerSleepInBed(this, bedLocation);
         if (ret != null) return ret;
-        final IBlockState state = this.world.isBlockLoaded(bedLocation) ? this.world.getBlockState(bedLocation) : null;
-        final boolean isBed = state != null && state.getBlock().isBed(state, this.world, bedLocation, this);
-        final EnumFacing enumfacing = isBed && state.getBlock() instanceof BlockHorizontal ? (EnumFacing)state.getValue(BlockHorizontal.FACING) : null;
+        EnumFacing enumfacing = (EnumFacing)this.world.getBlockState(bedLocation).getValue(BlockHorizontal.FACING);
 
         if (!this.world.isRemote)
         {
@@ -1672,7 +1681,7 @@ public abstract class EntityPlayer extends EntityLivingBase
                 return EntityPlayer.SleepResult.NOT_POSSIBLE_HERE;
             }
 
-            if (!net.minecraftforge.event.ForgeEventFactory.fireSleepingTimeCheck(this, bedLocation))
+            if (this.world.isDaytime())
             {
                 return EntityPlayer.SleepResult.NOT_POSSIBLE_NOW;
             }
@@ -1700,9 +1709,11 @@ public abstract class EntityPlayer extends EntityLivingBase
         this.spawnShoulderEntities();
         this.setSize(0.2F, 0.2F);
 
-        if (enumfacing != null) {
-            float f1 = 0.5F + (float)enumfacing.getFrontOffsetX() * 0.4F;
-            float f = 0.5F + (float)enumfacing.getFrontOffsetZ() * 0.4F;
+        IBlockState state = null;
+        if (this.world.isBlockLoaded(bedLocation)) state = this.world.getBlockState(bedLocation);
+        if (state != null && state.getBlock().isBed(state, this.world, bedLocation, this)) {
+            float f1 = 0.5F + (float)enumfacing.getXOffset() * 0.4F;
+            float f = 0.5F + (float)enumfacing.getZOffset() * 0.4F;
             this.setRenderOffsetForSleep(enumfacing);
             this.setPosition((double)((float)bedLocation.getX() + f1), (double)((float)bedLocation.getY() + 0.6875F), (double)((float)bedLocation.getZ() + f));
         }
@@ -1732,7 +1743,6 @@ public abstract class EntityPlayer extends EntityLivingBase
         {
             return true;
         }
-        else if (p_190774_2_ == null) return false;
         else
         {
             BlockPos blockpos = p_190774_1_.offset(p_190774_2_.getOpposite());
@@ -1742,8 +1752,8 @@ public abstract class EntityPlayer extends EntityLivingBase
 
     private void setRenderOffsetForSleep(EnumFacing bedDirection)
     {
-        this.renderOffsetX = -1.8F * (float)bedDirection.getFrontOffsetX();
-        this.renderOffsetZ = -1.8F * (float)bedDirection.getFrontOffsetZ();
+        this.renderOffsetX = -1.8F * (float)bedDirection.getXOffset();
+        this.renderOffsetZ = -1.8F * (float)bedDirection.getZOffset();
     }
 
     /**
@@ -1753,7 +1763,7 @@ public abstract class EntityPlayer extends EntityLivingBase
     {
         net.minecraftforge.event.ForgeEventFactory.onPlayerWakeup(this, immediately, updateWorldFlag, setSpawn);
         this.setSize(0.6F, 1.8F);
-        IBlockState iblockstate = this.bedLocation == null ? null : this.world.getBlockState(this.bedLocation);
+        IBlockState iblockstate = this.world.getBlockState(this.bedLocation);
 
         if (this.bedLocation != null && iblockstate.getBlock().isBed(iblockstate, world, bedLocation, this))
         {
@@ -2356,7 +2366,39 @@ public abstract class EntityPlayer extends EntityLivingBase
     }
 
     /**
-     * Get the name of this object. For players this returns their username
+     * Gets the name of this thing. This method has slightly different behavior depending on the interface (for <a
+     * href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method is used for
+     * both IWorldNameable and ICommandSender):
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#getName() INameable.getName()}</dt>
+     * <dd>Returns the name of this inventory. If this {@linkplain net.minecraft.inventory#hasCustomName() has a custom
+     * name} then this <em>should</em> be a direct string; otherwise it <em>should</em> be a valid translation
+     * string.</dd>
+     * <dd>However, note that <strong>the translation string may be invalid</strong>, as is the case for {@link
+     * net.minecraft.tileentity.TileEntityBanner TileEntityBanner} (always returns nonexistent translation code
+     * <code>banner</code> without a custom name), {@link net.minecraft.block.BlockAnvil.Anvil BlockAnvil$Anvil} (always
+     * returns <code>anvil</code>), {@link net.minecraft.block.BlockWorkbench.InterfaceCraftingTable
+     * BlockWorkbench$InterfaceCraftingTable} (always returns <code>crafting_table</code>), {@link
+     * net.minecraft.inventory.InventoryCraftResult InventoryCraftResult} (always returns <code>Result</code>) and the
+     * {@link net.minecraft.entity.item.EntityMinecart EntityMinecart} family (uses the entity definition). This is not
+     * an exaustive list.</dd>
+     * <dd>In general, this method should be safe to use on tile entities that implement IInventory.</dd>
+     * <dt>{@link net.minecraft.command.ICommandSender#getName() ICommandSender.getName()} and {@link
+     * net.minecraft.entity.Entity#getName() Entity.getName()}</dt>
+     * <dd>Returns a valid, displayable name (which may be localized). For most entities, this is the translated version
+     * of its translation string (obtained via {@link net.minecraft.entity.EntityList#getEntityString
+     * EntityList.getEntityString}).</dd>
+     * <dd>If this entity has a custom name set, this will return that name.</dd>
+     * <dd>For some entities, this will attempt to translate a nonexistent translation string; see <a
+     * href="https://bugs.mojang.com/browse/MC-68446">MC-68446</a>. For {@linkplain
+     * net.minecraft.entity.player.EntityPlayer#getName() players} this returns the player's name. For {@linkplain
+     * net.minecraft.entity.passive.EntityOcelot ocelots} this may return the translation of
+     * <code>entity.Cat.name</code> if it is tamed. For {@linkplain net.minecraft.entity.item.EntityItem#getName() item
+     * entities}, this will attempt to return the name of the item in that item entity. In all cases other than players,
+     * the custom name will overrule this.</dd>
+     * <dd>For non-entity command senders, this will return some arbitrary name, such as "Rcon" or "Server".</dd>
+     * </dl>
      */
     public String getName()
     {
@@ -2426,12 +2468,12 @@ public abstract class EntityPlayer extends EntityLivingBase
     {
         if (!this.isRiding() && this.onGround && !this.isInWater())
         {
-            if (this.getLeftShoulderEntity().hasNoTags())
+            if (this.getLeftShoulderEntity().isEmpty())
             {
                 this.setLeftShoulderEntity(p_192027_1_);
                 return true;
             }
-            else if (this.getRightShoulderEntity().hasNoTags())
+            else if (this.getRightShoulderEntity().isEmpty())
             {
                 this.setRightShoulderEntity(p_192027_1_);
                 return true;
@@ -2457,7 +2499,7 @@ public abstract class EntityPlayer extends EntityLivingBase
 
     private void spawnShoulderEntity(@Nullable NBTTagCompound p_192026_1_)
     {
-        if (!this.world.isRemote && !p_192026_1_.hasNoTags())
+        if (!this.world.isRemote && !p_192026_1_.isEmpty())
         {
             Entity entity = EntityList.createEntityFromNBT(p_192026_1_, this.world);
 
@@ -2473,8 +2515,8 @@ public abstract class EntityPlayer extends EntityLivingBase
 
     /**
      * Only used by renderer in EntityLivingBase subclasses.
-     * Determines if an entity is visible or not to a specfic player, if the entity is normally invisible.
-     * For EntityLivingBase subclasses, returning false when invisible will render the entity semitransparent.
+     * Determines if an entity is visible or not to a specific player, if the entity is normally invisible.
+     * For EntityLivingBase subclasses, returning false when invisible will render the entity semi-transparent.
      */
     @SideOnly(Side.CLIENT)
     public boolean isInvisibleToPlayer(EntityPlayer player)
@@ -2517,7 +2559,25 @@ public abstract class EntityPlayer extends EntityLivingBase
     }
 
     /**
-     * Get the formatted ChatComponent that will be used for the sender's username in chat
+     * Returns a displayable component representing this thing's name. This method should be implemented slightly
+     * differently depending on the interface (for <a href="https://github.com/ModCoderPack/MCPBot-
+     * Issues/issues/14">technical reasons</a> the same method is used for both IWorldNameable and ICommandSender), but
+     * unlike {@link #getName()} this method will generally behave sanely.
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#getDisplayName() INameable.getDisplayName()}</dt>
+     * <dd>A normal component. Might be a translation component or a text component depending on the context. Usually
+     * implemented as:</dd>
+     * <dd><pre><code>return this.{@link net.minecraft.util.INameable#hasCustomName() hasCustomName()} ? new
+     * TextComponentString(this.{@link #getName()}) : new TextComponentTranslation(this.{@link
+     * #getName()});</code></pre></dd>
+     * <dt>{@link net.minecraft.command.ICommandSender#getDisplayName() ICommandSender.getDisplayName()} and {@link
+     * net.minecraft.entity.Entity#getDisplayName() Entity.getDisplayName()}</dt>
+     * <dd>For most entities, this returns the result of {@link #getName()}, with {@linkplain
+     * net.minecraft.scoreboard.ScorePlayerTeam#formatPlayerName scoreboard formatting} and a {@linkplain
+     * net.minecraft.entity.Entity#getHoverEvent special hover event}.</dd>
+     * <dd>For non-entity command senders, this will return the result of {@link #getName()} in a text component.</dd>
+     * </dl>
      */
     public ITextComponent getDisplayName()
     {

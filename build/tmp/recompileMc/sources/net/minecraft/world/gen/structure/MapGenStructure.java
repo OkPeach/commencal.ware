@@ -229,13 +229,13 @@ public abstract class MapGenStructure extends MapGenBase
 
     protected abstract StructureStart getStructureStart(int chunkX, int chunkZ);
 
-    protected static BlockPos findNearestStructurePosBySpacing(World worldIn, MapGenStructure p_191069_1_, BlockPos p_191069_2_, int p_191069_3_, int p_191069_4_, int p_191069_5_, boolean p_191069_6_, int p_191069_7_, boolean findUnexplored)
+    protected static BlockPos findNearestStructurePosBySpacing(World worldIn, MapGenStructure structureType, BlockPos startPos, int distanceStep, int stepOffset, int randomSeedZ, boolean addExtraRandomness, int maxAttempts, boolean findUnexplored)
     {
-        int i = p_191069_2_.getX() >> 4;
-        int j = p_191069_2_.getZ() >> 4;
+        int i = startPos.getX() >> 4;
+        int j = startPos.getZ() >> 4;
         int k = 0;
 
-        for (Random random = new Random(); k <= p_191069_7_; ++k)
+        for (Random random = new Random(); k <= maxAttempts; ++k)
         {
             for (int l = -k; l <= k; ++l)
             {
@@ -247,40 +247,40 @@ public abstract class MapGenStructure extends MapGenBase
 
                     if (flag || flag1)
                     {
-                        int j1 = i + p_191069_3_ * l;
-                        int k1 = j + p_191069_3_ * i1;
+                        int j1 = i + distanceStep * l;
+                        int k1 = j + distanceStep * i1;
 
                         if (j1 < 0)
                         {
-                            j1 -= p_191069_3_ - 1;
+                            j1 -= distanceStep - 1;
                         }
 
                         if (k1 < 0)
                         {
-                            k1 -= p_191069_3_ - 1;
+                            k1 -= distanceStep - 1;
                         }
 
-                        int l1 = j1 / p_191069_3_;
-                        int i2 = k1 / p_191069_3_;
-                        Random random1 = worldIn.setRandomSeed(l1, i2, p_191069_5_);
-                        l1 = l1 * p_191069_3_;
-                        i2 = i2 * p_191069_3_;
+                        int l1 = j1 / distanceStep;
+                        int i2 = k1 / distanceStep;
+                        Random random1 = worldIn.setRandomSeed(l1, i2, randomSeedZ);
+                        l1 = l1 * distanceStep;
+                        i2 = i2 * distanceStep;
 
-                        if (p_191069_6_)
+                        if (addExtraRandomness)
                         {
-                            l1 = l1 + (random1.nextInt(p_191069_3_ - p_191069_4_) + random1.nextInt(p_191069_3_ - p_191069_4_)) / 2;
-                            i2 = i2 + (random1.nextInt(p_191069_3_ - p_191069_4_) + random1.nextInt(p_191069_3_ - p_191069_4_)) / 2;
+                            l1 = l1 + (random1.nextInt(distanceStep - stepOffset) + random1.nextInt(distanceStep - stepOffset)) / 2;
+                            i2 = i2 + (random1.nextInt(distanceStep - stepOffset) + random1.nextInt(distanceStep - stepOffset)) / 2;
                         }
                         else
                         {
-                            l1 = l1 + random1.nextInt(p_191069_3_ - p_191069_4_);
-                            i2 = i2 + random1.nextInt(p_191069_3_ - p_191069_4_);
+                            l1 = l1 + random1.nextInt(distanceStep - stepOffset);
+                            i2 = i2 + random1.nextInt(distanceStep - stepOffset);
                         }
 
                         MapGenBase.setupChunkSeed(worldIn.getSeed(), random, l1, i2);
                         random.nextInt();
 
-                        if (p_191069_1_.canSpawnStructureAtCoords(l1, i2))
+                        if (structureType.canSpawnStructureAtCoords(l1, i2))
                         {
                             if (!findUnexplored || !worldIn.isChunkGeneratedAt(l1, i2))
                             {

@@ -165,7 +165,7 @@ public class PotionUtils
                 NBTTagCompound nbttagcompound = itemIn.getTagCompound();
                 nbttagcompound.removeTag("Potion");
 
-                if (nbttagcompound.hasNoTags())
+                if (nbttagcompound.isEmpty())
                 {
                     itemIn.setTagCompound((NBTTagCompound)null);
                 }

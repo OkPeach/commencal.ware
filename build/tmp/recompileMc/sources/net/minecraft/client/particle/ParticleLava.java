@@ -28,9 +28,9 @@ public class ParticleLava extends Particle
         this.setParticleTextureIndex(49);
     }
 
-    public int getBrightnessForRender(float p_189214_1_)
+    public int getBrightnessForRender(float partialTick)
     {
-        int i = super.getBrightnessForRender(p_189214_1_);
+        int i = super.getBrightnessForRender(partialTick);
         int j = 240;
         int k = i >> 16 & 255;
         return 240 | k << 16;

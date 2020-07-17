@@ -103,6 +103,10 @@ public class RecipesMapCloning extends net.minecraftforge.registries.IForgeRegis
         }
     }
 
+    /**
+     * Get the result of this recipe, usually for display purposes (e.g. recipe book). If your recipe has more than one
+     * possible result (e.g. it's dynamic and depends on its inputs), then return an empty stack.
+     */
     public ItemStack getRecipeOutput()
     {
         return ItemStack.EMPTY;
@@ -121,6 +125,10 @@ public class RecipesMapCloning extends net.minecraftforge.registries.IForgeRegis
         return nonnulllist;
     }
 
+    /**
+     * If true, this recipe does not appear in the recipe book and does not respect recipe unlocking (and the
+     * doLimitedCrafting gamerule)
+     */
     public boolean isDynamic()
     {
         return true;

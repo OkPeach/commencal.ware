@@ -16,7 +16,7 @@ public class EntityArmorAndHeld implements IFixableData
     {
         NBTTagList nbttaglist = compound.getTagList("Equipment", 10);
 
-        if (!nbttaglist.hasNoTags() && !compound.hasKey("HandItems", 10))
+        if (!nbttaglist.isEmpty() && !compound.hasKey("HandItems", 10))
         {
             NBTTagList nbttaglist1 = new NBTTagList();
             nbttaglist1.appendTag(nbttaglist.get(0));

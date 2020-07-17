@@ -43,9 +43,9 @@ public class SPacketRespawn implements Packet<INetHandlerPlayClient>
     public void readPacketData(PacketBuffer buf) throws IOException
     {
         this.dimensionID = buf.readInt();
-        this.difficulty = EnumDifficulty.getDifficultyEnum(buf.readUnsignedByte());
+        this.difficulty = EnumDifficulty.byId(buf.readUnsignedByte());
         this.gameType = GameType.getByID(buf.readUnsignedByte());
-        this.worldType = WorldType.parseWorldType(buf.readString(16));
+        this.worldType = WorldType.byName(buf.readString(16));
 
         if (this.worldType == null)
         {
@@ -59,7 +59,7 @@ public class SPacketRespawn implements Packet<INetHandlerPlayClient>
     public void writePacketData(PacketBuffer buf) throws IOException
     {
         buf.writeInt(this.dimensionID);
-        buf.writeByte(this.difficulty.getDifficultyId());
+        buf.writeByte(this.difficulty.getId());
         buf.writeByte(this.gameType.getID());
         buf.writeString(this.worldType.getName());
     }

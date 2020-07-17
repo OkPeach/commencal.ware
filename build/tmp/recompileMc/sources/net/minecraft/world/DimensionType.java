@@ -91,16 +91,16 @@ public enum DimensionType
     }
     //TODO: Unregister? There is no way to really delete a enum value...
 
-    public static DimensionType byName(String p_193417_0_)
+    public static DimensionType byName(String nameIn)
     {
         for (DimensionType dimensiontype : values())
         {
-            if (dimensiontype.getName().equals(p_193417_0_))
+            if (dimensiontype.getName().equals(nameIn))
             {
                 return dimensiontype;
             }
         }
 
-        throw new IllegalArgumentException("Invalid dimension " + p_193417_0_);
+        throw new IllegalArgumentException("Invalid dimension " + nameIn);
     }
 }

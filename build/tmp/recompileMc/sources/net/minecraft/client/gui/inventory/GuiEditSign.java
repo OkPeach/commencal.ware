@@ -21,13 +21,13 @@ import org.lwjgl.input.Keyboard;
 public class GuiEditSign extends GuiScreen
 {
     /** Reference to the sign object. */
-    private final TileEntitySign tileSign;
+    public final TileEntitySign tileSign;
     /** Counts the number of screen updates. */
-    private int updateCounter;
+    public int updateCounter;
     /** The index of the line that is being edited. */
-    private int editLine;
+    public int editLine;
     /** "Done" button for the GUI. */
-    private GuiButton doneBtn;
+    public GuiButton doneBtn;
 
     public GuiEditSign(TileEntitySign teSign)
     {

@@ -64,7 +64,7 @@ public class NBTTagList extends NBTBase implements java.lang.Iterable<NBTBase>
 
                 for (int j = 0; j < i; ++j)
                 {
-                    NBTBase nbtbase = NBTBase.createNewByType(this.tagType);
+                    NBTBase nbtbase = NBTBase.create(this.tagType);
                     nbtbase.read(input, depth + 1, sizeTracker);
                     this.tagList.add(nbtbase);
                 }
@@ -163,7 +163,7 @@ public class NBTTagList extends NBTBase implements java.lang.Iterable<NBTBase>
     /**
      * Return whether this compound has no tags.
      */
-    public boolean hasNoTags()
+    public boolean isEmpty()
     {
         return this.tagList.isEmpty();
     }

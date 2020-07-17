@@ -158,7 +158,7 @@ public abstract class EntityArrow extends Entity implements IProjectile
     }
 
     /**
-     * Set the position and rotation values directly without any clamping.
+     * Sets a target for the client to interpolate towards over the next few ticks
      */
     @SideOnly(Side.CLIENT)
     public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean teleport)
@@ -473,7 +473,7 @@ public abstract class EntityArrow extends Entity implements IProjectile
 
             if (iblockstate.getMaterial() != Material.AIR)
             {
-                this.inTile.onEntityCollidedWithBlock(this.world, blockpos, iblockstate, this);
+                this.inTile.onEntityCollision(this.world, blockpos, iblockstate, this);
             }
         }
     }
@@ -691,7 +691,7 @@ public abstract class EntityArrow extends Entity implements IProjectile
     {
         int i = EnchantmentHelper.getMaxEnchantmentLevel(Enchantments.POWER, p_190547_1_);
         int j = EnchantmentHelper.getMaxEnchantmentLevel(Enchantments.PUNCH, p_190547_1_);
-        this.setDamage((double)(p_190547_2_ * 2.0F) + this.rand.nextGaussian() * 0.25D + (double)((float)this.world.getDifficulty().getDifficultyId() * 0.11F));
+        this.setDamage((double)(p_190547_2_ * 2.0F) + this.rand.nextGaussian() * 0.25D + (double)((float)this.world.getDifficulty().getId() * 0.11F));
 
         if (i > 0)
         {

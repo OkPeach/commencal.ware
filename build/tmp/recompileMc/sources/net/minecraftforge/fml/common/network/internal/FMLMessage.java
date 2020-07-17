@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -244,7 +244,7 @@ public abstract class FMLMessage {
                 speedScaledY = dat.readInt() / 8000D;
                 speedScaledZ = dat.readInt() / 8000D;
             }
-            this.dataStream = dat.retain();
+            this.dataStream = dat;
         }
     }
     abstract void toBytes(ByteBuf buf);

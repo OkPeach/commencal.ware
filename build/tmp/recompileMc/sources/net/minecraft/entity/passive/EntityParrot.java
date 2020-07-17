@@ -114,7 +114,17 @@ public class EntityParrot extends EntityShoulderRiding implements EntityFlying
 
     /**
      * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
-     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
+     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory.
+     *  
+     * The livingdata parameter is used to pass data between all instances during a pack spawn. It will be null on the
+     * first call. Subclasses may check if it's null, and then create a new one and return it if so, initializing all
+     * entities in the pack with the contained data.
+     *  
+     * @return The IEntityLivingData to pass to this method for other instances of this entity class within the same
+     * pack
+     *  
+     * @param difficulty The current local difficulty
+     * @param livingdata Shared spawn data. Will usually be null. (See return value for more information)
      */
     @Nullable
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)
@@ -180,11 +190,17 @@ public class EntityParrot extends EntityShoulderRiding implements EntityFlying
         this.calculateFlapping();
     }
 
+    /**
+     * Called when a record starts or stops playing. Used to make parrots start or stop partying.
+     *  
+     * @param pos The location the record is being played at (usually a jukebox)
+     * @param isPartying True if the record started; false if it stopped.
+     */
     @SideOnly(Side.CLIENT)
-    public void setPartying(BlockPos pos, boolean p_191987_2_)
+    public void setPartying(BlockPos pos, boolean isPartying)
     {
         this.jukeboxPosition = pos;
-        this.partyParrot = p_191987_2_;
+        this.partyParrot = isPartying;
     }
 
     @SideOnly(Side.CLIENT)
@@ -215,11 +231,11 @@ public class EntityParrot extends EntityShoulderRiding implements EntityFlying
         this.flap += this.flapping * 2.0F;
     }
 
-    private static boolean playMimicSound(World worldIn, Entity p_192006_1_)
+    private static boolean playMimicSound(World worldIn, Entity parrotIn)
     {
-        if (!p_192006_1_.isSilent() && worldIn.rand.nextInt(50) == 0)
+        if (!parrotIn.isSilent() && worldIn.rand.nextInt(50) == 0)
         {
-            List<EntityLiving> list = worldIn.<EntityLiving>getEntitiesWithinAABB(EntityLiving.class, p_192006_1_.getEntityBoundingBox().grow(20.0D), CAN_MIMIC);
+            List<EntityLiving> list = worldIn.<EntityLiving>getEntitiesWithinAABB(EntityLiving.class, parrotIn.getEntityBoundingBox().grow(20.0D), CAN_MIMIC);
 
             if (!list.isEmpty())
             {
@@ -228,7 +244,7 @@ public class EntityParrot extends EntityShoulderRiding implements EntityFlying
                 if (!entityliving.isSilent())
                 {
                     SoundEvent soundevent = MIMIC_SOUNDS.get(entityliving.getClass());
-                    worldIn.playSound((EntityPlayer)null, p_192006_1_.posX, p_192006_1_.posY, p_192006_1_.posZ, soundevent, p_192006_1_.getSoundCategory(), 0.7F, getPitch(worldIn.rand));
+                    worldIn.playSound((EntityPlayer)null, parrotIn.posX, parrotIn.posY, parrotIn.posZ, soundevent, parrotIn.getSoundCategory(), 0.7F, getPitch(worldIn.rand));
                     return true;
                 }
             }
@@ -345,11 +361,11 @@ public class EntityParrot extends EntityShoulderRiding implements EntityFlying
         return null;
     }
 
-    public static void playAmbientSound(World worldIn, Entity p_192005_1_)
+    public static void playAmbientSound(World worldIn, Entity parrotIn)
     {
-        if (!p_192005_1_.isSilent() && !playMimicSound(worldIn, p_192005_1_) && worldIn.rand.nextInt(200) == 0)
+        if (!parrotIn.isSilent() && !playMimicSound(worldIn, parrotIn) && worldIn.rand.nextInt(200) == 0)
         {
-            worldIn.playSound((EntityPlayer)null, p_192005_1_.posX, p_192005_1_.posY, p_192005_1_.posZ, getAmbientSound(worldIn.rand), p_192005_1_.getSoundCategory(), 1.0F, getPitch(worldIn.rand));
+            worldIn.playSound((EntityPlayer)null, parrotIn.posX, parrotIn.posY, parrotIn.posZ, getAmbientSound(worldIn.rand), parrotIn.getSoundCategory(), 1.0F, getPitch(worldIn.rand));
         }
     }
 
@@ -463,9 +479,9 @@ public class EntityParrot extends EntityShoulderRiding implements EntityFlying
         return MathHelper.clamp(((Integer)this.dataManager.get(VARIANT)).intValue(), 0, 4);
     }
 
-    public void setVariant(int p_191997_1_)
+    public void setVariant(int variantIn)
     {
-        this.dataManager.set(VARIANT, Integer.valueOf(p_191997_1_));
+        this.dataManager.set(VARIANT, Integer.valueOf(variantIn));
     }
 
     protected void entityInit()

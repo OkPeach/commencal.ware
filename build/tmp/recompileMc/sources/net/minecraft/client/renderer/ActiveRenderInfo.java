@@ -42,11 +42,6 @@ public class ActiveRenderInfo
      */
     public static void updateRenderInfo(EntityPlayer entityplayerIn, boolean p_74583_1_)
     {
-        updateRenderInfo((Entity) entityplayerIn, p_74583_1_);
-    }
-
-    public static void updateRenderInfo(Entity entityplayerIn, boolean p_74583_1_)
-    {
         GlStateManager.getFloat(2982, MODELVIEW);
         GlStateManager.getFloat(2983, PROJECTION);
         GlStateManager.glGetInteger(2978, VIEWPORT);
@@ -98,7 +93,7 @@ public class ActiveRenderInfo
             }
         }
 
-        return iblockstate.getBlock().getStateAtViewpoint(iblockstate, worldIn, blockpos, vec3d);
+        return iblockstate;
     }
 
     public static float getRotationX()
@@ -124,15 +119,5 @@ public class ActiveRenderInfo
     public static float getRotationXY()
     {
         return rotationXY;
-    }
-
-    /* ======================================== FORGE START =====================================*/
-
-    /**
-     * Vector from render view entity position (corrected for partialTickTime) to the middle of screen
-     */
-    public static Vec3d getCameraPosition()
-    {
-        return position;
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,22 +21,19 @@ package net.minecraftforge.common.util;
 
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.function.BiPredicate;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 
+import net.minecraft.entity.passive.IAnimals;
 import net.minecraftforge.fml.common.EnhancedRuntimeException;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraft.block.BlockPressurePlate.Sensitivity;
 import net.minecraft.block.material.Material;
 import net.minecraft.enchantment.EnumEnchantmentType;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.item.EntityPainting.EnumArt;
-import net.minecraft.entity.passive.HorseArmorType;
-import net.minecraft.entity.passive.IAnimals;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.EnumRarity;
@@ -44,14 +41,11 @@ import net.minecraft.item.Item;
 import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.EnumSkyBlock;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.gen.structure.StructureStrongholdPieces.Stronghold.Door;
 import net.minecraftforge.classloading.FMLForgePlugin;
-import org.apache.commons.lang3.ArrayUtils;
 
 import javax.annotation.Nullable;
 
@@ -81,9 +75,7 @@ public class EnumHelper
         {EnumSkyBlock.class, int.class},
         {SleepResult.class},
         {ToolMaterial.class, int.class, int.class, float.class, float.class, int.class},
-        {EnumRarity.class, TextFormatting.class, String.class},
-        {HorseArmorType.class, String.class, int.class},
-        {EntityLiving.SpawnPlacementType.class, BiPredicate.class}
+        {EnumRarity.class, TextFormatting.class, String.class}
     };
 
     @Nullable
@@ -146,32 +138,10 @@ public class EnumHelper
     {
         return addEnum(ToolMaterial.class, name, harvestLevel, maxUses, efficiency, damage, enchantability);
     }
-
-    /** @deprecated use {@link net.minecraftforge.common.IRarity} instead */
     @Nullable
-    @Deprecated
     public static EnumRarity addRarity(String name, TextFormatting color, String displayName)
     {
         return addEnum(EnumRarity.class, name, color, displayName);
-    }
-
-    @Nullable
-    public static EntityLiving.SpawnPlacementType addSpawnPlacementType(String name, BiPredicate<IBlockAccess, BlockPos> predicate)
-    {
-        return addEnum(EntityLiving.SpawnPlacementType.class, name, predicate);
-    }
-
-    /**
-     * 
-     * @param name the name of the new {@code HorseArmorType}
-     * @param textureLocation the path to the texture for this armor type. It must follow the format domain:path and be relative to the assets folder.
-     * @param armorStrength how much protection this armor type should give
-     * @return the new {@code HorseArmorType}, or null if it could not be created
-     */
-    @Nullable 
-    public static HorseArmorType addHorseArmor(String name, String textureLocation, int armorStrength)
-    {
-        return addEnum(HorseArmorType.class, name, textureLocation, armorStrength);
     }
 
     private static void setup()
@@ -252,8 +222,6 @@ public class EnumHelper
     {
         blankField(enumClass, "enumConstantDirectory");
         blankField(enumClass, "enumConstants");
-        //Open J9
-        blankField(enumClass, "enumVars");
     }
 
     @Nullable
@@ -410,8 +378,10 @@ public class EnumHelper
         try
         {
             T[] previousValues = (T[])valuesField.get(enumType);
-            T newValue = makeEnum(enumType, enumName, previousValues.length, paramTypes, paramValues);
-            setFailsafeFieldValue(valuesField, null, ArrayUtils.add(previousValues, newValue));
+            List<T> values = new ArrayList<T>(Arrays.asList(previousValues));
+            T newValue = makeEnum(enumType, enumName, values.size(), paramTypes, paramValues);
+            values.add(newValue);
+            setFailsafeFieldValue(valuesField, null, values.toArray((T[]) Array.newInstance(enumType, 0)));
             cleanEnumCache(enumType);
 
             return newValue;

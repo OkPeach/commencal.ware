@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,7 +21,6 @@ package net.minecraftforge.common.property;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.collect.Range;
 
 public class PropertyFloat implements IUnlistedProperty<Float>
 {
@@ -30,12 +29,7 @@ public class PropertyFloat implements IUnlistedProperty<Float>
 
     public PropertyFloat(String name)
     {
-        this(name, Predicates.alwaysTrue());
-    }
-
-    public PropertyFloat(String name, float min, float max)
-    {
-        this(name, Range.closed(min, max));
+        this(name, Predicates.<Float>alwaysTrue());
     }
 
     public PropertyFloat(String name, Predicate<Float> validator)

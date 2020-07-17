@@ -7,5 +7,5 @@ public interface IEntityMultiPart
 {
     World getWorld();
 
-    boolean attackEntityFromPart(MultiPartEntityPart dragonPart, DamageSource source, float damage);
+    boolean attackEntityFromPart(MultiPartEntityPart part, DamageSource source, float damage);
 }

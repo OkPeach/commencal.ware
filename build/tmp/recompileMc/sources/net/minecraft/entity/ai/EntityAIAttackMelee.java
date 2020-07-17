@@ -186,15 +186,15 @@ public class EntityAIAttackMelee extends EntityAIBase
         this.checkAndPerformAttack(entitylivingbase, d0);
     }
 
-    protected void checkAndPerformAttack(EntityLivingBase p_190102_1_, double p_190102_2_)
+    protected void checkAndPerformAttack(EntityLivingBase enemy, double distToEnemySqr)
     {
-        double d0 = this.getAttackReachSqr(p_190102_1_);
+        double d0 = this.getAttackReachSqr(enemy);
 
-        if (p_190102_2_ <= d0 && this.attackTick <= 0)
+        if (distToEnemySqr <= d0 && this.attackTick <= 0)
         {
             this.attackTick = 20;
             this.attacker.swingArm(EnumHand.MAIN_HAND);
-            this.attacker.attackEntityAsMob(p_190102_1_);
+            this.attacker.attackEntityAsMob(enemy);
         }
     }
 

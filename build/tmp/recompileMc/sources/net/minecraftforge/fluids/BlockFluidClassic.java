@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,21 +19,14 @@
 
 package net.minecraftforge.fluids;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Random;
 
-import com.google.common.primitives.Ints;
-
-import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.ForgeEventFactory;
 
 import javax.annotation.Nonnull;
@@ -47,25 +40,14 @@ import javax.annotation.Nullable;
  */
 public class BlockFluidClassic extends BlockFluidBase
 {
-    protected static final List<EnumFacing> SIDES = Collections.unmodifiableList(Arrays.asList(
-            EnumFacing.WEST, EnumFacing.EAST, EnumFacing.NORTH, EnumFacing.SOUTH));
-
     protected boolean[] isOptimalFlowDirection = new boolean[4];
     protected int[] flowCost = new int[4];
 
-    protected boolean canCreateSources = false;
-
     protected FluidStack stack;
-
-    public BlockFluidClassic(Fluid fluid, Material material, MapColor mapColor)
-    {
-        super(fluid, material, mapColor);
-        stack = new FluidStack(fluid, Fluid.BUCKET_VOLUME);
-    }
-
     public BlockFluidClassic(Fluid fluid, Material material)
     {
-        this(fluid, material, material.getMaterialMapColor());
+        super(fluid, material);
+        stack = new FluidStack(fluid, Fluid.BUCKET_VOLUME);
     }
 
     public BlockFluidClassic setFluidStack(FluidStack stack)
@@ -84,7 +66,7 @@ public class BlockFluidClassic extends BlockFluidBase
     public int getQuantaValue(IBlockAccess world, BlockPos pos)
     {
         IBlockState state = world.getBlockState(pos);
-        if (state.getBlock().isAir(state, world, pos))
+        if (state.getBlock() == Blocks.AIR)
         {
             return 0;
         }
@@ -94,7 +76,8 @@ public class BlockFluidClassic extends BlockFluidBase
             return -1;
         }
 
-        return quantaPerBlock - state.getValue(LEVEL);
+        int quantaRemaining = quantaPerBlock - state.getValue(LEVEL);
+        return quantaRemaining;
     }
 
     @Override
@@ -110,41 +93,52 @@ public class BlockFluidClassic extends BlockFluidBase
     }
 
     @Override
+    public int getLightValue(@Nonnull IBlockState state, @Nonnull IBlockAccess world, @Nonnull BlockPos pos)
+    {
+        if (maxScaledLight == 0)
+        {
+            return super.getLightValue(state, world, pos);
+        }
+        int data = quantaPerBlock - state.getValue(LEVEL) - 1;
+        return (int) (data / quantaPerBlockFloat * maxScaledLight);
+    }
+
+    @Override
     public void updateTick(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull Random rand)
     {
+        if (!isSourceBlock(world, pos) && ForgeEventFactory.canCreateFluidSource(world, pos, state, false))
+        {
+            int adjacentSourceBlocks =
+                    (isSourceBlock(world, pos.north()) ? 1 : 0) +
+                    (isSourceBlock(world, pos.south()) ? 1 : 0) +
+                    (isSourceBlock(world, pos.east()) ? 1 : 0) +
+                    (isSourceBlock(world, pos.west()) ? 1 : 0);
+            if (adjacentSourceBlocks >= 2 && (world.getBlockState(pos.up(densityDir)).getMaterial().isSolid() || isSourceBlock(world, pos.up(densityDir))))
+                world.setBlockState(pos, state.withProperty(LEVEL, 0));
+        }
+
         int quantaRemaining = quantaPerBlock - state.getValue(LEVEL);
         int expQuanta = -101;
 
         // check adjacent block levels if non-source
         if (quantaRemaining < quantaPerBlock)
         {
-            int adjacentSourceBlocks = 0;
-
-            if (ForgeEventFactory.canCreateFluidSource(world, pos, state, canCreateSources))
-            {
-                for (EnumFacing side : EnumFacing.Plane.HORIZONTAL)
-                {
-                    if (isSourceBlock(world, pos.offset(side))) adjacentSourceBlocks++;
-                }
-            }
-
-            // new source block
-            if (adjacentSourceBlocks >= 2 && (world.getBlockState(pos.up(densityDir)).getMaterial().isSolid() || isSourceBlock(world, pos.up(densityDir))))
-            {
-                expQuanta = quantaPerBlock;
-            }
-            // vertical flow into block
-            else if (hasVerticalFlow(world, pos))
+            if (world.getBlockState(pos.add( 0, -densityDir,  0)).getBlock() == this ||
+                world.getBlockState(pos.add(-1, -densityDir,  0)).getBlock() == this ||
+                world.getBlockState(pos.add( 1, -densityDir,  0)).getBlock() == this ||
+                world.getBlockState(pos.add( 0, -densityDir, -1)).getBlock() == this ||
+                world.getBlockState(pos.add( 0, -densityDir,  1)).getBlock() == this)
             {
                 expQuanta = quantaPerBlock - 1;
             }
             else
             {
                 int maxQuanta = -100;
-                for (EnumFacing side : EnumFacing.Plane.HORIZONTAL)
-                {
-                    maxQuanta = getLargerQuanta(world, pos.offset(side), maxQuanta);
-                }
+                maxQuanta = getLargerQuanta(world, pos.add(-1, 0,  0), maxQuanta);
+                maxQuanta = getLargerQuanta(world, pos.add( 1, 0,  0), maxQuanta);
+                maxQuanta = getLargerQuanta(world, pos.add( 0, 0, -1), maxQuanta);
+                maxQuanta = getLargerQuanta(world, pos.add( 0, 0,  1), maxQuanta);
+
                 expQuanta = maxQuanta - 1;
             }
 
@@ -159,11 +153,16 @@ public class BlockFluidClassic extends BlockFluidBase
                 }
                 else
                 {
-                    world.setBlockState(pos, state.withProperty(LEVEL, quantaPerBlock - expQuanta), Constants.BlockFlags.SEND_TO_CLIENTS);
+                    world.setBlockState(pos, state.withProperty(LEVEL, quantaPerBlock - expQuanta), 2);
                     world.scheduleUpdate(pos, this, tickRate);
                     world.notifyNeighborsOfStateChange(pos, this, false);
                 }
             }
+        }
+        // This is a "source" block, set meta to zero, and send a server only update
+        else if (quantaRemaining >= quantaPerBlock)
+        {
+            world.setBlockState(pos, this.getDefaultState(), 2);
         }
 
         // Flow vertically if possible
@@ -182,23 +181,17 @@ public class BlockFluidClassic extends BlockFluidBase
 
         if (isSourceBlock(world, pos) || !isFlowingVertically(world, pos))
         {
-            if (hasVerticalFlow(world, pos))
+            if (world.getBlockState(pos.down(densityDir)).getBlock() == this)
             {
                 flowMeta = 1;
             }
             boolean flowTo[] = getOptimalFlowDirections(world, pos);
-            for (int i = 0; i < 4; i++)
-            {
-                if (flowTo[i]) flowIntoBlock(world, pos.offset(SIDES.get(i)), flowMeta);
-            }
-        }
-    }
 
-    protected final boolean hasDownhillFlow(IBlockAccess world, BlockPos pos, EnumFacing direction)
-    {
-        return world.getBlockState(pos.offset(direction).down(densityDir)).getBlock() == this
-                && (canFlowInto(world, pos.offset(direction))
-                ||  canFlowInto(world, pos.down(densityDir)));
+            if (flowTo[0]) flowIntoBlock(world, pos.add(-1, 0,  0), flowMeta);
+            if (flowTo[1]) flowIntoBlock(world, pos.add( 1, 0,  0), flowMeta);
+            if (flowTo[2]) flowIntoBlock(world, pos.add( 0, 0, -1), flowMeta);
+            if (flowTo[3]) flowIntoBlock(world, pos.add( 0, 0,  1), flowMeta);
+        }
     }
 
     public boolean isFlowingVertically(IBlockAccess world, BlockPos pos)
@@ -219,14 +212,22 @@ public class BlockFluidClassic extends BlockFluidBase
         {
             flowCost[side] = 1000;
 
-            BlockPos pos2 = pos.offset(SIDES.get(side));
+            BlockPos pos2 = pos;
+
+            switch (side)
+            {
+                case 0: pos2 = pos2.add(-1, 0,  0); break;
+                case 1: pos2 = pos2.add( 1, 0,  0); break;
+                case 2: pos2 = pos2.add( 0, 0, -1); break;
+                case 3: pos2 = pos2.add( 0, 0,  1); break;
+            }
 
             if (!canFlowInto(world, pos2) || isSourceBlock(world, pos2))
             {
                 continue;
             }
 
-            if (canFlowInto(world, pos2.up(densityDir)))
+            if (canFlowInto(world, pos2.add(0, densityDir, 0)))
             {
                 flowCost[side] = 0;
             }
@@ -236,7 +237,14 @@ public class BlockFluidClassic extends BlockFluidBase
             }
         }
 
-        int min = Ints.min(flowCost);
+        int min = flowCost[0];
+        for (int side = 1; side < 4; side++)
+        {
+            if (flowCost[side] < min)
+            {
+                min = flowCost[side];
+            }
+        }
         for (int side = 0; side < 4; side++)
         {
             isOptimalFlowDirection[side] = flowCost[side] == min;
@@ -249,29 +257,44 @@ public class BlockFluidClassic extends BlockFluidBase
         int cost = 1000;
         for (int adjSide = 0; adjSide < 4; adjSide++)
         {
-            if (SIDES.get(adjSide) == SIDES.get(side).getOpposite())
+            if ((adjSide == 0 && side == 1) ||
+                (adjSide == 1 && side == 0) ||
+                (adjSide == 2 && side == 3) ||
+                (adjSide == 3 && side == 2))
             {
                 continue;
             }
 
-            BlockPos pos2 = pos.offset(SIDES.get(adjSide));
+            BlockPos pos2 = pos;
+
+            switch (adjSide)
+            {
+                case 0: pos2 = pos2.add(-1, 0,  0); break;
+                case 1: pos2 = pos2.add( 1, 0,  0); break;
+                case 2: pos2 = pos2.add( 0, 0, -1); break;
+                case 3: pos2 = pos2.add( 0, 0,  1); break;
+            }
 
             if (!canFlowInto(world, pos2) || isSourceBlock(world, pos2))
             {
                 continue;
             }
 
-            if (canFlowInto(world, pos2.up(densityDir)))
+            if (canFlowInto(world, pos2.add(0, densityDir, 0)))
             {
                 return recurseDepth;
             }
 
-            if (recurseDepth >= quantaPerBlock / 2)
+            if (recurseDepth >= 4)
             {
                 continue;
             }
 
-            cost = Math.min(cost, calculateFlowCost(world, pos2, recurseDepth + 1, adjSide));
+            int min = calculateFlowCost(world, pos2, recurseDepth + 1, adjSide);
+            if (min < cost)
+            {
+                cost = min;
+            }
         }
         return cost;
     }
@@ -281,18 +304,53 @@ public class BlockFluidClassic extends BlockFluidBase
         if (meta < 0) return;
         if (displaceIfPossible(world, pos))
         {
-            world.setBlockState(pos, this.getDefaultState().withProperty(LEVEL, meta));
+            world.setBlockState(pos, this.getBlockState().getBaseState().withProperty(LEVEL, meta), 3);
         }
     }
 
     protected boolean canFlowInto(IBlockAccess world, BlockPos pos)
     {
-        return world.getBlockState(pos).getBlock() == this || canDisplace(world, pos);
+        if (world.isAirBlock(pos)) return true;
+
+        IBlockState state = world.getBlockState(pos);
+        if (state.getBlock() == this)
+        {
+            return true;
+        }
+
+        if (displacements.containsKey(state.getBlock()))
+        {
+            return displacements.get(state.getBlock());
+        }
+
+        Material material = state.getMaterial();
+        if (material.blocksMovement()  ||
+            material == Material.WATER ||
+            material == Material.LAVA  ||
+            material == Material.PORTAL)
+        {
+            return false;
+        }
+
+        int density = getDensity(world, pos);
+        if (density == Integer.MAX_VALUE)
+        {
+             return true;
+        }
+
+        if (this.density > density)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     protected int getLargerQuanta(IBlockAccess world, BlockPos pos, int compare)
     {
-        int quantaRemaining = getEffectiveQuanta(world, pos);
+        int quantaRemaining = getQuantaValue(world, pos);
         if (quantaRemaining <= 0)
         {
             return compare;
@@ -311,7 +369,7 @@ public class BlockFluidClassic extends BlockFluidBase
         if (doPlace)
         {
             FluidUtil.destroyBlockOnFluidPlacement(world, pos);
-            world.setBlockState(pos, this.getDefaultState(), Constants.BlockFlags.DEFAULT_AND_RERENDER);
+            world.setBlockState(pos, this.getDefaultState(), 11);
         }
         return Fluid.BUCKET_VOLUME;
     }

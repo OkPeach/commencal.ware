@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -318,10 +318,12 @@ public class VillagerRegistry
         entity.setProfession(INSTANCE.REGISTRY.getRandomObject(rand));
     }
 
-    public static void setRandomProfession(EntityZombieVillager entity, Random rand)
-    {
-        entity.setForgeProfession(INSTANCE.REGISTRY.getRandomObject(rand));
-    }
+
+
+
+
+
+
 
     //Below this is INTERNAL USE ONLY DO NOT USE MODDERS
     public static void onSetProfession(EntityVillager entity, int network)

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -37,16 +37,16 @@ public interface SelectorHandler
      * 
      * @param sender The {@link ICommandSender} that initiated the query
      */
-    <T extends Entity> List<T> matchEntities(ICommandSender sender, String token, Class<? extends T> targetClass) throws CommandException;
+    public <T extends Entity> List<T> matchEntities(ICommandSender sender, String token, Class<? extends T> targetClass) throws CommandException;
 
     /**
      * Returns whether the selector string potentially matches multiple entities
      */
-    boolean matchesMultiplePlayers(String selectorStr) throws CommandException;
+    public boolean matchesMultiplePlayers(String selectorStr) throws CommandException;
 
     /**
      * Returns whether the string matches the overall syntax of the selector<br>
      * <b>Note:</b> If this returns {@code false}, {@link #matchEntities} should return an empty list
      */
-    boolean isSelector(String selectorStr);
+    public boolean isSelector(String selectorStr);
 }

@@ -182,7 +182,7 @@ public class EntityMinecartCommandBlock extends EntityMinecart
 
     public boolean processInitialInteract(EntityPlayer player, EnumHand hand)
     {
-        if (super.processInitialInteract(player, hand)) return true;
+        if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.minecart.MinecartInteractEvent(this, player, hand))) return true;
         this.commandBlockLogic.tryOpenEditCommandBlock(player);
         return false;
     }

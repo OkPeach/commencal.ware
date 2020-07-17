@@ -84,7 +84,7 @@ public interface IBlockProperties
 
     int getStrongPower(IBlockAccess blockAccess, BlockPos pos, EnumFacing side);
 
-    EnumPushReaction getMobilityFlag();
+    EnumPushReaction getPushReaction();
 
     IBlockState getActualState(IBlockAccess blockAccess, BlockPos pos);
 
@@ -114,7 +114,6 @@ public interface IBlockProperties
     //Forge added functions
     boolean doesSideBlockRendering(IBlockAccess world, BlockPos pos, EnumFacing side);
     boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side);
-    boolean doesSideBlockChestOpening(IBlockAccess world, BlockPos pos, EnumFacing side);
 
     Vec3d getOffset(IBlockAccess access, BlockPos pos);
 

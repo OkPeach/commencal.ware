@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,7 +24,9 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -66,24 +68,35 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.IRegistry;
 import net.minecraftforge.client.model.animation.AnimationItemOverrideList;
 import net.minecraftforge.client.model.animation.ModelBlockAnimation;
+import net.minecraftforge.common.ForgeModContainer;
+import net.minecraftforge.common.ForgeVersion;
+import net.minecraftforge.common.model.IModelPart;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.Models;
 import net.minecraftforge.common.model.TRSRTransformation;
 import net.minecraftforge.common.model.animation.IClip;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.Properties;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraftforge.fml.common.ProgressManager.ProgressBar;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
+import net.minecraftforge.registries.GameData;
 import net.minecraftforge.registries.IRegistryDelegate;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -91,11 +104,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.function.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
+import com.google.common.base.Predicate;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -103,6 +113,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -115,8 +126,6 @@ import javax.annotation.Nullable;
 public final class ModelLoader extends ModelBakery
 {
     private final Map<ModelResourceLocation, IModel> stateModels = Maps.newHashMap();
-    private final Map<ModelResourceLocation, ModelBlockDefinition> multipartDefinitions = Maps.newHashMap();
-    private final Map<ModelBlockDefinition, IModel> multipartModels = Maps.newHashMap();
     // TODO: nothing adds to missingVariants, remove it?
     private final Set<ModelResourceLocation> missingVariants = Sets.newHashSet();
     private final Map<ResourceLocation, Exception> loadingExceptions = Maps.newHashMap();
@@ -128,7 +137,7 @@ public final class ModelLoader extends ModelBakery
         return isLoading;
     }
 
-    private final boolean enableVerboseMissingInfo = FMLLaunchHandler.isDeobfuscatedEnvironment() || Boolean.parseBoolean(System.getProperty("forge.verboseMissingModelLogging", "false"));
+    private final boolean enableVerboseMissingInfo = (Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment") || Boolean.parseBoolean(System.getProperty("forge.verboseMissingModelLogging", "false"));
     private final int verboseMissingInfoCount = Integer.parseInt(System.getProperty("forge.verboseMissingModelLoggingCount", "5"));
 
     public ModelLoader(IResourceManager manager, TextureMap map, BlockModelShapes shapes)
@@ -167,23 +176,14 @@ public final class ModelLoader extends ModelBakery
 
         for(IModel model : models.keySet())
         {
-            String modelLocations = "[" + Joiner.on(", ").join(models.get(model)) + "]";
-            bakeBar.step(modelLocations);
+            bakeBar.step("[" + Joiner.on(", ").join(models.get(model)) + "]");
             if(model == getMissingModel())
             {
                 bakedModels.put(model, missingBaked);
             }
             else
             {
-                try
-                {
-                    bakedModels.put(model, model.bake(model.getDefaultState(), DefaultVertexFormats.ITEM, DefaultTextureGetter.INSTANCE));
-                }
-                catch (Exception e)
-                {
-                    FMLLog.log.error("Exception baking model for location(s) {}:", modelLocations, e);
-                    bakedModels.put(model, missingBaked);
-                }
+                bakedModels.put(model, model.bake(model.getDefaultState(), DefaultVertexFormats.ITEM, DefaultTextureGetter.INSTANCE));
             }
         }
 
@@ -207,10 +207,8 @@ public final class ModelLoader extends ModelBakery
     @Override
     protected void loadBlocks()
     {
-        List<Block> blocks = StreamSupport.stream(Block.REGISTRY.spliterator(), false)
-                .filter(block -> block.getRegistryName() != null)
-                .sorted(Comparator.comparing(b -> b.getRegistryName().toString()))
-                .collect(Collectors.toList());
+        List<Block> blocks = Lists.newArrayList(Iterables.filter(Block.REGISTRY, block -> block.getRegistryName() != null));
+        blocks.sort(Comparator.comparing(b -> b.getRegistryName().toString()));
         ProgressBar blockBar = ProgressManager.push("ModelLoader: blocks", blocks.size());
 
         BlockStateMapper mapper = this.blockModelShapes.getBlockStateMapper();
@@ -247,7 +245,6 @@ public final class ModelLoader extends ModelBakery
     {
         for (ModelResourceLocation location : locations)
         {
-            multipartDefinitions.put(location, definition);
             registerVariant(null, location);
         }
     }
@@ -274,12 +271,16 @@ public final class ModelLoader extends ModelBakery
     @Override
     protected void loadItemModels()
     {
+        // register model for the universal bucket, if it exists
+        if(FluidRegistry.isUniversalBucketEnabled())
+        {
+            setBucketModelDefinition(ForgeModContainer.getInstance().universalBucket);
+        }
+
         registerVariantNames();
 
-        List<Item> items = StreamSupport.stream(Item.REGISTRY.spliterator(), false)
-                .filter(item -> item.getRegistryName() != null)
-                .sorted(Comparator.comparing(i -> i.getRegistryName().toString()))
-                .collect(Collectors.toList());
+        List<Item> items = Lists.newArrayList(Iterables.filter(Item.REGISTRY, item -> item.getRegistryName() != null));
+        Collections.sort(items, (i1, i2) -> i1.getRegistryName().toString().compareTo(i2.getRegistryName().toString()));
 
         ProgressBar itemBar = ProgressManager.push("ModelLoader: items", items.size());
         for(Item item : items)
@@ -293,21 +294,22 @@ public final class ModelLoader extends ModelBakery
                 Exception exception = null;
                 try
                 {
-                    model = ModelLoaderRegistry.getModel(memory);
+                    model = ModelLoaderRegistry.getModel(file);
                 }
-                catch (Exception blockstateException)
+                catch(Exception normalException)
                 {
+                    // try blockstate json if the item model is missing
+                    FMLLog.log.debug("Item json isn't found for '{}', trying to load the variant from the blockstate json", memory);
                     try
                     {
-                        model = ModelLoaderRegistry.getModel(file);
-                        ModelLoaderRegistry.addAlias(memory, file);
+                        model = ModelLoaderRegistry.getModel(memory);
                     }
-                    catch (Exception normalException)
+                    catch (Exception blockstateException)
                     {
                         exception = new ItemLoadingException("Could not load item model either from the normal location " + file + " or from the blockstate", normalException, blockstateException);
                     }
                 }
-                if (exception != null)
+                if(exception != null)
                 {
                     storeException(memory, exception);
                     model = ModelLoaderRegistry.getMissingModel(memory, exception);
@@ -333,7 +335,7 @@ public final class ModelLoader extends ModelBakery
     @Override
     protected ResourceLocation getModelLocation(ResourceLocation model)
     {
-        return new ResourceLocation(model.getResourceDomain(), model.getResourcePath() + ".json");
+        return new ResourceLocation(model.getNamespace(), model.getPath() + ".json");
     }
 
     private final class VanillaModelWrapper implements IModel
@@ -364,7 +366,7 @@ public final class ModelLoader extends ModelBakery
                     stateModels.put(getInventoryVariant(dep.toString()), ModelLoaderRegistry.getModelOrLogError(dep, "Could not load override model " + dep + " for model " + location));
                 }
             }
-            if(model.getParentLocation() != null && !model.getParentLocation().getResourcePath().startsWith("builtin/"))
+            if(model.getParentLocation() != null && !model.getParentLocation().getPath().startsWith("builtin/"))
             {
                 set.add(model.getParentLocation());
             }
@@ -375,17 +377,23 @@ public final class ModelLoader extends ModelBakery
         public Collection<ResourceLocation> getTextures()
         {
             // setting parent here to make textures resolve properly
-            ResourceLocation parentLocation = model.getParentLocation();
-            if(parentLocation != null && model.parent == null)
+            if(model.getParentLocation() != null)
             {
-                if(parentLocation.getResourcePath().equals("builtin/generated"))
+                if(model.getParentLocation().getPath().equals("builtin/generated"))
                 {
                     model.parent = MODEL_GENERATED;
                 }
                 else
                 {
-                    model.parent = ModelLoaderRegistry.getModelOrLogError(parentLocation, "Could not load vanilla model parent '" + parentLocation + "' for '" + model + "'")
-                            .asVanillaModel().orElseThrow(() -> new IllegalStateException("vanilla model '" + model + "' can't have non-vanilla parent"));
+                    IModel parent = ModelLoaderRegistry.getModelOrLogError(model.getParentLocation(), "Could not load vanilla model parent '" + model.getParentLocation() + "' for '" + model);
+                    if(parent instanceof VanillaModelWrapper)
+                    {
+                        model.parent = ((VanillaModelWrapper) parent).model;
+                    }
+                    else
+                    {
+                        throw new IllegalStateException("vanilla model '" + model + "' can't have non-vanilla parent");
+                    }
                 }
             }
 
@@ -436,10 +444,10 @@ public final class ModelLoader extends ModelBakery
             }
 
             ItemCameraTransforms transforms = model.getAllTransforms();
-            Map<TransformType, TRSRTransformation> tMap = Maps.newEnumMap(TransformType.class);
+            Map<TransformType, TRSRTransformation> tMap = Maps.newHashMap();
             tMap.putAll(PerspectiveMapWrapper.getTransforms(transforms));
             tMap.putAll(PerspectiveMapWrapper.getTransforms(state));
-            IModelState perState = new SimpleModelState(ImmutableMap.copyOf(tMap), state.apply(Optional.empty()));
+            IModelState perState = new SimpleModelState(ImmutableMap.copyOf(tMap));
 
             if(hasItemModel(model))
             {
@@ -615,12 +623,6 @@ public final class ModelLoader extends ModelBakery
             }
             return new VanillaModelWrapper(location, model, value, animation);
         }
-
-        @Override
-        public Optional<ModelBlock> asVanillaModel()
-        {
-            return Optional.of(model);
-        }
     }
 
     private static final class WeightedRandomModel implements IModel
@@ -668,10 +670,7 @@ public final class ModelLoader extends ModelBakery
                 textures.addAll(model.getTextures()); // Kick this, just in case.
 
                 models.add(model);
-
-                IModelState modelDefaultState = model.getDefaultState();
-                Preconditions.checkNotNull(modelDefaultState, "Model %s returned null as default state", loc);
-                builder.add(Pair.of(model, new ModelStateComposition(v.getState(), modelDefaultState)));
+                builder.add(Pair.of(model, v.getState()));
             }
 
             if (models.size() == 0) //If all variants are missing, add one with the missing model and default rotation.
@@ -762,7 +761,7 @@ public final class ModelLoader extends ModelBakery
         {
             try
             {
-                missingModel = VanillaLoader.INSTANCE.loadModel(new ResourceLocation(MODEL_MISSING.getResourceDomain(), MODEL_MISSING.getResourcePath()));
+                missingModel = VanillaLoader.INSTANCE.loadModel(new ResourceLocation(MODEL_MISSING.getNamespace(), MODEL_MISSING.getPath()));
             }
             catch(Exception e)
             {
@@ -851,12 +850,12 @@ public final class ModelLoader extends ModelBakery
             {
                 return loader.getMissingModel();
             }
-            String modelPath = modelLocation.getResourcePath();
-            if(modelLocation.getResourcePath().startsWith("models/"))
+            String modelPath = modelLocation.getPath();
+            if(modelLocation.getPath().startsWith("models/"))
             {
                 modelPath = modelPath.substring("models/".length());
             }
-            ResourceLocation armatureLocation = new ResourceLocation(modelLocation.getResourceDomain(), "armatures/" + modelPath + ".json");
+            ResourceLocation armatureLocation = new ResourceLocation(modelLocation.getNamespace(), "armatures/" + modelPath + ".json");
             ModelBlockAnimation animation = ModelBlockAnimation.loadVanillaAnimation(loader.resourceManager, armatureLocation);
             ModelBlock model = loader.loadModel(modelLocation);
             IModel iModel = loader.new VanillaModelWrapper(modelLocation, model, false, animation);
@@ -933,8 +932,6 @@ public final class ModelLoader extends ModelBakery
      */
     public void onPostBakeEvent(IRegistry<ModelResourceLocation, IBakedModel> modelRegistry)
     {
-        if (!isLoading) return;
-
         IBakedModel missingModel = modelRegistry.getObject(MODEL_MISSING);
         Map<String, Integer> modelErrors = Maps.newHashMap();
         Set<ResourceLocation> printedBlockStateErrors = Sets.newHashSet();
@@ -966,7 +963,7 @@ public final class ModelLoader extends ModelBakery
                 IBakedModel model = modelRegistry.getObject(location);
                 if(model == null || model == missingModel || model instanceof FancyMissingModel.BakedModel)
                 {
-                    String domain = entry.getKey().getResourceDomain();
+                    String domain = entry.getKey().getNamespace();
                     Integer errorCountBox = modelErrors.get(domain);
                     int errorCount = errorCountBox == null ? 0 : errorCountBox;
                     errorCount++;
@@ -1011,7 +1008,7 @@ public final class ModelLoader extends ModelBakery
                         {
                             FMLLog.log.error(errorMsg, entry.getValue());
                         }
-                        ResourceLocation blockstateLocation = new ResourceLocation(location.getResourceDomain(), location.getResourcePath());
+                        ResourceLocation blockstateLocation = new ResourceLocation(location.getNamespace(), location.getPath());
                         if(loadingExceptions.containsKey(blockstateLocation) && !printedBlockStateErrors.contains(blockstateLocation))
                         {
                             FMLLog.log.error("Exception loading blockstate for the variant {}: ", location, loadingExceptions.get(blockstateLocation));
@@ -1031,7 +1028,7 @@ public final class ModelLoader extends ModelBakery
             IBakedModel model = modelRegistry.getObject(missing);
             if(model == null || model == missingModel)
             {
-                String domain = missing.getResourceDomain();
+                String domain = missing.getNamespace();
                 Integer errorCountBox = modelErrors.get(domain);
                 int errorCount = errorCountBox == null ? 0 : errorCountBox;
                 errorCount++;
@@ -1053,8 +1050,6 @@ public final class ModelLoader extends ModelBakery
                 FMLLog.log.fatal("Suppressed additional {} model loading errors for domain {}", e.getValue() - verboseMissingInfoCount, e.getKey());
             }
         }
-        loadingExceptions.clear();
-        missingVariants.clear();
         isLoading = false;
     }
 
@@ -1169,23 +1164,16 @@ public final class ModelLoader extends ModelBakery
         {
             ModelResourceLocation variant = (ModelResourceLocation) modelLocation;
             ModelBlockDefinition definition = loader.getModelBlockDefinition(variant);
-
             try
             {
                 VariantList variants = definition.getVariant(variant.getVariant());
                 return new WeightedRandomModel(variant, variants);
             }
-            catch (MissingVariantException e)
+            catch(MissingVariantException e)
             {
-                if (definition.equals(loader.multipartDefinitions.get(variant)))
+                if(definition.hasMultipartData())
                 {
-                    IModel model = loader.multipartModels.get(definition);
-                    if (model == null)
-                    {
-                        model = new MultipartModel(new ResourceLocation(variant.getResourceDomain(), variant.getResourcePath()), definition.getMultipartData());
-                        loader.multipartModels.put(definition, model);
-                    }
-                    return model;
+                    return new MultipartModel(new ResourceLocation(variant.getNamespace(), variant.getPath()), definition.getMultipartData());
                 }
                 throw e;
             }

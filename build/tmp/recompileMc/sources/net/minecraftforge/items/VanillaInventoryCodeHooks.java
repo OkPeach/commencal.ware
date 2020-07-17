@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -221,9 +221,9 @@ public class VanillaInventoryCodeHooks
     @Nullable
     private static Pair<IItemHandler, Object> getItemHandler(IHopper hopper, EnumFacing hopperFacing)
     {
-        double x = hopper.getXPos() + (double) hopperFacing.getFrontOffsetX();
-        double y = hopper.getYPos() + (double) hopperFacing.getFrontOffsetY();
-        double z = hopper.getZPos() + (double) hopperFacing.getFrontOffsetZ();
+        double x = hopper.getXPos() + (double) hopperFacing.getXOffset();
+        double y = hopper.getYPos() + (double) hopperFacing.getYOffset();
+        double z = hopper.getZPos() + (double) hopperFacing.getZOffset();
         return getItemHandler(hopper.getWorld(), x, y, z, hopperFacing.getOpposite());
     }
 

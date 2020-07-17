@@ -29,7 +29,7 @@ public enum EnumDyeColor implements IStringSerializable
     private final int meta;
     private final int dyeDamage;
     private final String name;
-    private final String unlocalizedName;
+    private final String translationKey;
     /** An int containing the corresponding RGB color for this dye color. */
     private final int colorValue;
     /**
@@ -44,7 +44,7 @@ public enum EnumDyeColor implements IStringSerializable
         this.meta = metaIn;
         this.dyeDamage = dyeDamageIn;
         this.name = nameIn;
-        this.unlocalizedName = unlocalizedNameIn;
+        this.translationKey = unlocalizedNameIn;
         this.colorValue = colorValueIn;
         this.chatColor = chatColorIn;
         int i = (colorValueIn & 16711680) >> 16;
@@ -69,9 +69,9 @@ public enum EnumDyeColor implements IStringSerializable
         return this.name;
     }
 
-    public String getUnlocalizedName()
+    public String getTranslationKey()
     {
-        return this.unlocalizedName;
+        return this.translationKey;
     }
 
     /**
@@ -114,7 +114,7 @@ public enum EnumDyeColor implements IStringSerializable
 
     public String toString()
     {
-        return this.unlocalizedName;
+        return this.translationKey;
     }
 
     public String getName()

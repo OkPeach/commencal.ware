@@ -31,7 +31,7 @@ public enum ModelRotation implements net.minecraftforge.common.model.IModelState
 
     private static final Map<Integer, ModelRotation> MAP_ROTATIONS = Maps.<Integer, ModelRotation>newHashMap();
     private final int combinedXY;
-    private final Matrix4f matrix4d;
+    private final Matrix4f matrix;
     private final int quartersX;
     private final int quartersY;
 
@@ -43,7 +43,7 @@ public enum ModelRotation implements net.minecraftforge.common.model.IModelState
     private ModelRotation(int x, int y)
     {
         this.combinedXY = combineXY(x, y);
-        this.matrix4d = new Matrix4f();
+        this.matrix = new Matrix4f();
         Matrix4f matrix4f = new Matrix4f();
         matrix4f.setIdentity();
         Matrix4f.rotate((float)(-x) * 0.017453292F, new Vector3f(1.0F, 0.0F, 0.0F), matrix4f, matrix4f);
@@ -52,12 +52,12 @@ public enum ModelRotation implements net.minecraftforge.common.model.IModelState
         matrix4f1.setIdentity();
         Matrix4f.rotate((float)(-y) * 0.017453292F, new Vector3f(0.0F, 1.0F, 0.0F), matrix4f1, matrix4f1);
         this.quartersY = MathHelper.abs(y / 90);
-        Matrix4f.mul(matrix4f1, matrix4f, this.matrix4d);
+        Matrix4f.mul(matrix4f1, matrix4f, this.matrix);
     }
 
-    public Matrix4f getMatrix4d()
+    public Matrix4f matrix()
     {
-        return this.matrix4d;
+        return this.matrix;
     }
 
     public EnumFacing rotateFace(EnumFacing facing)
@@ -117,8 +117,8 @@ public enum ModelRotation implements net.minecraftforge.common.model.IModelState
         }
     }
 
-    public java.util.Optional<net.minecraftforge.common.model.TRSRTransformation> apply(java.util.Optional<? extends net.minecraftforge.common.model.IModelPart> part) { return net.minecraftforge.client.ForgeHooksClient.applyTransform(this, part); }
-    public javax.vecmath.Matrix4f getMatrix() { return net.minecraftforge.common.model.TRSRTransformation.from(this).getMatrix(); }
+    public java.util.Optional<net.minecraftforge.common.model.TRSRTransformation> apply(java.util.Optional<? extends net.minecraftforge.common.model.IModelPart> part) { return net.minecraftforge.client.ForgeHooksClient.applyTransform(getMatrix(), part); }
+    public javax.vecmath.Matrix4f getMatrix() { return net.minecraftforge.client.ForgeHooksClient.getMatrix(this); }
     public EnumFacing rotate(EnumFacing facing) { return rotateFace(facing); }
     public int rotate(EnumFacing facing, int vertexIndex) { return rotateVertex(facing, vertexIndex); }
 }

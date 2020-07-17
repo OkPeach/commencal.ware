@@ -34,18 +34,18 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class ItemRenderer
 {
-    private static final ResourceLocation RES_MAP_BACKGROUND = new ResourceLocation("textures/map/map_background.png");
-    private static final ResourceLocation RES_UNDERWATER_OVERLAY = new ResourceLocation("textures/misc/underwater.png");
+    public static final ResourceLocation RES_MAP_BACKGROUND = new ResourceLocation("textures/map/map_background.png");
+    public static final ResourceLocation RES_UNDERWATER_OVERLAY = new ResourceLocation("textures/misc/underwater.png");
     /** A reference to the Minecraft object. */
-    private final Minecraft mc;
-    private ItemStack itemStackMainHand = ItemStack.EMPTY;
-    private ItemStack itemStackOffHand = ItemStack.EMPTY;
-    private float equippedProgressMainHand;
-    private float prevEquippedProgressMainHand;
-    private float equippedProgressOffHand;
-    private float prevEquippedProgressOffHand;
-    private final RenderManager renderManager;
-    private final RenderItem itemRenderer;
+    public final Minecraft mc;
+    public ItemStack itemStackMainHand = ItemStack.EMPTY;
+    public ItemStack itemStackOffHand = ItemStack.EMPTY;
+    public float equippedProgressMainHand;
+    public float prevEquippedProgressMainHand;
+    public float equippedProgressOffHand;
+    public float prevEquippedProgressOffHand;
+    public final RenderManager renderManager;
+    public final RenderItem itemRenderer;
 
     public ItemRenderer(Minecraft mcIn)
     {
@@ -66,7 +66,7 @@ public class ItemRenderer
             Item item = heldStack.getItem();
             Block block = Block.getBlockFromItem(item);
             GlStateManager.pushMatrix();
-            boolean flag = this.itemRenderer.shouldRenderItemIn3D(heldStack) && block.getBlockLayer() == BlockRenderLayer.TRANSLUCENT;
+            boolean flag = this.itemRenderer.shouldRenderItemIn3D(heldStack) && block.getRenderLayer() == BlockRenderLayer.TRANSLUCENT;
 
             if (flag)
             {
@@ -87,7 +87,7 @@ public class ItemRenderer
     /**
      * Rotate the render around X and Y
      */
-    private void rotateArroundXAndY(float angle, float angleY)
+    public void rotateArroundXAndY(float angle, float angleY)
     {
         GlStateManager.pushMatrix();
         GlStateManager.rotate(angle, 1.0F, 0.0F, 0.0F);
@@ -96,7 +96,7 @@ public class ItemRenderer
         GlStateManager.popMatrix();
     }
 
-    private void setLightmap()
+    public void setLightmap()
     {
         AbstractClientPlayer abstractclientplayer = this.mc.player;
         int i = this.mc.world.getCombinedLight(new BlockPos(abstractclientplayer.posX, abstractclientplayer.posY + (double)abstractclientplayer.getEyeHeight(), abstractclientplayer.posZ), 0);
@@ -105,7 +105,7 @@ public class ItemRenderer
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, f, f1);
     }
 
-    private void rotateArm(float p_187458_1_)
+    public void rotateArm(float p_187458_1_)
     {
         EntityPlayerSP entityplayersp = this.mc.player;
         float f = entityplayersp.prevRenderArmPitch + (entityplayersp.renderArmPitch - entityplayersp.prevRenderArmPitch) * p_187458_1_;
@@ -117,7 +117,7 @@ public class ItemRenderer
     /**
      * Return the angle to render the Map
      */
-    private float getMapAngleFromPitch(float pitch)
+    public float getMapAngleFromPitch(float pitch)
     {
         float f = 1.0F - pitch / 45.0F + 0.1F;
         f = MathHelper.clamp(f, 0.0F, 1.0F);
@@ -125,7 +125,7 @@ public class ItemRenderer
         return f;
     }
 
-    private void renderArms()
+    public void renderArms()
     {
         if (!this.mc.player.isInvisible())
         {
@@ -139,7 +139,7 @@ public class ItemRenderer
         }
     }
 
-    private void renderArm(EnumHandSide p_187455_1_)
+    public void renderArm(EnumHandSide p_187455_1_)
     {
         this.mc.getTextureManager().bindTexture(this.mc.player.getLocationSkin());
         Render<AbstractClientPlayer> render = this.renderManager.<AbstractClientPlayer>getEntityRenderObject(this.mc.player);
@@ -163,7 +163,7 @@ public class ItemRenderer
         GlStateManager.popMatrix();
     }
 
-    private void renderMapFirstPersonSide(float p_187465_1_, EnumHandSide hand, float p_187465_3_, ItemStack stack)
+    public void renderMapFirstPersonSide(float p_187465_1_, EnumHandSide hand, float p_187465_3_, ItemStack stack)
     {
         float f = hand == EnumHandSide.RIGHT ? 1.0F : -1.0F;
         GlStateManager.translate(f * 0.125F, -0.125F, 0.0F);
@@ -190,7 +190,7 @@ public class ItemRenderer
         GlStateManager.popMatrix();
     }
 
-    private void renderMapFirstPerson(float p_187463_1_, float p_187463_2_, float p_187463_3_)
+    public void renderMapFirstPerson(float p_187463_1_, float p_187463_2_, float p_187463_3_)
     {
         float f = MathHelper.sqrt(p_187463_3_);
         float f1 = -0.2F * MathHelper.sin(p_187463_3_ * (float)Math.PI);
@@ -206,7 +206,7 @@ public class ItemRenderer
         this.renderMapFirstPerson(this.itemStackMainHand);
     }
 
-    private void renderMapFirstPerson(ItemStack stack)
+    public void renderMapFirstPerson(ItemStack stack)
     {
         GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
         GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
@@ -233,7 +233,7 @@ public class ItemRenderer
         GlStateManager.enableLighting();
     }
 
-    private void renderArmFirstPerson(float p_187456_1_, float p_187456_2_, EnumHandSide p_187456_3_)
+    public void renderArmFirstPerson(float p_187456_1_, float p_187456_2_, EnumHandSide p_187456_3_)
     {
         boolean flag = p_187456_3_ != EnumHandSide.LEFT;
         float f = flag ? 1.0F : -1.0F;
@@ -269,7 +269,7 @@ public class ItemRenderer
         GlStateManager.enableCull();
     }
 
-    private void transformEatFirstPerson(float p_187454_1_, EnumHandSide hand, ItemStack stack)
+    public void transformEatFirstPerson(float p_187454_1_, EnumHandSide hand, ItemStack stack)
     {
         float f = (float)this.mc.player.getItemInUseCount() - p_187454_1_ + 1.0F;
         float f1 = f / (float)stack.getMaxItemUseDuration();
@@ -288,7 +288,7 @@ public class ItemRenderer
         GlStateManager.rotate((float)i * f3 * 30.0F, 0.0F, 0.0F, 1.0F);
     }
 
-    private void transformFirstPerson(EnumHandSide hand, float p_187453_2_)
+    public void transformFirstPerson(EnumHandSide hand, float p_187453_2_)
     {
         int i = hand == EnumHandSide.RIGHT ? 1 : -1;
         float f = MathHelper.sin(p_187453_2_ * p_187453_2_ * (float)Math.PI);
@@ -299,7 +299,7 @@ public class ItemRenderer
         GlStateManager.rotate((float)i * -45.0F, 0.0F, 1.0F, 0.0F);
     }
 
-    private void transformSideFirstPerson(EnumHandSide hand, float p_187459_2_)
+    public void transformSideFirstPerson(EnumHandSide hand, float p_187459_2_)
     {
         int i = hand == EnumHandSide.RIGHT ? 1 : -1;
         GlStateManager.translate((float)i * 0.56F, -0.52F + p_187459_2_ * -0.6F, -0.72F);
@@ -322,7 +322,7 @@ public class ItemRenderer
         {
             ItemStack itemstack = abstractclientplayer.getActiveItemStack();
 
-            if (itemstack.getItem() instanceof net.minecraft.item.ItemBow)
+            if (!itemstack.isEmpty() && itemstack.getItem() == Items.BOW) //Forge: Data watcher can desync and cause this to NPE...
             {
                 EnumHand enumhand1 = abstractclientplayer.getActiveHand();
                 flag = enumhand1 == EnumHand.MAIN_HAND;
@@ -476,7 +476,7 @@ public class ItemRenderer
             if (iblockstate.getRenderType() != EnumBlockRenderType.INVISIBLE)
             {
                 if (!net.minecraftforge.event.ForgeEventFactory.renderBlockOverlay(mc.player, partialTicks, net.minecraftforge.client.event.RenderBlockOverlayEvent.OverlayType.BLOCK, iblockstate, overlayPos))
-                this.renderBlockInHand(this.mc.getBlockRendererDispatcher().getBlockModelShapes().getTexture(iblockstate));
+                this.renderSuffocationOverlay(this.mc.getBlockRendererDispatcher().getBlockModelShapes().getTexture(iblockstate));
             }
         }
 
@@ -499,9 +499,9 @@ public class ItemRenderer
     }
 
     /**
-     * Render the block in the player's hand
+     * Renders the given sprite over the player's view
      */
-    private void renderBlockInHand(TextureAtlasSprite sprite)
+    public void renderSuffocationOverlay(TextureAtlasSprite sprite)
     {
         this.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
         Tessellator tessellator = Tessellator.getInstance();
@@ -532,7 +532,7 @@ public class ItemRenderer
      * Renders a texture that warps around based on the direction the player is looking. Texture needs to be bound
      * before being called. Used for the water overlay.
      */
-    private void renderWaterOverlayTexture(float partialTicks)
+    public void renderWaterOverlayTexture(float partialTicks)
     {
         this.mc.getTextureManager().bindTexture(RES_UNDERWATER_OVERLAY);
         Tessellator tessellator = Tessellator.getInstance();
@@ -564,7 +564,7 @@ public class ItemRenderer
     /**
      * Renders the fire on the screen for first person mode. Arg: partialTickTime
      */
-    private void renderFireInFirstPerson()
+    public void renderFireInFirstPerson()
     {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();

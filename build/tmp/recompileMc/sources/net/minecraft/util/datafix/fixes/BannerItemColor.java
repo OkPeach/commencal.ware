@@ -42,12 +42,12 @@ public class BannerItemColor implements IFixableData
 
                     nbttagcompound1.removeTag("Base");
 
-                    if (nbttagcompound1.hasNoTags())
+                    if (nbttagcompound1.isEmpty())
                     {
                         nbttagcompound.removeTag("BlockEntityTag");
                     }
 
-                    if (nbttagcompound.hasNoTags())
+                    if (nbttagcompound.isEmpty())
                     {
                         compound.removeTag("tag");
                     }

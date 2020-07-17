@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -226,17 +226,9 @@ public class GameRegistry
         FurnaceRecipes.instance().addSmeltingRecipe(input, output, xp);
     }
 
-    @Deprecated //TODO: Remove in 1.13, Use ResourceLocation version.
     public static void registerTileEntity(Class<? extends TileEntity> tileEntityClass, String key)
     {
-        // As return is ignored for compatibility, always check namespace
-        GameData.checkPrefix(new ResourceLocation(key).toString(), true);
         TileEntity.register(key, tileEntityClass);
-    }
-
-    public static void registerTileEntity(Class<? extends TileEntity> tileEntityClass, ResourceLocation key)
-    {
-        registerTileEntity(tileEntityClass, key.toString());
     }
 
     /**
@@ -306,21 +298,21 @@ public class GameRegistry
          *
          * @return The registry name
          */
-        String value();
+        public String value();
 
         /**
          * The metadata or damage value for the itemstack, defaults to 0.
          *
          * @return the metadata value
          */
-        int meta() default 0;
+        public int meta() default 0;
 
         /**
          * The string serialized nbt value for the itemstack. Defaults to empty for no nbt.
          *
          * @return a nbt string
          */
-        String nbt() default "";
+        public String nbt() default "";
     }
 
     /**

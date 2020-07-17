@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,16 +21,11 @@ package net.minecraftforge.client.model.animation;
 
 import net.minecraft.world.World;
 
-import java.lang.ref.WeakReference;
-
 public enum Animation
 {
     INSTANCE;
 
     private float clientPartialTickTime;
-
-    private static long epochTime;
-    private static WeakReference<World> worldRef;
 
     /**
      * Get the global world time for the current tick, in seconds.
@@ -45,12 +40,7 @@ public enum Animation
      */
     public static float getWorldTime(World world, float tickProgress)
     {
-        if (worldRef == null || worldRef.get() != world)
-        {
-            epochTime = world.getTotalWorldTime();
-            worldRef = new WeakReference<>(world);
-        }
-        return (world.getTotalWorldTime() - epochTime + tickProgress) / 20;
+        return (world.getTotalWorldTime() + tickProgress) / 20;
     }
 
     /**

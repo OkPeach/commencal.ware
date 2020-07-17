@@ -127,7 +127,7 @@ public class EntityWitherSkull extends EntityFireball
                 }
             }
 
-            this.world.newExplosion(this, this.posX, this.posY, this.posZ, 1.0F, false, net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.world, this.shootingEntity));
+            this.world.newExplosion(this, this.posX, this.posY, this.posZ, 1.0F, false, this.world.getGameRules().getBoolean("mobGriefing"));
             this.setDead();
         }
     }

@@ -311,17 +311,17 @@ public class EntityArmorStand extends EntityLivingBase
     private void writePoseToNBT(NBTTagCompound tagCompound)
     {
         NBTTagList nbttaglist = tagCompound.getTagList("Head", 5);
-        this.setHeadRotation(nbttaglist.hasNoTags() ? DEFAULT_HEAD_ROTATION : new Rotations(nbttaglist));
+        this.setHeadRotation(nbttaglist.isEmpty() ? DEFAULT_HEAD_ROTATION : new Rotations(nbttaglist));
         NBTTagList nbttaglist1 = tagCompound.getTagList("Body", 5);
-        this.setBodyRotation(nbttaglist1.hasNoTags() ? DEFAULT_BODY_ROTATION : new Rotations(nbttaglist1));
+        this.setBodyRotation(nbttaglist1.isEmpty() ? DEFAULT_BODY_ROTATION : new Rotations(nbttaglist1));
         NBTTagList nbttaglist2 = tagCompound.getTagList("LeftArm", 5);
-        this.setLeftArmRotation(nbttaglist2.hasNoTags() ? DEFAULT_LEFTARM_ROTATION : new Rotations(nbttaglist2));
+        this.setLeftArmRotation(nbttaglist2.isEmpty() ? DEFAULT_LEFTARM_ROTATION : new Rotations(nbttaglist2));
         NBTTagList nbttaglist3 = tagCompound.getTagList("RightArm", 5);
-        this.setRightArmRotation(nbttaglist3.hasNoTags() ? DEFAULT_RIGHTARM_ROTATION : new Rotations(nbttaglist3));
+        this.setRightArmRotation(nbttaglist3.isEmpty() ? DEFAULT_RIGHTARM_ROTATION : new Rotations(nbttaglist3));
         NBTTagList nbttaglist4 = tagCompound.getTagList("LeftLeg", 5);
-        this.setLeftLegRotation(nbttaglist4.hasNoTags() ? DEFAULT_LEFTLEG_ROTATION : new Rotations(nbttaglist4));
+        this.setLeftLegRotation(nbttaglist4.isEmpty() ? DEFAULT_LEFTLEG_ROTATION : new Rotations(nbttaglist4));
         NBTTagList nbttaglist5 = tagCompound.getTagList("RightLeg", 5);
-        this.setRightLegRotation(nbttaglist5.hasNoTags() ? DEFAULT_RIGHTLEG_ROTATION : new Rotations(nbttaglist5));
+        this.setRightLegRotation(nbttaglist5.isEmpty() ? DEFAULT_RIGHTLEG_ROTATION : new Rotations(nbttaglist5));
     }
 
     private NBTTagCompound readPoseFromNBT()

@@ -65,8 +65,6 @@ public class SPacketCustomPayload implements Packet<INetHandlerPlayClient>
     public void processPacket(INetHandlerPlayClient handler)
     {
         handler.handleCustomPayload(this);
-        // Forge: fix network buffer leaks (MC-121884)
-        if (this.data != null) this.data.release();
     }
 
     @SideOnly(Side.CLIENT)

@@ -39,11 +39,19 @@ public abstract class BlockLiquid extends Block
         this.setTickRandomly(true);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         return FULL_BLOCK_AABB;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getCollisionBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     @Nullable
     public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
     {
@@ -55,7 +63,7 @@ public abstract class BlockLiquid extends Block
      */
     public boolean isPassable(IBlockAccess worldIn, BlockPos pos)
     {
-        return this.blockMaterial != Material.LAVA;
+        return this.material != Material.LAVA;
     }
 
     /**
@@ -73,7 +81,7 @@ public abstract class BlockLiquid extends Block
 
     protected int getDepth(IBlockState state)
     {
-        return state.getMaterial() == this.blockMaterial ? ((Integer)state.getValue(LEVEL)).intValue() : -1;
+        return state.getMaterial() == this.material ? ((Integer)state.getValue(LEVEL)).intValue() : -1;
     }
 
     protected int getRenderedDepth(IBlockState state)
@@ -82,6 +90,9 @@ public abstract class BlockLiquid extends Block
         return i >= 8 ? 0 : i;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
@@ -89,6 +100,7 @@ public abstract class BlockLiquid extends Block
 
     /**
      * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
      */
     public boolean isOpaqueCube(IBlockState state)
     {
@@ -110,7 +122,7 @@ public abstract class BlockLiquid extends Block
         Block block = iblockstate.getBlock();
         Material material = iblockstate.getMaterial();
 
-        if (material == this.blockMaterial)
+        if (material == this.material)
         {
             return false;
         }
@@ -129,10 +141,14 @@ public abstract class BlockLiquid extends Block
         }
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#shouldSideBeRendered(IBlockAccess,BlockPos,EnumFacing)} whenever
+     * possible. Implementing/overriding is fine.
+     */
     @SideOnly(Side.CLIENT)
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
-        if (blockAccess.getBlockState(pos.offset(side)).getMaterial() == this.blockMaterial)
+        if (blockAccess.getBlockState(pos.offset(side)).getMaterial() == this.material)
         {
             return false;
         }
@@ -145,6 +161,7 @@ public abstract class BlockLiquid extends Block
     /**
      * The type of render function called. MODEL for mixed tesr and static model, MODELBLOCK_ANIMATED for TESR-only,
      * LIQUID for vanilla liquids, INVISIBLE to skip all rendering
+     * @deprecated call via {@link IBlockState#getRenderType()} whenever possible. Implementing/overriding is fine.
      */
     public EnumBlockRenderType getRenderType(IBlockState state)
     {
@@ -189,18 +206,18 @@ public abstract class BlockLiquid extends Block
                     if (j >= 0)
                     {
                         int k = j - (i - 8);
-                        d0 += (double)(enumfacing.getFrontOffsetX() * k);
-                        d1 += (double)(enumfacing.getFrontOffsetY() * k);
-                        d2 += (double)(enumfacing.getFrontOffsetZ() * k);
+                        d0 += (double)(enumfacing.getXOffset() * k);
+                        d1 += (double)(enumfacing.getYOffset() * k);
+                        d2 += (double)(enumfacing.getZOffset() * k);
                     }
                 }
             }
             else if (j >= 0)
             {
                 int l = j - i;
-                d0 += (double)(enumfacing.getFrontOffsetX() * l);
-                d1 += (double)(enumfacing.getFrontOffsetY() * l);
-                d2 += (double)(enumfacing.getFrontOffsetZ() * l);
+                d0 += (double)(enumfacing.getXOffset() * l);
+                d1 += (double)(enumfacing.getYOffset() * l);
+                d2 += (double)(enumfacing.getZOffset() * l);
             }
         }
 
@@ -214,7 +231,7 @@ public abstract class BlockLiquid extends Block
 
                 if (this.causesDownwardCurrent(worldIn, blockpos$pooledmutableblockpos, enumfacing1) || this.causesDownwardCurrent(worldIn, blockpos$pooledmutableblockpos.up(), enumfacing1))
                 {
-                    vec3d = vec3d.normalize().addVector(0.0D, -6.0D, 0.0D);
+                    vec3d = vec3d.normalize().add(0.0D, -6.0D, 0.0D);
                     break;
                 }
             }
@@ -234,11 +251,11 @@ public abstract class BlockLiquid extends Block
      */
     public int tickRate(World worldIn)
     {
-        if (this.blockMaterial == Material.WATER)
+        if (this.material == Material.WATER)
         {
             return 5;
         }
-        else if (this.blockMaterial == Material.LAVA)
+        else if (this.material == Material.LAVA)
         {
             return worldIn.provider.isNether() ? 10 : 30;
         }
@@ -257,7 +274,7 @@ public abstract class BlockLiquid extends Block
             {
                 IBlockState iblockstate = blockAccess.getBlockState(pos.add(i, 0, j));
 
-                if (iblockstate.getMaterial() != this.blockMaterial && !iblockstate.isFullBlock())
+                if (iblockstate.getMaterial() != this.material && !iblockstate.isFullBlock())
                 {
                     return true;
                 }
@@ -285,6 +302,10 @@ public abstract class BlockLiquid extends Block
         this.checkForMixing(worldIn, pos, state);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getPackedLightmapCoords(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     @SideOnly(Side.CLIENT)
     public int getPackedLightmapCoords(IBlockState state, IBlockAccess source, BlockPos pos)
     {
@@ -299,7 +320,7 @@ public abstract class BlockLiquid extends Block
 
     public boolean checkForMixing(World worldIn, BlockPos pos, IBlockState state)
     {
-        if (this.blockMaterial == Material.LAVA)
+        if (this.material == Material.LAVA)
         {
             boolean flag = false;
 
@@ -318,14 +339,14 @@ public abstract class BlockLiquid extends Block
 
                 if (integer.intValue() == 0)
                 {
-                    worldIn.setBlockState(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(worldIn, pos, pos, Blocks.OBSIDIAN.getDefaultState()));
+                    worldIn.setBlockState(pos, Blocks.OBSIDIAN.getDefaultState());
                     this.triggerMixEffects(worldIn, pos);
                     return true;
                 }
 
                 if (integer.intValue() <= 4)
                 {
-                    worldIn.setBlockState(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(worldIn, pos, pos, Blocks.COBBLESTONE.getDefaultState()));
+                    worldIn.setBlockState(pos, Blocks.COBBLESTONE.getDefaultState());
                     this.triggerMixEffects(worldIn, pos);
                     return true;
                 }
@@ -335,12 +356,21 @@ public abstract class BlockLiquid extends Block
         return false;
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     @SideOnly(Side.CLIENT)
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
-        return this.blockMaterial == Material.WATER ? BlockRenderLayer.TRANSLUCENT : BlockRenderLayer.SOLID;
+        return this.material == Material.WATER ? BlockRenderLayer.TRANSLUCENT : BlockRenderLayer.SOLID;
     }
 
+    /**
+     * Called periodically clientside on blocks near the player to show effects (like furnace fire particles). Note that
+     * this method is unrelated to {@link randomTick} and {@link #needsRandomTick}, and will always be called regardless
+     * of whether the block can receive random update ticks
+     */
     @SideOnly(Side.CLIENT)
     public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {
@@ -348,7 +378,7 @@ public abstract class BlockLiquid extends Block
         double d1 = (double)pos.getY();
         double d2 = (double)pos.getZ();
 
-        if (this.blockMaterial == Material.WATER)
+        if (this.material == Material.WATER)
         {
             int i = ((Integer)stateIn.getValue(LEVEL)).intValue();
 
@@ -365,7 +395,7 @@ public abstract class BlockLiquid extends Block
             }
         }
 
-        if (this.blockMaterial == Material.LAVA && worldIn.getBlockState(pos.up()).getMaterial() == Material.AIR && !worldIn.getBlockState(pos.up()).isOpaqueCube())
+        if (this.material == Material.LAVA && worldIn.getBlockState(pos.up()).getMaterial() == Material.AIR && !worldIn.getBlockState(pos.up()).isOpaqueCube())
         {
             if (rand.nextInt(100) == 0)
             {
@@ -392,7 +422,7 @@ public abstract class BlockLiquid extends Block
                 double d5 = d1 - 1.05D;
                 double d7 = d2 + (double)rand.nextFloat();
 
-                if (this.blockMaterial == Material.WATER)
+                if (this.material == Material.WATER)
                 {
                     worldIn.spawnParticle(EnumParticleTypes.DRIP_WATER, d3, d5, d7, 0.0D, 0.0D, 0.0D);
                 }
@@ -488,12 +518,6 @@ public abstract class BlockLiquid extends Block
         return (float)pos.getY() + getBlockLiquidHeight(state, worldIn, pos);
     }
 
-    @Override
-    public float getBlockLiquidHeight(World world, BlockPos pos, IBlockState state, Material material)
-    {
-        return BlockLiquid.getBlockLiquidHeight(state, world, pos);
-    }
-
     /**
      * Get the geometry of the queried face at the given position and state. This is used to decide whether things like
      * buttons are allowed to be placed on the face, or how glass panes connect to the face, among other things.
@@ -502,6 +526,8 @@ public abstract class BlockLiquid extends Block
      * does not fit the other descriptions and will generally cause other things not to connect to the face.
      * 
      * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {

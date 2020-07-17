@@ -407,7 +407,7 @@ public abstract class RenderLivingBase<T extends EntityLivingBase> extends Rende
         GlStateManager.translate((float)x, (float)y, (float)z);
     }
 
-    protected void applyRotations(T entityLiving, float p_77043_2_, float rotationYaw, float partialTicks)
+    protected void applyRotations(T entityLiving, float ageInTicks, float rotationYaw, float partialTicks)
     {
         GlStateManager.rotate(180.0F - rotationYaw, 0.0F, 1.0F, 0.0F);
 

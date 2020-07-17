@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,7 +16,6 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
 package net.minecraftforge.common.crafting;
 
 import java.util.Map;
@@ -58,11 +57,11 @@ public class JsonContext
         return constants.get(name);
     }
 
-    void loadConstants(JsonObject... jsons)
+    void loadConstants(JsonObject[] jsons)
     {
         for (JsonObject json : jsons)
         {
-            if (!CraftingHelper.processConditions(json, "conditions", this))
+            if (json.has("conditions") && !CraftingHelper.processConditions(json.getAsJsonArray("conditions"), this))
                 continue;
             if (!json.has("ingredient"))
                 throw new JsonSyntaxException("Constant entry must contain 'ingredient' value");

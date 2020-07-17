@@ -156,7 +156,7 @@ public class ParticleFirework
                 {
                     this.fireworkExplosions = p_i46464_15_.getTagList("Explosions", 10);
 
-                    if (this.fireworkExplosions.hasNoTags())
+                    if (this.fireworkExplosions.isEmpty())
                     {
                         this.fireworkExplosions = null;
                     }

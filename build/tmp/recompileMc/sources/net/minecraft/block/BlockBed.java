@@ -51,6 +51,8 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
 
     /**
      * Get the MapColor for this Block and the given BlockState
+     * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
@@ -90,10 +92,8 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
                 }
             }
 
-            net.minecraft.world.WorldProvider.WorldSleepResult sleepResult = worldIn.provider.canSleepAt(playerIn, pos);
-            if (sleepResult != net.minecraft.world.WorldProvider.WorldSleepResult.BED_EXPLODES)
+            if (worldIn.provider.canRespawnHere() && worldIn.getBiome(pos) != Biomes.HELL)
             {
-                if (sleepResult == net.minecraft.world.WorldProvider.WorldSleepResult.DENY) return true;
                 if (((Boolean)state.getValue(OCCUPIED)).booleanValue())
                 {
                     EntityPlayer entityplayer = this.getPlayerInBed(worldIn, pos);
@@ -164,6 +164,9 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
         return null;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
@@ -171,6 +174,7 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
 
     /**
      * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
      */
     public boolean isOpaqueCube(IBlockState state)
     {
@@ -241,11 +245,19 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
         return state.getValue(PART) == BlockBed.EnumPartType.FOOT ? Items.AIR : Items.BED;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         return BED_AABB;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#hasCustomBreakingProgress()} whenever possible. Implementing/overriding
+     * is fine.
+     */
     @SideOnly(Side.CLIENT)
     public boolean hasCustomBreakingProgress(IBlockState state)
     {
@@ -265,8 +277,8 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
 
         for (int l = 0; l <= 1; ++l)
         {
-            int i1 = i - enumfacing.getFrontOffsetX() * l - 1;
-            int j1 = k - enumfacing.getFrontOffsetZ() * l - 1;
+            int i1 = i - enumfacing.getXOffset() * l - 1;
+            int j1 = k - enumfacing.getZOffset() * l - 1;
             int k1 = i1 + 2;
             int l1 = j1 + 2;
 
@@ -310,13 +322,20 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
         }
     }
 
-    public EnumPushReaction getMobilityFlag(IBlockState state)
+    /**
+     * @deprecated call via {@link IBlockState#getMobilityFlag()} whenever possible. Implementing/overriding is fine.
+     */
+    public EnumPushReaction getPushReaction(IBlockState state)
     {
         return EnumPushReaction.DESTROY;
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     @SideOnly(Side.CLIENT)
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
     }
@@ -324,6 +343,7 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
     /**
      * The type of render function called. MODEL for mixed tesr and static model, MODELBLOCK_ANIMATED for TESR-only,
      * LIQUID for vanilla liquids, INVISIBLE to skip all rendering
+     * @deprecated call via {@link IBlockState#getRenderType()} whenever possible. Implementing/overriding is fine.
      */
     public EnumBlockRenderType getRenderType(IBlockState state)
     {
@@ -393,7 +413,7 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
      */
     public IBlockState getStateFromMeta(int meta)
     {
-        EnumFacing enumfacing = EnumFacing.getHorizontal(meta);
+        EnumFacing enumfacing = EnumFacing.byHorizontalIndex(meta);
         return (meta & 8) > 0 ? this.getDefaultState().withProperty(PART, BlockBed.EnumPartType.HEAD).withProperty(FACING, enumfacing).withProperty(OCCUPIED, Boolean.valueOf((meta & 4) > 0)) : this.getDefaultState().withProperty(PART, BlockBed.EnumPartType.FOOT).withProperty(FACING, enumfacing);
     }
 
@@ -419,6 +439,8 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
     /**
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
+     * fine.
      */
     public IBlockState withRotation(IBlockState state, Rotation rot)
     {
@@ -428,6 +450,7 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
     /**
      * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
     public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
@@ -463,6 +486,8 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
      * does not fit the other descriptions and will generally cause other things not to connect to the face.
      * 
      * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {

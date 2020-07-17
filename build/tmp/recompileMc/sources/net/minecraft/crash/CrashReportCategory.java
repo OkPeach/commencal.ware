@@ -230,7 +230,7 @@ public class CrashReportCategory
             {
                 try
                 {
-                    return String.format("ID #%d (%s // %s // %s)", i, blockIn.getUnlocalizedName(), blockIn.getClass().getName(), blockIn.getRegistryName());
+                    return String.format("ID #%d (%s // %s)", i, blockIn.getTranslationKey(), blockIn.getClass().getCanonicalName());
                 }
                 catch (Throwable var2)
                 {

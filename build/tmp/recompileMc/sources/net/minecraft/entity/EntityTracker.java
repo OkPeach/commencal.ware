@@ -56,6 +56,7 @@ public class EntityTracker
     private final Set<EntityTrackerEntry> entries = Sets.<EntityTrackerEntry>newHashSet();
     /** Used for identity lookup of tracked entities. */
     private final IntHashMap<EntityTrackerEntry> trackedEntityHashTable = new IntHashMap<EntityTrackerEntry>();
+    /** "Max track distance", measured in blocks. */
     private int maxTrackingDistanceThreshold;
 
     public EntityTracker(WorldServer theWorldIn)
@@ -267,6 +268,11 @@ public class EntityTracker
         }
     }
 
+    /**
+     * Removes the given entity, sending removal packets to all players tracking it. Called when the entity is dead.
+     *  
+     * @param entityIn The entity to untrack
+     */
     public void untrack(Entity entityIn)
     {
         if (entityIn instanceof EntityPlayerMP)
@@ -429,9 +435,15 @@ public class EntityTracker
         }
     }
 
-    public void setViewDistance(int p_187252_1_)
+    /**
+     * Sets the view distance used on the server. For the dedicated server, this is the <code>view-distance</code> value
+     * in server.properties. For the integrated server, this is the host's render distance (which may change).
+     *  
+     * @param distance Distance to track, in chunks
+     */
+    public void setViewDistance(int distance)
     {
-        this.maxTrackingDistanceThreshold = (p_187252_1_ - 1) * 16;
+        this.maxTrackingDistanceThreshold = (distance - 1) * 16;
 
         for (EntityTrackerEntry entitytrackerentry : this.entries)
         {

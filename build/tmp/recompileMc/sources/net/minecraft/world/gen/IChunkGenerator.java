@@ -17,6 +17,9 @@ public interface IChunkGenerator
 
     /**
      * Generate initial structures in this chunk, e.g. mineshafts, temples, lakes, and dungeons
+     *  
+     * @param x Chunk x coordinate
+     * @param z Chunk z coordinate
      */
     void populate(int x, int z);
 

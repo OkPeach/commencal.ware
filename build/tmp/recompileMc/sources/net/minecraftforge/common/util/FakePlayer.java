@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,8 +19,6 @@
 
 package net.minecraftforge.common.util;
 
-import javax.annotation.Nullable;
-
 import com.mojang.authlib.GameProfile;
 
 import net.minecraft.entity.Entity;
@@ -28,7 +26,6 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.play.client.CPacketClientSettings;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.stats.StatBase;
 import net.minecraft.util.DamageSource;
@@ -55,7 +52,6 @@ public class FakePlayer extends EntityPlayerMP
     @Override public boolean canAttackPlayer(EntityPlayer player){ return false; }
     @Override public void onDeath(DamageSource source){ return; }
     @Override public void onUpdate(){ return; }
-    @Override public Entity changeDimension(int dim, ITeleporter teleporter){ return this; }
+    @Override public Entity changeDimension(int dim){ return this; }
     @Override public void handleClientSettings(CPacketClientSettings pkt){ return; }
-    @Override @Nullable public MinecraftServer getServer() { return FMLCommonHandler.instance().getMinecraftServerInstance(); }
 }

@@ -48,9 +48,9 @@ public class BehaviorDefaultDispenseItem implements IBehaviorDispenseItem
 
         EntityItem entityitem = new EntityItem(worldIn, d0, d1, d2, stack);
         double d3 = worldIn.rand.nextDouble() * 0.1D + 0.2D;
-        entityitem.motionX = (double)facing.getFrontOffsetX() * d3;
+        entityitem.motionX = (double)facing.getXOffset() * d3;
         entityitem.motionY = 0.20000000298023224D;
-        entityitem.motionZ = (double)facing.getFrontOffsetZ() * d3;
+        entityitem.motionZ = (double)facing.getZOffset() * d3;
         entityitem.motionX += worldIn.rand.nextGaussian() * 0.007499999832361937D * (double)speed;
         entityitem.motionY += worldIn.rand.nextGaussian() * 0.007499999832361937D * (double)speed;
         entityitem.motionZ += worldIn.rand.nextGaussian() * 0.007499999832361937D * (double)speed;
@@ -75,6 +75,6 @@ public class BehaviorDefaultDispenseItem implements IBehaviorDispenseItem
 
     private int getWorldEventDataFrom(EnumFacing facingIn)
     {
-        return facingIn.getFrontOffsetX() + 1 + (facingIn.getFrontOffsetZ() + 1) * 3;
+        return facingIn.getXOffset() + 1 + (facingIn.getZOffset() + 1) * 3;
     }
 }

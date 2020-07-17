@@ -217,8 +217,6 @@ public class PlayerAdvancements
                 {
                     this.server.getPlayerList().sendMessage(new TextComponentTranslation("chat.type.advancement." + p_192750_1_.getDisplay().getFrame().getName(), new Object[] {this.player.getDisplayName(), p_192750_1_.getDisplayText()}));
                 }
-
-                net.minecraftforge.common.ForgeHooks.onAdvancement(this.player, p_192750_1_);
             }
         }
 

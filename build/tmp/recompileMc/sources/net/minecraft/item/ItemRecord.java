@@ -27,9 +27,9 @@ public class ItemRecord extends Item
     private final SoundEvent sound;
     private final String displayName;
 
-    protected ItemRecord(String p_i46742_1_, SoundEvent soundIn)
+    protected ItemRecord(String recordName, SoundEvent soundIn)
     {
-        this.displayName = "item.record." + p_i46742_1_ + ".desc";
+        this.displayName = "item.record." + recordName + ".desc";
         this.sound = soundIn;
         this.maxStackSize = 1;
         this.setCreativeTab(CreativeTabs.MISC);

@@ -41,8 +41,6 @@ public class WeightedBakedModel implements IBakedModel
         return this.baseModel.isAmbientOcclusion();
     }
 
-    public boolean isAmbientOcclusion(IBlockState state) { return this.baseModel.isAmbientOcclusion(state); }
-
     public boolean isGui3d()
     {
         return this.baseModel.isGui3d();

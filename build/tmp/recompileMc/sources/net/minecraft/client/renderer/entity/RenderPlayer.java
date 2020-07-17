@@ -246,7 +246,7 @@ public class RenderPlayer extends RenderLivingBase<AbstractClientPlayer>
         }
     }
 
-    protected void applyRotations(AbstractClientPlayer entityLiving, float p_77043_2_, float rotationYaw, float partialTicks)
+    protected void applyRotations(AbstractClientPlayer entityLiving, float ageInTicks, float rotationYaw, float partialTicks)
     {
         if (entityLiving.isEntityAlive() && entityLiving.isPlayerSleeping())
         {
@@ -256,7 +256,7 @@ public class RenderPlayer extends RenderLivingBase<AbstractClientPlayer>
         }
         else if (entityLiving.isElytraFlying())
         {
-            super.applyRotations(entityLiving, p_77043_2_, rotationYaw, partialTicks);
+            super.applyRotations(entityLiving, ageInTicks, rotationYaw, partialTicks);
             float f = (float)entityLiving.getTicksElytraFlying() + partialTicks;
             float f1 = MathHelper.clamp(f * f / 100.0F, 0.0F, 1.0F);
             GlStateManager.rotate(f1 * (-90.0F - entityLiving.rotationPitch), 1.0F, 0.0F, 0.0F);
@@ -273,7 +273,7 @@ public class RenderPlayer extends RenderLivingBase<AbstractClientPlayer>
         }
         else
         {
-            super.applyRotations(entityLiving, p_77043_2_, rotationYaw, partialTicks);
+            super.applyRotations(entityLiving, ageInTicks, rotationYaw, partialTicks);
         }
     }
 }

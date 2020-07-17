@@ -227,9 +227,9 @@ public class Bootstrap
             public ItemStack dispenseStack(IBlockSource source, ItemStack stack)
             {
                 EnumFacing enumfacing = (EnumFacing)source.getBlockState().getValue(BlockDispenser.FACING);
-                double d0 = source.getX() + (double)enumfacing.getFrontOffsetX();
-                double d1 = (double)((float)(source.getBlockPos().getY() + enumfacing.getFrontOffsetY()) + 0.2F);
-                double d2 = source.getZ() + (double)enumfacing.getFrontOffsetZ();
+                double d0 = source.getX() + (double)enumfacing.getXOffset();
+                double d1 = (double)((float)(source.getBlockPos().getY() + enumfacing.getYOffset()) + 0.2F);
+                double d2 = source.getZ() + (double)enumfacing.getZOffset();
                 Entity entity = ItemMonsterPlacer.spawnCreature(source.getWorld(), ItemMonsterPlacer.getNamedIdFrom(stack), d0, d1, d2);
 
                 if (entity instanceof EntityLivingBase && stack.hasDisplayName())
@@ -250,9 +250,9 @@ public class Bootstrap
             public ItemStack dispenseStack(IBlockSource source, ItemStack stack)
             {
                 EnumFacing enumfacing = (EnumFacing)source.getBlockState().getValue(BlockDispenser.FACING);
-                double d0 = source.getX() + (double)enumfacing.getFrontOffsetX();
+                double d0 = source.getX() + (double)enumfacing.getXOffset();
                 double d1 = (double)((float)source.getBlockPos().getY() + 0.2F);
-                double d2 = source.getZ() + (double)enumfacing.getFrontOffsetZ();
+                double d2 = source.getZ() + (double)enumfacing.getZOffset();
                 EntityFireworkRocket entityfireworkrocket = new EntityFireworkRocket(source.getWorld(), d0, d1, d2, stack);
                 source.getWorld().spawnEntity(entityfireworkrocket);
                 stack.shrink(1);
@@ -275,14 +275,14 @@ public class Bootstrap
             {
                 EnumFacing enumfacing = (EnumFacing)source.getBlockState().getValue(BlockDispenser.FACING);
                 IPosition iposition = BlockDispenser.getDispensePosition(source);
-                double d0 = iposition.getX() + (double)((float)enumfacing.getFrontOffsetX() * 0.3F);
-                double d1 = iposition.getY() + (double)((float)enumfacing.getFrontOffsetY() * 0.3F);
-                double d2 = iposition.getZ() + (double)((float)enumfacing.getFrontOffsetZ() * 0.3F);
+                double d0 = iposition.getX() + (double)((float)enumfacing.getXOffset() * 0.3F);
+                double d1 = iposition.getY() + (double)((float)enumfacing.getYOffset() * 0.3F);
+                double d2 = iposition.getZ() + (double)((float)enumfacing.getZOffset() * 0.3F);
                 World world = source.getWorld();
                 Random random = world.rand;
-                double d3 = random.nextGaussian() * 0.05D + (double)enumfacing.getFrontOffsetX();
-                double d4 = random.nextGaussian() * 0.05D + (double)enumfacing.getFrontOffsetY();
-                double d5 = random.nextGaussian() * 0.05D + (double)enumfacing.getFrontOffsetZ();
+                double d3 = random.nextGaussian() * 0.05D + (double)enumfacing.getXOffset();
+                double d4 = random.nextGaussian() * 0.05D + (double)enumfacing.getYOffset();
+                double d5 = random.nextGaussian() * 0.05D + (double)enumfacing.getZOffset();
                 world.spawnEntity(new EntitySmallFireball(world, d0, d1, d2, d3, d4, d5));
                 stack.shrink(1);
                 return stack;
@@ -388,7 +388,7 @@ public class Bootstrap
                 }
                 else if (world.getBlockState(blockpos).getBlock() == Blocks.TNT)
                 {
-                    Blocks.TNT.onBlockDestroyedByPlayer(world, blockpos, Blocks.TNT.getDefaultState().withProperty(BlockTNT.EXPLODE, Boolean.valueOf(true)));
+                    Blocks.TNT.onPlayerDestroy(world, blockpos, Blocks.TNT.getDefaultState().withProperty(BlockTNT.EXPLODE, Boolean.valueOf(true)));
                     world.setBlockToAir(blockpos);
                 }
                 else
@@ -646,9 +646,9 @@ public class Bootstrap
             {
                 EnumFacing enumfacing = (EnumFacing)source.getBlockState().getValue(BlockDispenser.FACING);
                 World world = source.getWorld();
-                double d0 = source.getX() + (double)((float)enumfacing.getFrontOffsetX() * 1.125F);
-                double d1 = source.getY() + (double)((float)enumfacing.getFrontOffsetY() * 1.125F);
-                double d2 = source.getZ() + (double)((float)enumfacing.getFrontOffsetZ() * 1.125F);
+                double d0 = source.getX() + (double)((float)enumfacing.getXOffset() * 1.125F);
+                double d1 = source.getY() + (double)((float)enumfacing.getYOffset() * 1.125F);
+                double d2 = source.getZ() + (double)((float)enumfacing.getZOffset() * 1.125F);
                 BlockPos blockpos = source.getBlockPos().offset(enumfacing);
                 Material material = world.getBlockState(blockpos).getMaterial();
                 double d3;

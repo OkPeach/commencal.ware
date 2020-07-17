@@ -482,7 +482,7 @@ public class GuiStats extends GuiScreen implements IProgressMeter
             {
                 Item item = p_148213_1_.getItem();
                 ItemStack itemstack = new ItemStack(item);
-                String s = itemstack.getUnlocalizedName();
+                String s = itemstack.getTranslationKey();
                 String s1 = ("" + I18n.format(s + ".name")).trim();
 
                 if (!s1.isEmpty())

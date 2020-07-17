@@ -45,25 +45,25 @@ public class TileEntityItemStackRenderer
         this.renderByItem(itemStackIn, 1.0F);
     }
 
-    public void renderByItem(ItemStack p_192838_1_, float partialTicks)
+    public void renderByItem(ItemStack itemStackIn, float partialTicks)
     {
-        Item item = p_192838_1_.getItem();
+        Item item = itemStackIn.getItem();
 
         if (item == Items.BANNER)
         {
-            this.banner.setItemValues(p_192838_1_, false);
+            this.banner.setItemValues(itemStackIn, false);
             TileEntityRendererDispatcher.instance.render(this.banner, 0.0D, 0.0D, 0.0D, 0.0F, partialTicks);
         }
         else if (item == Items.BED)
         {
-            this.bed.setItemValues(p_192838_1_);
+            this.bed.setItemValues(itemStackIn);
             TileEntityRendererDispatcher.instance.render(this.bed, 0.0D, 0.0D, 0.0D, 0.0F);
         }
         else if (item == Items.SHIELD)
         {
-            if (p_192838_1_.getSubCompound("BlockEntityTag") != null)
+            if (itemStackIn.getSubCompound("BlockEntityTag") != null)
             {
-                this.banner.setItemValues(p_192838_1_, true);
+                this.banner.setItemValues(itemStackIn, true);
                 Minecraft.getMinecraft().getTextureManager().bindTexture(BannerTextures.SHIELD_DESIGNS.getResourceLocation(this.banner.getPatternResourceLocation(), this.banner.getPatternList(), this.banner.getColorList()));
             }
             else
@@ -80,9 +80,9 @@ public class TileEntityItemStackRenderer
         {
             GameProfile gameprofile = null;
 
-            if (p_192838_1_.hasTagCompound())
+            if (itemStackIn.hasTagCompound())
             {
-                NBTTagCompound nbttagcompound = p_192838_1_.getTagCompound();
+                NBTTagCompound nbttagcompound = itemStackIn.getTagCompound();
 
                 if (nbttagcompound.hasKey("SkullOwner", 10))
                 {
@@ -91,7 +91,7 @@ public class TileEntityItemStackRenderer
                 else if (nbttagcompound.hasKey("SkullOwner", 8) && !StringUtils.isBlank(nbttagcompound.getString("SkullOwner")))
                 {
                     GameProfile gameprofile1 = new GameProfile((UUID)null, nbttagcompound.getString("SkullOwner"));
-                    gameprofile = TileEntitySkull.updateGameprofile(gameprofile1);
+                    gameprofile = TileEntitySkull.updateGameProfile(gameprofile1);
                     nbttagcompound.removeTag("SkullOwner");
                     nbttagcompound.setTag("SkullOwner", NBTUtil.writeGameProfile(new NBTTagCompound(), gameprofile));
                 }
@@ -101,7 +101,7 @@ public class TileEntityItemStackRenderer
             {
                 GlStateManager.pushMatrix();
                 GlStateManager.disableCull();
-                TileEntitySkullRenderer.instance.renderSkull(0.0F, 0.0F, 0.0F, EnumFacing.UP, 180.0F, p_192838_1_.getMetadata(), gameprofile, -1, 0.0F);
+                TileEntitySkullRenderer.instance.renderSkull(0.0F, 0.0F, 0.0F, EnumFacing.UP, 180.0F, itemStackIn.getMetadata(), gameprofile, -1, 0.0F);
                 GlStateManager.enableCull();
                 GlStateManager.popMatrix();
             }
@@ -118,7 +118,7 @@ public class TileEntityItemStackRenderer
         {
             TileEntityRendererDispatcher.instance.render(SHULKER_BOXES[BlockShulkerBox.getColorFromItem(item).getMetadata()], 0.0D, 0.0D, 0.0D, 0.0F, partialTicks);
         }
-        else if (Block.getBlockFromItem(item) != Blocks.CHEST) net.minecraftforge.client.ForgeHooksClient.renderTileItem(p_192838_1_.getItem(), p_192838_1_.getMetadata());
+        else if (Block.getBlockFromItem(item) != Blocks.CHEST) net.minecraftforge.client.ForgeHooksClient.renderTileItem(itemStackIn.getItem(), itemStackIn.getMetadata());
         else
         {
             TileEntityRendererDispatcher.instance.render(this.chestBasic, 0.0D, 0.0D, 0.0D, 0.0F, partialTicks);

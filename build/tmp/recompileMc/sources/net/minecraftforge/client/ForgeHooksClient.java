@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,20 +22,14 @@ package net.minecraftforge.client;
 import static net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType.BOSSINFO;
 import static net.minecraftforge.common.ForgeVersion.Status.BETA;
 import static net.minecraftforge.common.ForgeVersion.Status.BETA_OUTDATED;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL20.*;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 
 import javax.annotation.Nonnull;
 import javax.vecmath.Matrix3f;
@@ -47,7 +41,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
-import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundManager;
 import net.minecraft.client.gui.BossInfoClient;
 import net.minecraft.client.gui.FontRenderer;
@@ -55,46 +48,31 @@ import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockFaceUV;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.block.model.ItemTransformVec3f;
 import net.minecraft.client.renderer.block.model.ModelManager;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.block.model.SimpleBakedModel;
-import net.minecraft.client.renderer.color.BlockColors;
-import net.minecraft.client.renderer.color.ItemColors;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
-import net.minecraft.client.resources.FoliageColorReloadListener;
-import net.minecraft.client.resources.GrassColorReloadListener;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.client.resources.IResourceManagerReloadListener;
-import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.client.settings.GameSettings;
-import net.minecraft.client.util.SearchTreeManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.passive.EntityHorse;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
@@ -113,7 +91,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.FOVUpdateEvent;
@@ -131,10 +108,6 @@ import net.minecraftforge.client.event.sound.PlaySoundEvent;
 import net.minecraftforge.client.model.ModelDynBucket;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.animation.Animation;
-import net.minecraftforge.client.resource.IResourceType;
-import net.minecraftforge.client.resource.SelectiveReloadStateHandler;
-import net.minecraftforge.client.resource.VanillaResourceType;
-import net.minecraftforge.client.model.pipeline.QuadGatheringTransformer;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.common.ForgeVersion.Status;
@@ -147,15 +120,9 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.FMLLog;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.logging.log4j.core.async.ThreadNameCachingStrategy;
-import org.apache.logging.log4j.core.impl.ReusableLogEventFactory;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
 
-import java.util.function.Predicate;
-
-import com.google.common.collect.Lists;
+import java.util.Optional;
 import com.google.common.collect.Maps;
 
 public class ForgeHooksClient
@@ -182,7 +149,7 @@ public class ForgeHooksClient
 
         if (block != null && block.isBed(state, world, pos, entity))
         {
-            GL11.glRotatef((float)(block.getBedDirection(state, world, pos).getHorizontalIndex() * 90), 0.0F, 1.0F, 0.0F);
+            glRotatef((float)(block.getBedDirection(state, world, pos).getHorizontalIndex() * 90), 0.0F, 1.0F, 0.0F);
         }
     }
 
@@ -216,16 +183,6 @@ public class ForgeHooksClient
     public static void onTextureStitchedPost(TextureMap map)
     {
         MinecraftForge.EVENT_BUS.post(new TextureStitchEvent.Post(map));
-    }
-
-    public static void onBlockColorsInit(BlockColors blockColors)
-    {
-        MinecraftForge.EVENT_BUS.post(new ColorHandlerEvent.Block(blockColors));
-    }
-
-    public static void onItemColorsInit(ItemColors itemColors, BlockColors blockColors)
-    {
-        MinecraftForge.EVENT_BUS.post(new ColorHandlerEvent.Item(itemColors, blockColors));
     }
 
     static int renderPass = -1;
@@ -415,6 +372,29 @@ public class ForgeHooksClient
         modelLoader.onPostBakeEvent(modelRegistry);
     }
 
+    @SuppressWarnings("deprecation")
+    public static Matrix4f getMatrix(net.minecraft.client.renderer.block.model.ItemTransformVec3f transform)
+    {
+        javax.vecmath.Matrix4f m = new javax.vecmath.Matrix4f(), t = new javax.vecmath.Matrix4f();
+        m.setIdentity();
+        m.setTranslation(TRSRTransformation.toVecmath(transform.translation));
+        t.setIdentity();
+        t.rotY(transform.rotation.y);
+        m.mul(t);
+        t.setIdentity();
+        t.rotX(transform.rotation.x);
+        m.mul(t);
+        t.setIdentity();
+        t.rotZ(transform.rotation.z);
+        m.mul(t);
+        t.setIdentity();
+        t.m00 = transform.scale.x;
+        t.m11 = transform.scale.y;
+        t.m22 = transform.scale.z;
+        m.mul(t);
+        return m;
+    }
+
     private static final Matrix4f flipX;
     static {
         flipX = new Matrix4f();
@@ -451,7 +431,7 @@ public class ForgeHooksClient
             matrixBuf.put(t);
         }
         matrixBuf.flip();
-        GL11.glMultMatrix(matrixBuf);
+        glMultMatrix(matrixBuf);
     }
 
     // moved and expanded from WorldVertexBufferUploader.draw
@@ -465,33 +445,32 @@ public class ForgeHooksClient
         switch(attrType)
         {
             case POSITION:
-                GlStateManager.glVertexPointer(count, constant, stride, buffer);
-                GlStateManager.glEnableClientState(GL11.GL_VERTEX_ARRAY);
+                glVertexPointer(count, constant, stride, buffer);
+                glEnableClientState(GL_VERTEX_ARRAY);
                 break;
             case NORMAL:
                 if(count != 3)
                 {
                     throw new IllegalArgumentException("Normal attribute should have the size 3: " + attr);
                 }
-                GlStateManager.glNormalPointer(constant, stride, buffer);
-                GlStateManager.glEnableClientState(GL11.GL_NORMAL_ARRAY);
+                glNormalPointer(constant, stride, buffer);
+                glEnableClientState(GL_NORMAL_ARRAY);
                 break;
             case COLOR:
-                GlStateManager.glColorPointer(count, constant, stride, buffer);
-                GlStateManager.glEnableClientState(GL11.GL_COLOR_ARRAY);
+                glColorPointer(count, constant, stride, buffer);
+                glEnableClientState(GL_COLOR_ARRAY);
                 break;
             case UV:
                 OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit + attr.getIndex());
-                GlStateManager.glTexCoordPointer(count, constant, stride, buffer);
-                GlStateManager.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+                glTexCoordPointer(count, constant, stride, buffer);
+                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                 OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
                 break;
             case PADDING:
                 break;
             case GENERIC:
-                GL20.glEnableVertexAttribArray(attr.getIndex());
-                GL20.glVertexAttribPointer(attr.getIndex(), count, constant, false, stride, buffer);
-                break;
+                glEnableVertexAttribArray(attr.getIndex());
+                glVertexAttribPointer(attr.getIndex(), count, constant, false, stride, buffer);
             default:
                 FMLLog.log.fatal("Unimplemented vanilla attribute upload: {}", attrType.getDisplayName());
         }
@@ -503,26 +482,25 @@ public class ForgeHooksClient
         switch(attrType)
         {
             case POSITION:
-                GlStateManager.glDisableClientState(GL11.GL_VERTEX_ARRAY);
+                glDisableClientState(GL_VERTEX_ARRAY);
                 break;
             case NORMAL:
-                GlStateManager.glDisableClientState(GL11.GL_NORMAL_ARRAY);
+                glDisableClientState(GL_NORMAL_ARRAY);
                 break;
             case COLOR:
-                GlStateManager.glDisableClientState(GL11.GL_COLOR_ARRAY);
+                glDisableClientState(GL_COLOR_ARRAY);
                 // is this really needed?
                 GlStateManager.resetColor();
                 break;
             case UV:
                 OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit + attr.getIndex());
-                GlStateManager.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
                 OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
                 break;
             case PADDING:
                 break;
             case GENERIC:
-                GL20.glDisableVertexAttribArray(attr.getIndex());
-                break;
+                glDisableVertexAttribArray(attr.getIndex());
             default:
                 FMLLog.log.fatal("Unimplemented vanilla attribute upload: {}", attrType.getDisplayName());
         }
@@ -538,7 +516,7 @@ public class ForgeHooksClient
 
     public static Matrix4f getMatrix(ModelRotation modelRotation)
     {
-        Matrix4f ret = new Matrix4f(TRSRTransformation.toVecmath(modelRotation.getMatrix4d())), tmp = new Matrix4f();
+        Matrix4f ret = new Matrix4f(TRSRTransformation.toVecmath(modelRotation.matrix())), tmp = new Matrix4f();
         tmp.setIdentity();
         tmp.m03 = tmp.m13 = tmp.m23 = .5f;
         ret.mul(tmp, ret);
@@ -557,10 +535,9 @@ public class ForgeHooksClient
         VertexFormat format = quad.getFormat();
         int size = format.getIntegerSize();
         int offset = format.getColorOffset() / 4; // assumes that color is aligned
-        boolean hasColor = format.hasColor();
         for(int i = 0; i < 4; i++)
         {
-            int vc = hasColor ? quad.getVertexData()[offset + size * i] : 0xFFFFFFFF;
+            int vc = quad.getVertexData()[offset + size * i];
             float vcr = vc & 0xFF;
             float vcg = (vc >>> 8) & 0xFF;
             float vcb = (vc >>> 16) & 0xFF;
@@ -589,176 +566,12 @@ public class ForgeHooksClient
     }
 
     /**
-     * @deprecated Will be removed as soon as possible.  See {@link Item#getTileEntityItemStackRenderer()}.
+     * @deprecated Will be removed as soon as possible, hopefully 1.9.
      */
     @Deprecated
     public static void registerTESRItemStack(Item item, int metadata, Class<? extends TileEntity> TileClass)
     {
         tileItemMap.put(Pair.of(item, metadata), TileClass);
-    }
-    
-    private static class LightGatheringTransformer extends QuadGatheringTransformer {
-        
-        private static final VertexFormat FORMAT = new VertexFormat().addElement(DefaultVertexFormats.TEX_2F).addElement(DefaultVertexFormats.TEX_2S);
-        
-        int blockLight, skyLight;
-        
-        { setVertexFormat(FORMAT); }
-        
-        boolean hasLighting() 
-        {
-            return dataLength[1] >= 2;
-        }
-
-        @Override
-        protected void processQuad() 
-        {
-            // Reset light data
-            blockLight = 0;
-            skyLight = 0;
-            // Compute average light for all 4 vertices
-            for (int i = 0; i < 4; i++) 
-            {
-                blockLight += (int) ((quadData[1][i][0] * 0xFFFF) / 0x20);
-                skyLight += (int) ((quadData[1][i][1] * 0xFFFF) / 0x20);
-            }
-            // Values must be multiplied by 16, divided by 4 for average => x4
-            blockLight *= 4;
-            skyLight *= 4;
-        }
-        
-        // Dummy overrides
-
-        @Override
-        public void setQuadTint(int tint) {}
-
-        @Override
-        public void setQuadOrientation(EnumFacing orientation) {}
-
-        @Override
-        public void setApplyDiffuseLighting(boolean diffuse) {}
-
-        @Override
-        public void setTexture(TextureAtlasSprite texture) {}
-    }
-    
-    private static final LightGatheringTransformer lightGatherer = new LightGatheringTransformer();
-
-    public static void renderLitItem(RenderItem ri, IBakedModel model, int color, ItemStack stack)
-    {
-        List<BakedQuad> allquads = new ArrayList<>();
-
-        for (EnumFacing enumfacing : EnumFacing.VALUES)
-        {
-            allquads.addAll(model.getQuads(null, enumfacing, 0));
-        }
-
-        allquads.addAll(model.getQuads(null, null, 0));
-
-        if (allquads.isEmpty()) return;
-
-        // Current list of consecutive quads with the same lighting
-        List<BakedQuad> segment = new ArrayList<>();
-
-        // Lighting of the current segment
-        int segmentBlockLight = 0;
-        int segmentSkyLight = 0;
-        // Diffuse lighting state
-        boolean segmentShading = true;
-        // State changed by the current segment
-        boolean segmentLightingDirty = false;
-        boolean segmentShadingDirty = false;
-        // If the current segment contains lighting data
-        boolean hasLighting = false;
-
-        for (int i = 0; i < allquads.size(); i++) 
-        {
-            BakedQuad q = allquads.get(i);
-
-            // Lighting of the current quad
-            int bl = 0;
-            int sl = 0;
-
-            // Fail-fast on ITEM, as it cannot have light data
-            if (q.getFormat() != DefaultVertexFormats.ITEM && q.getFormat().hasUvOffset(1))
-            {
-                q.pipe(lightGatherer);
-                if (lightGatherer.hasLighting())
-                {
-                    bl = lightGatherer.blockLight;
-                    sl = lightGatherer.skyLight;
-                }
-            }
-
-            boolean shade = q.shouldApplyDiffuseLighting();
-
-            boolean lightingDirty = segmentBlockLight != bl || segmentSkyLight != sl;
-            boolean shadeDirty = shade != segmentShading; 
-
-            // If lighting or color data has changed, draw the segment and flush it
-            if (lightingDirty || shadeDirty)
-            {
-                if (i > 0) // Make sure this isn't the first quad being processed
-                {
-                    drawSegment(ri, color, stack, segment, segmentBlockLight, segmentSkyLight, segmentShading, segmentLightingDirty && (hasLighting || segment.size() < i), segmentShadingDirty);
-                }
-                segmentBlockLight = bl;
-                segmentSkyLight = sl;
-                segmentShading = shade;
-                segmentLightingDirty = lightingDirty;
-                segmentShadingDirty = shadeDirty;
-                hasLighting = segmentBlockLight > 0 || segmentSkyLight > 0 || !segmentShading;
-            }
-
-            segment.add(q);
-        }
-
-        drawSegment(ri, color, stack, segment, segmentBlockLight, segmentSkyLight, segmentShading, segmentLightingDirty && (hasLighting || segment.size() < allquads.size()), segmentShadingDirty);
-
-        // Clean up render state if necessary
-        if (hasLighting)
-        {
-            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, OpenGlHelper.lastBrightnessX, OpenGlHelper.lastBrightnessY);
-            GlStateManager.enableLighting();
-        }
-    }
-
-    private static void drawSegment(RenderItem ri, int baseColor, ItemStack stack, List<BakedQuad> segment, int bl, int sl, boolean shade, boolean updateLighting, boolean updateShading)
-    {
-        BufferBuilder bufferbuilder = Tessellator.getInstance().getBuffer();
-        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
-
-        float lastBl = OpenGlHelper.lastBrightnessX;
-        float lastSl = OpenGlHelper.lastBrightnessY;
-
-        if (updateShading)
-        {
-            if (shade)
-            {
-                // (Re-)enable lighting for normal look with shading
-                GlStateManager.enableLighting();
-            }
-            else
-            {
-                // Disable lighting to simulate a lack of diffuse lighting
-                GlStateManager.disableLighting();
-            }
-        }
-        
-        if (updateLighting)
-        {
-            // Force lightmap coords to simulate synthetic lighting
-            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, Math.max(bl, lastBl), Math.max(sl, lastSl));
-        }
-
-        ri.renderQuads(bufferbuilder, segment, baseColor, stack);
-        Tessellator.getInstance().draw();
-
-        // Preserve this as it represents the "world" lighting
-        OpenGlHelper.lastBrightnessX = lastBl;
-        OpenGlHelper.lastBrightnessY = lastSl;
-
-        segment.clear();
     }
 
     /**
@@ -799,16 +612,10 @@ public class ForgeHooksClient
     }
 
     @SuppressWarnings("deprecation")
-    public static Optional<TRSRTransformation> applyTransform(ItemTransformVec3f transform, Optional<? extends IModelPart> part)
+    public static Optional<TRSRTransformation> applyTransform(net.minecraft.client.renderer.block.model.ItemTransformVec3f transform, Optional<? extends IModelPart> part)
     {
         if(part.isPresent()) return Optional.empty();
-        return Optional.of(TRSRTransformation.blockCenterToCorner(TRSRTransformation.from(transform)));
-    }
-
-    public static Optional<TRSRTransformation> applyTransform(ModelRotation rotation, Optional<? extends IModelPart> part)
-    {
-        if(part.isPresent()) return Optional.empty();
-        return Optional.of(TRSRTransformation.from(rotation));
+        return Optional.of(TRSRTransformation.blockCenterToCorner(new TRSRTransformation(transform)));
     }
 
     public static Optional<TRSRTransformation> applyTransform(Matrix4f matrix, Optional<? extends IModelPart> part)
@@ -864,29 +671,25 @@ public class ForgeHooksClient
         TRSRTransformation global = new TRSRTransformation(rotation.getMatrix());
         Matrix4f uv = global.getUVLockTransform(originalSide).getMatrix();
         Vector4f vec = new Vector4f(0, 0, 0, 1);
-        float u0 = blockFaceUV.getVertexU(blockFaceUV.getVertexRotatedRev(0));
-        float v0 = blockFaceUV.getVertexV(blockFaceUV.getVertexRotatedRev(0));
-        vec.x = u0 / 16;
-        vec.y = v0 / 16;
+        vec.x = blockFaceUV.getVertexU(blockFaceUV.getVertexRotatedRev(0)) / 16;
+        vec.y = blockFaceUV.getVertexV(blockFaceUV.getVertexRotatedRev(0)) / 16;
         uv.transform(vec);
         float uMin = 16 * vec.x; // / vec.w;
         float vMin = 16 * vec.y; // / vec.w;
-        float u1 = blockFaceUV.getVertexU(blockFaceUV.getVertexRotatedRev(2));
-        float v1 = blockFaceUV.getVertexV(blockFaceUV.getVertexRotatedRev(2));
-        vec.x = u1 / 16;
-        vec.y = v1 / 16;
+        vec.x = blockFaceUV.getVertexU(blockFaceUV.getVertexRotatedRev(2)) / 16;
+        vec.y = blockFaceUV.getVertexV(blockFaceUV.getVertexRotatedRev(2)) / 16;
         vec.z = 0;
         vec.w = 1;
         uv.transform(vec);
         float uMax = 16 * vec.x; // / vec.w;
         float vMax = 16 * vec.y; // / vec.w;
-        if (uMin > uMax && u0 < u1 || uMin < uMax && u0 > u1)
+        if(uMin > uMax)
         {
             float t = uMin;
             uMin = uMax;
             uMax = t;
         }
-        if (vMin > vMax && v0 < v1 || vMin < vMax && v0 > v1)
+        if(vMin > vMax)
         {
             float t = vMin;
             vMin = vMax;
@@ -924,62 +727,14 @@ public class ForgeHooksClient
     @SuppressWarnings("deprecation")
     public static Pair<? extends IBakedModel,Matrix4f> handlePerspective(IBakedModel model, ItemCameraTransforms.TransformType type)
     {
-        TRSRTransformation tr = TRSRTransformation.from(model.getItemCameraTransforms().getTransform(type));
+        TRSRTransformation tr = new TRSRTransformation(model.getItemCameraTransforms().getTransform(type));
         Matrix4f mat = null;
-        if (!tr.isIdentity()) mat = tr.getMatrix();
+        if(!tr.equals(TRSRTransformation.identity())) mat = tr.getMatrix();
         return Pair.of(model, mat);
     }
 
     public static void onInputUpdate(EntityPlayer player, MovementInput movementInput)
     {
         MinecraftForge.EVENT_BUS.post(new InputUpdateEvent(player, movementInput));
-    }
-
-    public static String getHorseArmorTexture(EntityHorse horse, ItemStack armorStack)
-    {
-        String texture = armorStack.getItem().getHorseArmorTexture(horse, armorStack);
-        if(texture == null) texture = horse.getHorseArmorType().getTextureName();
-        return texture;
-    }
-
-    public static boolean shouldUseVanillaReloadableListener(IResourceManagerReloadListener listener)
-    {
-        Predicate<IResourceType> predicate = SelectiveReloadStateHandler.INSTANCE.get();
-
-        if (listener instanceof ModelManager || listener instanceof RenderItem)
-            return predicate.test(VanillaResourceType.MODELS);
-        else if (listener instanceof BlockRendererDispatcher || listener instanceof RenderGlobal)
-            return predicate.test(VanillaResourceType.MODELS);
-        else if (listener instanceof TextureManager || listener instanceof FontRenderer)
-            return predicate.test(VanillaResourceType.TEXTURES);
-        else if (listener instanceof FoliageColorReloadListener || listener instanceof GrassColorReloadListener)
-            return predicate.test(VanillaResourceType.TEXTURES);
-        else if (listener instanceof SoundHandler)
-            return predicate.test(VanillaResourceType.SOUNDS);
-        else if (listener instanceof EntityRenderer)
-            return predicate.test(VanillaResourceType.SHADERS);
-        else if (listener instanceof LanguageManager || listener instanceof SearchTreeManager)
-            return predicate.test(VanillaResourceType.LANGUAGES);
-
-        return true;
-   }
-
-    // Resets cached thread fields in ThreadNameCachingStrategy and ReusableLogEventFactory to be repopulated during their next access.
-    // This serves a workaround for no built-in method of triggering this type of refresh as brought up by LOG4J2-2178.
-    public static void invalidateLog4jThreadCache()
-    {
-        try
-        {
-            Field nameField = ThreadNameCachingStrategy.class.getDeclaredField("THREADLOCAL_NAME");
-            Field logEventField = ReusableLogEventFactory.class.getDeclaredField("mutableLogEventThreadLocal");
-            nameField.setAccessible(true);
-            logEventField.setAccessible(true);
-            ((ThreadLocal<?>) nameField.get(null)).set(null);
-            ((ThreadLocal<?>) logEventField.get(null)).set(null);
-        }
-        catch (ReflectiveOperationException | NoClassDefFoundError e)
-        {
-            FMLLog.log.error("Unable to invalidate log4j thread cache, thread fields in logs may be inaccurate", e);
-        }
     }
 }

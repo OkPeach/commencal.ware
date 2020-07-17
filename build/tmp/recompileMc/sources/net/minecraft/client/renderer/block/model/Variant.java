@@ -100,7 +100,7 @@ public class Variant implements net.minecraftforge.client.model.ISmartVariant
             private ResourceLocation getResourceLocationBlock(String p_188041_1_)
             {
                 ResourceLocation resourcelocation = new ResourceLocation(p_188041_1_);
-                resourcelocation = new ResourceLocation(resourcelocation.getResourceDomain(), "block/" + resourcelocation.getResourcePath());
+                resourcelocation = new ResourceLocation(resourcelocation.getNamespace(), "block/" + resourcelocation.getPath());
                 return resourcelocation;
             }
 

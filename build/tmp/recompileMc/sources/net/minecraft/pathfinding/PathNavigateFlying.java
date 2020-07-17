@@ -9,9 +9,9 @@ import net.minecraft.world.World;
 
 public class PathNavigateFlying extends PathNavigate
 {
-    public PathNavigateFlying(EntityLiving p_i47412_1_, World p_i47412_2_)
+    public PathNavigateFlying(EntityLiving entityIn, World worldIn)
     {
-        super(p_i47412_1_, p_i47412_2_);
+        super(entityIn, worldIn);
     }
 
     protected PathFinder getPathFinder()
@@ -161,19 +161,19 @@ public class PathNavigateFlying extends PathNavigate
         }
     }
 
-    public void setCanOpenDoors(boolean p_192879_1_)
+    public void setCanOpenDoors(boolean canOpenDoorsIn)
     {
-        this.nodeProcessor.setCanOpenDoors(p_192879_1_);
+        this.nodeProcessor.setCanOpenDoors(canOpenDoorsIn);
     }
 
-    public void setCanEnterDoors(boolean p_192878_1_)
+    public void setCanEnterDoors(boolean canEnterDoorsIn)
     {
-        this.nodeProcessor.setCanEnterDoors(p_192878_1_);
+        this.nodeProcessor.setCanEnterDoors(canEnterDoorsIn);
     }
 
-    public void setCanFloat(boolean p_192877_1_)
+    public void setCanFloat(boolean canFloatIn)
     {
-        this.nodeProcessor.setCanSwim(p_192877_1_);
+        this.nodeProcessor.setCanSwim(canFloatIn);
     }
 
     public boolean canFloat()

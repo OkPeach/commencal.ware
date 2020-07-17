@@ -211,7 +211,7 @@ public class EntityEnderman extends EntityMob
         {
             Vec3d vec3d = player.getLook(1.0F).normalize();
             Vec3d vec3d1 = new Vec3d(this.posX - player.posX, this.getEntityBoundingBox().minY + (double)this.getEyeHeight() - (player.posY + (double)player.getEyeHeight()), this.posZ - player.posZ);
-            double d0 = vec3d1.lengthVector();
+            double d0 = vec3d1.length();
             vec3d1 = vec3d1.normalize();
             double d1 = vec3d.dotProduct(vec3d1);
             return d1 > 1.0D - 0.025D / d0 ? player.canEntityBeSeen(this) : false;
@@ -556,7 +556,7 @@ public class EntityEnderman extends EntityMob
                 {
                     return false;
                 }
-                else if (!net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.enderman.world, this.enderman))
+                else if (!this.enderman.world.getGameRules().getBoolean("mobGriefing"))
                 {
                     return false;
                 }
@@ -581,7 +581,7 @@ public class EntityEnderman extends EntityMob
                 IBlockState iblockstate1 = world.getBlockState(blockpos.down());
                 IBlockState iblockstate2 = this.enderman.getHeldBlockState();
 
-                if (iblockstate2 != null && this.canPlaceBlock(world, blockpos, iblockstate2.getBlock(), iblockstate, iblockstate1) && net.minecraftforge.event.ForgeEventFactory.onBlockPlace(enderman, new net.minecraftforge.common.util.BlockSnapshot(world, blockpos, iblockstate2), net.minecraft.util.EnumFacing.UP).isCanceled())
+                if (iblockstate2 != null && this.canPlaceBlock(world, blockpos, iblockstate2.getBlock(), iblockstate, iblockstate1))
                 {
                     world.setBlockState(blockpos, iblockstate2, 3);
                     this.enderman.setHeldBlockState((IBlockState)null);
@@ -627,7 +627,7 @@ public class EntityEnderman extends EntityMob
                 {
                     return false;
                 }
-                else if (!net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.enderman.world, this.enderman))
+                else if (!this.enderman.world.getGameRules().getBoolean("mobGriefing"))
                 {
                     return false;
                 }

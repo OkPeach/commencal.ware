@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,5 +25,5 @@ import net.minecraft.entity.Entity;
 
 public interface IRenderFactory<T extends Entity>
 {
-    Render<? super T> createRenderFor(RenderManager manager);
+    public Render<? super T> createRenderFor(RenderManager manager);
 }

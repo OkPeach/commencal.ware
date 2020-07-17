@@ -42,7 +42,7 @@ public class ItemMonsterPlacer extends Item
 
     public String getItemStackDisplayName(ItemStack stack)
     {
-        String s = ("" + I18n.translateToLocal(this.getUnlocalizedName() + ".name")).trim();
+        String s = ("" + I18n.translateToLocal(this.getTranslationKey() + ".name")).trim();
         String s1 = EntityList.getTranslationName(getNamedIdFrom(stack));
 
         if (s1 != null)
@@ -247,7 +247,6 @@ public class ItemMonsterPlacer extends Item
                     entity.setLocationAndAngles(x, y, z, MathHelper.wrapDegrees(worldIn.rand.nextFloat() * 360.0F), 0.0F);
                     entityliving.rotationYawHead = entityliving.rotationYaw;
                     entityliving.renderYawOffset = entityliving.rotationYaw;
-                    if (net.minecraftforge.event.ForgeEventFactory.doSpecialSpawn(entityliving, worldIn, (float) x, (float) y, (float) z, null)) return null;
                     entityliving.onInitialSpawn(worldIn.getDifficultyForLocation(new BlockPos(entityliving)), (IEntityLivingData)null);
                     worldIn.spawnEntity(entity);
                     entityliving.playLivingSound();

@@ -150,7 +150,6 @@ public class VillageSiege
 
                     if (vec3d != null)
                     {
-                        if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.village.VillageSiegeEvent(this, world, entityplayer, village, vec3d))) return false;
                         break;
                     }
                 }

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,13 +22,11 @@ package net.minecraftforge.client.model.animation;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.TreeMap;
 
 import javax.annotation.Nullable;
@@ -36,6 +34,8 @@ import javax.vecmath.AxisAngle4f;
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
+
+import org.apache.logging.log4j.Level;
 
 import net.minecraft.client.renderer.block.model.BlockPart;
 import net.minecraft.client.resources.IResource;
@@ -55,6 +55,7 @@ import net.minecraftforge.common.model.animation.JointClips;
 import net.minecraftforge.common.util.JsonUtils;
 import net.minecraftforge.fml.common.FMLLog;
 
+import java.util.Optional;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -418,16 +419,43 @@ public class ModelBlockAnimation
     protected static class MBJoint implements IJoint
     {
         private final String name;
+        private final TRSRTransformation invBindPose;
 
-        public MBJoint(String name)
+        public MBJoint(String name, BlockPart part)
         {
             this.name = name;
+            if(part.partRotation != null)
+            {
+                float x = 0, y = 0, z = 0;
+                switch(part.partRotation.axis)
+                {
+                    case X:
+                        x = 1;
+                    case Y:
+                        y = 1;
+                    case Z:
+                        z = 1;
+                }
+                Quat4f rotation = new Quat4f();
+                rotation.set(new AxisAngle4f(x, y, z, 0));
+                Matrix4f m = new TRSRTransformation(
+                    TRSRTransformation.toVecmath(part.partRotation.origin),
+                    rotation,
+                    null,
+                    null).getMatrix();
+                m.invert();
+                invBindPose = new TRSRTransformation(m);
+            }
+            else
+            {
+                invBindPose = TRSRTransformation.identity();
+            }
         }
 
         @Override
         public TRSRTransformation getInvBindPose()
         {
-            return TRSRTransformation.identity();
+            return invBindPose;
         }
 
         @Override
@@ -525,9 +553,9 @@ public class ModelBlockAnimation
             {
                 if(info.getWeights().containsKey(i))
                 {
-                    ModelBlockAnimation.MBJoint joint = new ModelBlockAnimation.MBJoint(info.getName());
+                    ModelBlockAnimation.MBJoint joint = new ModelBlockAnimation.MBJoint(info.getName(), part);
                     Optional<TRSRTransformation> trOp = state.apply(Optional.of(joint));
-                    if(trOp.isPresent() && !trOp.get().isIdentity())
+                    if(trOp.isPresent() && trOp.get() != TRSRTransformation.identity())
                     {
                         float w = info.getWeights().get(i)[0];
                         tmp = trOp.get().getMatrix();
@@ -553,17 +581,19 @@ public class ModelBlockAnimation
     {
         try
         {
-            try (IResource resource = manager.getResource(armatureLocation))
+            IResource resource = null;
+            try
             {
-                ModelBlockAnimation mba = mbaGson.fromJson(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8), ModelBlockAnimation.class);
-                //String json = mbaGson.toJson(mba);
-                return mba;
+                resource = manager.getResource(armatureLocation);
             }
             catch(FileNotFoundException e)
             {
                 // this is normal. FIXME: error reporting?
                 return defaultModelBlockAnimation;
             }
+            ModelBlockAnimation mba = mbaGson.fromJson(new InputStreamReader(resource.getInputStream(), "UTF-8"), ModelBlockAnimation.class);
+            //String json = mbaGson.toJson(mba);
+            return mba;
         }
         catch(IOException | JsonParseException e)
         {

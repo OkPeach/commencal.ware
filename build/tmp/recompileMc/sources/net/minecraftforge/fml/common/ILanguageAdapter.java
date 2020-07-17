@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,11 +25,13 @@ import java.lang.reflect.Method;
 
 import net.minecraftforge.fml.relauncher.Side;
 
+import org.apache.logging.log4j.Level;
+
 public interface ILanguageAdapter {
-    Object getNewInstance(FMLModContainer container, Class<?> objectClass, ClassLoader classLoader, Method factoryMarkedAnnotation) throws Exception;
-    boolean supportsStatics();
-    void setProxy(Field target, Class<?> proxyTarget, Object proxy) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException;
-    void setInternalProxies(ModContainer mod, Side side, ClassLoader loader);
+    public Object getNewInstance(FMLModContainer container, Class<?> objectClass, ClassLoader classLoader, Method factoryMarkedAnnotation) throws Exception;
+    public boolean supportsStatics();
+    public void setProxy(Field target, Class<?> proxyTarget, Object proxy) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException;
+    public void setInternalProxies(ModContainer mod, Side side, ClassLoader loader);
 
     public static class ScalaAdapter implements ILanguageAdapter {
         @Override
@@ -108,7 +110,7 @@ public interface ILanguageAdapter {
             }
             catch (InvocationTargetException e)
             {
-                FMLLog.log.error("An error occurred trying to load a proxy into {}.{}", proxyTarget.getSimpleName(), target.getName(), e);
+                FMLLog.log.error("An error occurred trying to load a proxy into {}.{}", target.getName(), e);
                 throw new LoaderException(e);
             }
 
@@ -165,7 +167,7 @@ public interface ILanguageAdapter {
                             setProxy(target, proxyTarget, proxy);
                         }
                         catch (Exception e) {
-                            FMLLog.log.error("An error occurred trying to load a proxy into {}.{}", proxyTarget.getSimpleName(), target.getName(), e);
+                            FMLLog.log.error("An error occurred trying to load a proxy into {}.{}", target.getName(), e);
                             throw new LoaderException(e);
                         }
                     }

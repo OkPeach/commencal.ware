@@ -111,12 +111,22 @@ public class EntityZombieVillager extends EntityZombie
 
     /**
      * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
-     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
+     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory.
+     *  
+     * The livingdata parameter is used to pass data between all instances during a pack spawn. It will be null on the
+     * first call. Subclasses may check if it's null, and then create a new one and return it if so, initializing all
+     * entities in the pack with the contained data.
+     *  
+     * @return The IEntityLivingData to pass to this method for other instances of this entity class within the same
+     * pack
+     *  
+     * @param difficulty The current local difficulty
+     * @param livingdata Shared spawn data. Will usually be null. (See return value for more information)
      */
     @Nullable
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)
     {
-        net.minecraftforge.fml.common.registry.VillagerRegistry.setRandomProfession(this, this.world.rand);
+        this.setProfession(this.world.rand.nextInt(6));
         return super.onInitialSpawn(difficulty, livingdata);
     }
 
@@ -191,7 +201,7 @@ public class EntityZombieVillager extends EntityZombie
         this.conversionTime = conversionTimeIn;
         this.getDataManager().set(CONVERTING, Boolean.valueOf(true));
         this.removePotionEffect(MobEffects.WEAKNESS);
-        this.addPotionEffect(new PotionEffect(MobEffects.STRENGTH, conversionTimeIn, Math.min(this.world.getDifficulty().getDifficultyId() - 1, 0)));
+        this.addPotionEffect(new PotionEffect(MobEffects.STRENGTH, conversionTimeIn, Math.min(this.world.getDifficulty().getId() - 1, 0)));
         this.world.setEntityState(this, (byte)16);
     }
 

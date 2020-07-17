@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -43,7 +43,6 @@ public class BiomeDictionary
     {
 
         private static final Map<String, Type> byName = new HashMap<String, Type>();
-        private static Collection<Type> allTypes = Collections.unmodifiableCollection(byName.values());
 
         /*Temperature-based tags. Specifying neither implies a biome is temperate*/
         public static final Type HOT = new Type("HOT");
@@ -150,14 +149,6 @@ public class BiomeDictionary
                 t = new Type(name, subTypes);
             }
             return t;
-        }
-        
-        /**
-         * @return An unmodifiable collection of all current biome types.
-         */
-        public static Collection<Type> getAll()
-        {
-            return allTypes;
         }
     }
 
@@ -347,20 +338,20 @@ public class BiomeDictionary
             BiomeDictionary.addTypes(biome, SNOWY);
         }
 
-        if (biome.topBlock.getBlock() != Blocks.SAND && biome.getDefaultTemperature() >= 1.0f && biome.getRainfall() < 0.2f)
+        if (biome.topBlock != Blocks.SAND && biome.getDefaultTemperature() >= 1.0f && biome.getRainfall() < 0.2f)
         {
             BiomeDictionary.addTypes(biome, SAVANNA);
         }
 
-        if (biome.topBlock.getBlock() == Blocks.SAND)
+        if (biome.topBlock == Blocks.SAND)
         {
             BiomeDictionary.addTypes(biome, SANDY);
         }
-        else if (biome.topBlock.getBlock() == Blocks.MYCELIUM)
+        else if (biome.topBlock == Blocks.MYCELIUM)
         {
             BiomeDictionary.addTypes(biome, MUSHROOM);
         }
-        if (biome.fillerBlock.getBlock() == Blocks.HARDENED_CLAY)
+        if (biome.fillerBlock == Blocks.HARDENED_CLAY)
         {
             BiomeDictionary.addTypes(biome, MESA);
         }
@@ -443,9 +434,9 @@ public class BiomeDictionary
         addTypes(Biomes.EXTREME_HILLS_WITH_TREES,         MOUNTAIN, FOREST,     SPARSE                            );
         addTypes(Biomes.SAVANNA,                          HOT,      SAVANNA,    PLAINS,   SPARSE                  );
         addTypes(Biomes.SAVANNA_PLATEAU,                  HOT,      SAVANNA,    PLAINS,   SPARSE,   RARE          );
-        addTypes(Biomes.MESA,                             MESA,     SANDY,      DRY                               );
-        addTypes(Biomes.MESA_ROCK,                        MESA,     SANDY,      DRY,      SPARSE                  );
-        addTypes(Biomes.MESA_CLEAR_ROCK,                  MESA,     SANDY,      DRY                               );
+        addTypes(Biomes.MESA,                             MESA,     SANDY                                         );
+        addTypes(Biomes.MESA_ROCK,                        MESA,     SPARSE,     SANDY                             );
+        addTypes(Biomes.MESA_CLEAR_ROCK,                  MESA,     SANDY                                         );
         addTypes(Biomes.VOID,                             VOID                                                    );
         addTypes(Biomes.MUTATED_PLAINS,                   PLAINS,   RARE                                          );
         addTypes(Biomes.MUTATED_DESERT,                   HOT,      DRY,        SANDY,    RARE                    );
@@ -465,9 +456,9 @@ public class BiomeDictionary
         addTypes(Biomes.MUTATED_EXTREME_HILLS_WITH_TREES, MOUNTAIN, SPARSE,     RARE                              );
         addTypes(Biomes.MUTATED_SAVANNA,                  HOT,      DRY,        SPARSE,   SAVANNA,  MOUNTAIN, RARE);
         addTypes(Biomes.MUTATED_SAVANNA_ROCK,             HOT,      DRY,        SPARSE,   SAVANNA,  HILLS,    RARE);
-        addTypes(Biomes.MUTATED_MESA,                     HOT,      DRY,        SPARSE,   MOUNTAIN, RARE          );
+        addTypes(Biomes.MUTATED_MESA,                     HOT,      DRY,        SPARSE,   SAVANNA,  MOUNTAIN, RARE);
         addTypes(Biomes.MUTATED_MESA_ROCK,                HOT,      DRY,        SPARSE,   HILLS,    RARE          );
-        addTypes(Biomes.MUTATED_MESA_CLEAR_ROCK,          HOT,      DRY,        SPARSE,   MOUNTAIN, RARE          );
+        addTypes(Biomes.MUTATED_MESA_CLEAR_ROCK,          HOT,      DRY,        SPARSE,   SAVANNA,  MOUNTAIN, RARE);
 
 
         if (DEBUG)

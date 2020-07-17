@@ -65,7 +65,7 @@ public class VillageDoorInfo
     {
         int i = pos.getX() - this.doorBlockPos.getX();
         int j = pos.getZ() - this.doorBlockPos.getY();
-        return i * this.insideDirection.getFrontOffsetX() + j * this.insideDirection.getFrontOffsetZ() >= 0;
+        return i * this.insideDirection.getXOffset() + j * this.insideDirection.getZOffset() >= 0;
     }
 
     public void resetDoorOpeningRestrictionCounter()
@@ -95,12 +95,12 @@ public class VillageDoorInfo
 
     public int getInsideOffsetX()
     {
-        return this.insideDirection.getFrontOffsetX() * 2;
+        return this.insideDirection.getXOffset() * 2;
     }
 
     public int getInsideOffsetZ()
     {
-        return this.insideDirection.getFrontOffsetZ() * 2;
+        return this.insideDirection.getZOffset() * 2;
     }
 
     public int getLastActivityTimestamp()

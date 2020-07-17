@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -31,11 +31,11 @@ public interface IThrowableEntity
      * Gets the entity that threw/created this entity.
      * @return The owner instance, Null if none.
      */
-    Entity getThrower();
+    public Entity getThrower();
 
     /**
      * Sets the entity that threw/created this entity.
      * @param entity The new thrower/creator.
      */
-    void setThrower(Entity entity);
+    public void setThrower(Entity entity);
 }

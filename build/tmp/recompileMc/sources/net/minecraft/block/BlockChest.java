@@ -55,17 +55,25 @@ public class BlockChest extends BlockContainer
 
     /**
      * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
      */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#hasCustomBreakingProgress()} whenever possible. Implementing/overriding
+     * is fine.
+     */
     @SideOnly(Side.CLIENT)
     public boolean hasCustomBreakingProgress(IBlockState state)
     {
@@ -75,12 +83,17 @@ public class BlockChest extends BlockContainer
     /**
      * The type of render function called. MODEL for mixed tesr and static model, MODELBLOCK_ANIMATED for TESR-only,
      * LIQUID for vanilla liquids, INVISIBLE to skip all rendering
+     * @deprecated call via {@link IBlockState#getRenderType()} whenever possible. Implementing/overriding is fine.
      */
     public EnumBlockRenderType getRenderType(IBlockState state)
     {
         return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         if (source.getBlockState(pos.north()).getBlock() == this)
@@ -134,7 +147,7 @@ public class BlockChest extends BlockContainer
      */
     public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
-        EnumFacing enumfacing = EnumFacing.getHorizontal(MathHelper.floor((double)(placer.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3).getOpposite();
+        EnumFacing enumfacing = EnumFacing.byHorizontalIndex(MathHelper.floor((double)(placer.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3).getOpposite();
         state = state.withProperty(FACING, enumfacing);
         BlockPos blockpos = pos.north();
         BlockPos blockpos1 = pos.south();
@@ -470,12 +483,29 @@ public class BlockChest extends BlockContainer
         }
     }
 
+    /**
+     * Gets the chest inventory at the given location, returning null if the chest is blocked or there is no chest at
+     * that location. Handles large chests.
+     *  
+     * @param worldIn The world
+     * @param pos The position to check
+     */
     @Nullable
     public ILockableContainer getLockableContainer(World worldIn, BlockPos pos)
     {
         return this.getContainer(worldIn, pos, false);
     }
 
+    /**
+     * Gets the chest inventory at the given location, returning null if there is no chest at that location or
+     * optionally if the chest is blocked. Handles large chests.
+     *  
+     * @param worldIn The world
+     * @param pos The position to check
+     * @param allowBlocking If false, then if the chest is blocked then <code>null</code> will be returned. If true,
+     * ignores blocking for the chest at the given position (but, due to <a href="https://bugs.mojang.com/browse/MC-
+     * 99321">a bug</a>, still checks if the neighbor is blocked).
+     */
     @Nullable
     public ILockableContainer getContainer(World worldIn, BlockPos pos, boolean allowBlocking)
     {
@@ -502,7 +532,7 @@ public class BlockChest extends BlockContainer
 
                     if (block == this)
                     {
-                        if (!allowBlocking && this.isBlocked(worldIn, blockpos)) // Forge: fix MC-99321
+                        if (this.isBlocked(worldIn, blockpos))
                         {
                             return null;
                         }
@@ -538,12 +568,17 @@ public class BlockChest extends BlockContainer
 
     /**
      * Can this block provide power. Only wire currently seems to have this change based on its state.
+     * @deprecated call via {@link IBlockState#canProvidePower()} whenever possible. Implementing/overriding is fine.
      */
     public boolean canProvidePower(IBlockState state)
     {
         return this.chestType == BlockChest.Type.TRAP;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getWeakPower(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
         if (!blockState.canProvidePower())
@@ -564,6 +599,10 @@ public class BlockChest extends BlockContainer
         }
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getStrongPower(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public int getStrongPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
         return side == EnumFacing.UP ? blockState.getWeakPower(blockAccess, pos, side) : 0;
@@ -576,7 +615,7 @@ public class BlockChest extends BlockContainer
 
     private boolean isBelowSolidBlock(World worldIn, BlockPos pos)
     {
-        return worldIn.getBlockState(pos.up()).doesSideBlockChestOpening(worldIn, pos.up(), EnumFacing.DOWN);
+        return worldIn.getBlockState(pos.up()).isSideSolid(worldIn, pos.up(), EnumFacing.DOWN);
     }
 
     private boolean isOcelotSittingOnChest(World worldIn, BlockPos pos)
@@ -594,11 +633,19 @@ public class BlockChest extends BlockContainer
         return false;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#hasComparatorInputOverride()} whenever possible. Implementing/overriding
+     * is fine.
+     */
     public boolean hasComparatorInputOverride(IBlockState state)
     {
         return true;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getComparatorInputOverride(World,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
     {
         return Container.calcRedstoneFromInventory(this.getLockableContainer(worldIn, pos));
@@ -609,7 +656,7 @@ public class BlockChest extends BlockContainer
      */
     public IBlockState getStateFromMeta(int meta)
     {
-        EnumFacing enumfacing = EnumFacing.getFront(meta);
+        EnumFacing enumfacing = EnumFacing.byIndex(meta);
 
         if (enumfacing.getAxis() == EnumFacing.Axis.Y)
         {
@@ -630,6 +677,8 @@ public class BlockChest extends BlockContainer
     /**
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
+     * fine.
      */
     public IBlockState withRotation(IBlockState state, Rotation rot)
     {
@@ -639,6 +688,7 @@ public class BlockChest extends BlockContainer
     /**
      * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
     public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
@@ -658,6 +708,8 @@ public class BlockChest extends BlockContainer
      * does not fit the other descriptions and will generally cause other things not to connect to the face.
      * 
      * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {

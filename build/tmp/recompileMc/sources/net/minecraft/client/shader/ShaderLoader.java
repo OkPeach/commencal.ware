@@ -78,7 +78,7 @@ public class ShaderLoader
                 {
                     String s = StringUtils.trim(OpenGlHelper.glGetShaderInfoLog(i, 32768));
                     JsonException jsonexception = new JsonException("Couldn't compile " + type.getShaderName() + " program: " + s);
-                    jsonexception.setFilenameAndFlush(resourcelocation.getResourcePath());
+                    jsonexception.setFilenameAndFlush(resourcelocation.getPath());
                     throw jsonexception;
                 }
 

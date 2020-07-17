@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,8 +22,10 @@ package net.minecraftforge.fml.relauncher;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -32,15 +34,17 @@ import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.ToIntFunction;
 import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Files;
 import net.minecraft.launchwrapper.ITweaker;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.launchwrapper.LaunchClassLoader;
@@ -55,9 +59,6 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.MCVersion;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.Name;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
-import net.minecraftforge.fml.relauncher.libraries.Artifact;
-import net.minecraftforge.fml.relauncher.libraries.LibraryManager;
-import net.minecraftforge.fml.relauncher.libraries.Repository;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -66,23 +67,23 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.ObjectArrays;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.LoggerContext;
 
 public class CoreModManager {
     private static final Attributes.Name COREMODCONTAINSFMLMOD = new Attributes.Name("FMLCorePluginContainsFMLMod");
     private static final Attributes.Name MODTYPE = new Attributes.Name("ModType");
+    private static final Attributes.Name MODSIDE = new Attributes.Name("ModSide");
+    private static final Attributes.Name MODCONTAINSDEPS = new Attributes.Name("ContainedDeps");
     private static String[] rootPlugins = { "net.minecraftforge.fml.relauncher.FMLCorePlugin", "net.minecraftforge.classloading.FMLForgePlugin" };
     private static List<String> ignoredModFiles = Lists.newArrayList();
     private static Map<String, List<String>> transformers = Maps.newHashMap();
     private static List<FMLPluginWrapper> loadPlugins;
+    private static boolean deobfuscatedEnvironment;
     private static FMLTweaker tweaker;
     private static File mcDir;
     private static List<String> candidateModFiles = Lists.newArrayList();
     private static List<String> accessTransformers = Lists.newArrayList();
     private static Set<String> rootNames = Sets.newHashSet();
-
-    static boolean deobfuscatedEnvironment;
+    private static final List<String> skipContainedDeps = Arrays.asList(System.getProperty("fml.skipContainedDeps","").split(","));
 
     static
     {
@@ -196,8 +197,6 @@ public class CoreModManager {
     {
         CoreModManager.mcDir = mcDir;
         CoreModManager.tweaker = tweaker;
-
-        //TODO: Detect this better? Support install time deobfusication? Decouple deobf from dev? Add dev flag in GradleStart?
         try
         {
             // Are we in a 'decompiled' environment?
@@ -216,16 +215,6 @@ public class CoreModManager {
         if (!deobfuscatedEnvironment)
         {
             FMLLog.log.debug("Enabling runtime deobfuscation");
-        }
-        else
-        {
-            if (System.getProperty("log4j.configurationFile") == null)
-            {
-                FMLLog.log.info("Detected deobfuscated environment, loading log configs for colored console logs.");
-                // use server logging configs in deobfuscated environment so developers get nicely colored console logs
-                System.setProperty("log4j.configurationFile", "log4j2_server.xml");
-                ((LoggerContext) LogManager.getContext(false)).reconfigure();
-            }
         }
 
         tweaker.injectCascadingTweak("net.minecraftforge.fml.common.launcher.FMLInjectionAndSortingTweaker");
@@ -268,7 +257,7 @@ public class CoreModManager {
 
     private static void findDerpMods(LaunchClassLoader classLoader, File modDir, File modDirVer)
     {
-        File[] derplist = listFiles(path -> path.getName().endsWith(".jar.zip"), modDir, modDirVer);
+        File[] derplist = listFiles((dir, name) -> name.endsWith(".jar.zip"), modDir, modDirVer);
         if (derplist != null && derplist.length > 0)
         {
             FMLLog.log.fatal("FML has detected several badly downloaded jar files,  which have been named as zip files. You probably need to download them again, or they may not work properly");
@@ -308,6 +297,20 @@ public class CoreModManager {
         }
     }
 
+    private static File[] listFiles(FilenameFilter filter, File ... dirs)
+    {
+        File[] ret = null;
+        for (File dir : dirs)
+        {
+            if (!dir.isDirectory() || !dir.exists())
+                continue;
+            if (ret == null)
+                ret = dir.listFiles(filter);
+            else
+                ret = ObjectArrays.concat(ret, dir.listFiles(filter), File.class);
+        }
+        return ret == null ? new File[0] : ret;
+    }
     private static File[] listFiles(FileFilter filter, File ... dirs)
     {
         File[] ret = null;
@@ -331,27 +334,18 @@ public class CoreModManager {
 
         findDerpMods(classLoader, modsDir, modsDirVer);
 
-        //By the time we get here, all bundeled jars should be extracted to the proper repos.
-        //As well as the mods folders being cleaned up {any files that have maven info being moved to maven folder}
+        extractPackedJars(modsDir, modsDirVer);
+
+        ModListHelper.parseModList(mcDir);
 
         FMLLog.log.debug("Discovering coremods");
-        List<Artifact> maven_canidates = LibraryManager.flattenLists(mcDir);
-        List<File> file_canidates = LibraryManager.gatherLegacyCanidates(mcDir);
+        File[] coreModList = listFiles((dir, name) -> name.endsWith(".jar"), modsDir, modsDirVer);
 
-        for (Artifact artifact : maven_canidates)
-        {
-            artifact = Repository.resolveAll(artifact);
-            if (artifact != null)
-            {
-                File target = artifact.getFile();
-                if (!file_canidates.contains(target))
-                    file_canidates.add(target);
-            }
-        }
-        //Do we want to sort the full list after resolving artifacts?
-        //TODO: Add dependency gathering?
+        coreModList = ObjectArrays.concat(coreModList, ModListHelper.additionalMods.values().toArray(new File[0]), File.class);
 
-        for (File coreMod : file_canidates)
+        coreModList = FileListHelper.sortFileList(coreModList);
+
+        for (File coreMod : coreModList)
         {
             FMLLog.log.debug("Examining for coremod candidacy {}", coreMod.getName());
             JarFile jar = null;
@@ -359,39 +353,14 @@ public class CoreModManager {
             String fmlCorePlugin;
             try
             {
-                File manifest = new File(coreMod.getAbsolutePath() + ".meta");
-
-                if (LibraryManager.DISABLE_EXTERNAL_MANIFEST || !manifest.exists())
+                jar = new JarFile(coreMod);
+                if (jar.getManifest() == null)
                 {
-                    jar = new JarFile(coreMod);
-                    mfAttributes = jar.getManifest() == null ? null : jar.getManifest().getMainAttributes();
-                }
-                else
-                {
-                    FileInputStream fis = new FileInputStream(manifest);
-                    mfAttributes = new Manifest(fis).getMainAttributes();
-                    fis.close();
-                }
-
-                if (mfAttributes == null) // Not a coremod and no access transformer list
-                    continue;
-
-                String modSide = mfAttributes.getValue(LibraryManager.MODSIDE);
-                if (modSide != null && !"BOTH".equals(modSide) && !FMLLaunchHandler.side().name().equals(modSide))
-                {
-                    FMLLog.log.debug("Mod {} has ModSide meta-inf value {}, and we're {} It will be ignored", coreMod.getName(), modSide, FMLLaunchHandler.side.name());
-                    ignoredModFiles.add(coreMod.getName());
+                    // Not a coremod and no access transformer list
                     continue;
                 }
-
-                String ats = mfAttributes.getValue(ModAccessTransformer.FMLAT);
-                if (ats != null && !ats.isEmpty())
-                {
-                    if (jar == null) //We could of loaded the external manifest earlier, if so the jar isn't loaded.
-                        jar = new JarFile(coreMod);
-                    ModAccessTransformer.addJar(jar, ats);
-                }
-
+                ModAccessTransformer.addJar(jar);
+                mfAttributes = jar.getManifest().getMainAttributes();
                 String cascadedTweaker = mfAttributes.getValue("TweakClass");
                 if (cascadedTweaker != null)
                 {
@@ -407,6 +376,13 @@ public class CoreModManager {
                 if (!modTypes.contains("FML"))
                 {
                     FMLLog.log.debug("Adding {} to the list of things to skip. It is not an FML mod, it has types {}", coreMod.getName(), modTypes);
+                    ignoredModFiles.add(coreMod.getName());
+                    continue;
+                }
+                String modSide = mfAttributes.containsKey(MODSIDE) ? mfAttributes.getValue(MODSIDE) : "BOTH";
+                if (! ("BOTH".equals(modSide) || FMLLaunchHandler.side.name().equals(modSide)))
+                {
+                    FMLLog.log.debug("Mod {} has ModSide meta-inf value {}, and we're {} It will be ignored", coreMod.getName(), modSide, FMLLaunchHandler.side.name());
                     ignoredModFiles.add(coreMod.getName());
                     continue;
                 }
@@ -450,6 +426,95 @@ public class CoreModManager {
             }
             loadCoreMod(classLoader, fmlCorePlugin, coreMod);
         }
+    }
+
+    private static void extractPackedJars(File modsDir, File modsDirVer)
+    {
+        for (File dir : new File[]{modsDir, modsDirVer})
+        {
+            for (File file : listFiles((d, name) -> name.endsWith(".jar"), dir))
+            {
+                JarFile jar = null;
+                Attributes mfAttributes;
+                try
+                {
+                    jar = new JarFile(file);
+                    if (jar.getManifest() == null)
+                        continue;
+
+                    mfAttributes = jar.getManifest().getMainAttributes();
+                    String modSide = mfAttributes.containsKey(MODSIDE) ? mfAttributes.getValue(MODSIDE) : "BOTH";
+                    if (! ("BOTH".equals(modSide) || FMLLaunchHandler.side.name().equals(modSide)))
+                        continue;
+
+                    extractContainedDepJars(jar, dir == modsDir ? modsDir : modsDirVer, dir == modsDir ? modsDirVer : modsDir);
+                }
+                catch (IOException ioe)
+                {
+                    FMLLog.log.error("Unable to read the jar file {} - ignoring", file.getName(), ioe);
+                    continue;
+                }
+                finally
+                {
+                    closeQuietly(jar);
+                }
+            }
+        }
+    }
+
+    private static void extractContainedDepJars(JarFile jar, File ... modsDirs) throws IOException
+    {
+        if (!jar.getManifest().getMainAttributes().containsKey(MODCONTAINSDEPS)) return;
+
+        String deps = jar.getManifest().getMainAttributes().getValue(MODCONTAINSDEPS);
+        String[] depList = deps.split(" ");
+        for (String dep : depList)
+        {
+            String depEndName = new File(dep).getName(); // extract last part of name
+            if (skipContainedDeps.contains(dep) || skipContainedDeps.contains(depEndName))
+            {
+                FMLLog.log.error("Skipping dep at request: {}", dep);
+                continue;
+            }
+            final JarEntry jarEntry = jar.getJarEntry(dep);
+            if (jarEntry == null)
+            {
+                FMLLog.log.error("Found invalid ContainsDeps declaration {} in {}", dep, jar.getName());
+                continue;
+            }
+
+            boolean exit = false;
+            for (File f : modsDirs)
+            {
+                File tmp = new File(f, depEndName);
+                if (tmp.exists())
+                {
+                    FMLLog.log.debug("Found existing ContainsDep extracted to {}, skipping extraction", tmp.getCanonicalPath());
+                    exit = true;
+                    break;
+                }
+            }
+            if (exit)
+                continue;
+
+            File target = new File(modsDirs[0], depEndName);
+            FMLLog.log.debug("Extracting ContainedDep {} from {} to {}", dep, jar.getName(), target.getCanonicalPath());
+            try
+            {
+                Files.createParentDirs(target);
+                try (
+                    FileOutputStream targetOutputStream = new FileOutputStream(target);
+                    InputStream jarInputStream = jar.getInputStream(jarEntry);
+                ){
+                    ByteStreams.copy(jarInputStream, targetOutputStream);
+                }
+                FMLLog.log.debug("Extracted ContainedDep {} from {} to {}", dep, jar.getName(), target.getCanonicalPath());
+            } catch (IOException e)
+            {
+                FMLLog.log.error("An error occurred extracting dependency", e);
+            }
+        }
+        return;
     }
 
     private static Method ADDURL;
@@ -575,7 +640,7 @@ public class CoreModManager {
                 }
                 else if (deobfuscatedEnvironment && location == null) // This is probably a mod dev workspace
                 {
-                    FMLLog.log.info("Ignoring missing certificate for coremod {} ({}), as this is probably a dev workspace", coreModName, coreModClass);
+                    FMLLog.log.info("Ignoring missing certificate for coremod {} ({}), as this is a probably dev workspace", coreModName, coreModClass);
                 }
                 else // This is a probably a normal minecraft workspace - log at warn
                 {
@@ -606,21 +671,21 @@ public class CoreModManager {
         catch (ClassNotFoundException cnfe)
         {
             if (!Lists.newArrayList(rootPlugins).contains(coreModClass))
-                FMLLog.log.error("Coremod {}: Unable to class load the plugin {}", coreModName, coreModClass, cnfe);
+                FMLLog.log.error("Coremod {}: Unable to class load the plugin {}", coreModClass, cnfe);
             else
                 FMLLog.log.debug("Skipping root plugin {}", coreModClass);
         }
         catch (ClassCastException cce)
         {
-            FMLLog.log.error("Coremod {}: The plugin {} is not an implementor of IFMLLoadingPlugin", coreModName, coreModClass, cce);
+            FMLLog.log.error("Coremod {}: The plugin {} is not an implementor of IFMLLoadingPlugin", coreModClass, cce);
         }
         catch (InstantiationException ie)
         {
-            FMLLog.log.error("Coremod {}: The plugin class {} was not instantiable", coreModName, coreModClass, ie);
+            FMLLog.log.error("Coremod {}: The plugin class {} was not instantiable", coreModClass, ie);
         }
         catch (IllegalAccessException iae)
         {
-            FMLLog.log.error("Coremod {}: The plugin class {} was not accessible", coreModName, coreModClass, iae);
+            FMLLog.log.error("Coremod {}: The plugin class {} was not accessible", coreModClass, iae);
         }
         return null;
     }
@@ -654,8 +719,51 @@ public class CoreModManager {
         // Basically a copy of Collections.sort pre 8u20, optimized as we know we're an array list.
         // Thanks unhelpful fixer of http://bugs.java.com/view_bug.do?bug_id=8032636
         ITweaker[] toSort = tweakers.toArray(new ITweaker[tweakers.size()]);
-        ToIntFunction<ITweaker> getOrder = o -> o instanceof FMLInjectionAndSortingTweaker ? Integer.MIN_VALUE : o instanceof FMLPluginWrapper ? ((FMLPluginWrapper)o).sortIndex : tweakSorting.getOrDefault(o.getClass().getName(), 0);
-        Arrays.sort(toSort, (o1, o2) -> Ints.saturatedCast((long)getOrder.applyAsInt(o1) - (long)getOrder.applyAsInt(o2)));
+        Arrays.sort(toSort, new Comparator<ITweaker>() {
+            @Override
+            public int compare(ITweaker o1, ITweaker o2)
+            {
+                Integer first = null;
+                Integer second = null;
+                if (o1 instanceof FMLInjectionAndSortingTweaker)
+                {
+                    first = Integer.MIN_VALUE;
+                }
+                if (o2 instanceof FMLInjectionAndSortingTweaker)
+                {
+                    second = Integer.MIN_VALUE;
+                }
+
+                if (o1 instanceof FMLPluginWrapper)
+                {
+                    first = ((FMLPluginWrapper) o1).sortIndex;
+                }
+                else if (first == null)
+                {
+                    first = tweakSorting.get(o1.getClass().getName());
+                }
+                if (o2 instanceof FMLPluginWrapper)
+                {
+                    second = ((FMLPluginWrapper) o2).sortIndex;
+                }
+                else if (second == null)
+                {
+                    second = tweakSorting.get(o2.getClass().getName());
+                }
+                if (first == null)
+                {
+                    first = 0;
+                }
+                if (second == null)
+                {
+                    second = 0;
+                }
+
+                return Ints.saturatedCast((long)first - (long)second);
+            }
+        });
+        // Basically a copy of Collections.sort, optimized as we know we're an array list.
+        // Thanks unhelpful fixer of http://bugs.java.com/view_bug.do?bug_id=8032636
         for (int j = 0; j < toSort.length; j++) {
             tweakers.set(j, toSort[j]);
         }

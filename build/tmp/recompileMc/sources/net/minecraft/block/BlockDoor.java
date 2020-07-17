@@ -48,6 +48,10 @@ public class BlockDoor extends Block
         this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(OPEN, Boolean.valueOf(false)).withProperty(HINGE, BlockDoor.EnumHingePosition.LEFT).withProperty(POWERED, Boolean.valueOf(false)).withProperty(HALF, BlockDoor.EnumDoorHalf.LOWER));
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         state = state.getActualState(source, pos);
@@ -74,11 +78,12 @@ public class BlockDoor extends Block
      */
     public String getLocalizedName()
     {
-        return I18n.translateToLocal((this.getUnlocalizedName() + ".name").replaceAll("tile", "item"));
+        return I18n.translateToLocal((this.getTranslationKey() + ".name").replaceAll("tile", "item"));
     }
 
     /**
      * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
      */
     public boolean isOpaqueCube(IBlockState state)
     {
@@ -93,6 +98,9 @@ public class BlockDoor extends Block
         return isOpen(combineMetadata(worldIn, pos));
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
@@ -100,16 +108,18 @@ public class BlockDoor extends Block
 
     private int getCloseSound()
     {
-        return this.blockMaterial == Material.IRON ? 1011 : 1012;
+        return this.material == Material.IRON ? 1011 : 1012;
     }
 
     private int getOpenSound()
     {
-        return this.blockMaterial == Material.IRON ? 1005 : 1006;
+        return this.material == Material.IRON ? 1005 : 1006;
     }
 
     /**
      * Get the MapColor for this Block and the given BlockState
+     * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
@@ -148,7 +158,7 @@ public class BlockDoor extends Block
      */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
-        if (this.blockMaterial == Material.IRON)
+        if (this.material == Material.IRON)
         {
             return false;
         }
@@ -284,7 +294,10 @@ public class BlockDoor extends Block
         }
     }
 
-    public EnumPushReaction getMobilityFlag(IBlockState state)
+    /**
+     * @deprecated call via {@link IBlockState#getMobilityFlag()} whenever possible. Implementing/overriding is fine.
+     */
+    public EnumPushReaction getPushReaction(IBlockState state)
     {
         return EnumPushReaction.DESTROY;
     }
@@ -363,8 +376,12 @@ public class BlockDoor extends Block
         }
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     @SideOnly(Side.CLIENT)
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
     }
@@ -400,6 +417,8 @@ public class BlockDoor extends Block
     /**
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
+     * fine.
      */
     public IBlockState withRotation(IBlockState state, Rotation rot)
     {
@@ -409,6 +428,7 @@ public class BlockDoor extends Block
     /**
      * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
     public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
@@ -420,7 +440,7 @@ public class BlockDoor extends Block
      */
     public IBlockState getStateFromMeta(int meta)
     {
-        return (meta & 8) > 0 ? this.getDefaultState().withProperty(HALF, BlockDoor.EnumDoorHalf.UPPER).withProperty(HINGE, (meta & 1) > 0 ? BlockDoor.EnumHingePosition.RIGHT : BlockDoor.EnumHingePosition.LEFT).withProperty(POWERED, Boolean.valueOf((meta & 2) > 0)) : this.getDefaultState().withProperty(HALF, BlockDoor.EnumDoorHalf.LOWER).withProperty(FACING, EnumFacing.getHorizontal(meta & 3).rotateYCCW()).withProperty(OPEN, Boolean.valueOf((meta & 4) > 0));
+        return (meta & 8) > 0 ? this.getDefaultState().withProperty(HALF, BlockDoor.EnumDoorHalf.UPPER).withProperty(HINGE, (meta & 1) > 0 ? BlockDoor.EnumHingePosition.RIGHT : BlockDoor.EnumHingePosition.LEFT).withProperty(POWERED, Boolean.valueOf((meta & 2) > 0)) : this.getDefaultState().withProperty(HALF, BlockDoor.EnumDoorHalf.LOWER).withProperty(FACING, EnumFacing.byHorizontalIndex(meta & 3).rotateYCCW()).withProperty(OPEN, Boolean.valueOf((meta & 4) > 0));
     }
 
     /**
@@ -474,7 +494,7 @@ public class BlockDoor extends Block
 
     public static EnumFacing getFacing(int combinedMeta)
     {
-        return EnumFacing.getHorizontal(combinedMeta & 3).rotateYCCW();
+        return EnumFacing.byHorizontalIndex(combinedMeta & 3).rotateYCCW();
     }
 
     protected static boolean isOpen(int combinedMeta)
@@ -500,6 +520,8 @@ public class BlockDoor extends Block
      * does not fit the other descriptions and will generally cause other things not to connect to the face.
      * 
      * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {

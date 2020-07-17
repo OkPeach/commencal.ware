@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -37,7 +37,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.network.datasync.DataSerializer;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionType;
 import net.minecraft.util.ObjectIntIdentityMap;
@@ -52,11 +51,8 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.RegistryEvent.MissingMappings;
 import net.minecraftforge.fml.common.EnhancedRuntimeException;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.FMLContainer;
 import net.minecraftforge.fml.common.FMLLog;
-import net.minecraftforge.fml.common.InjectedModContainer;
 import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.StartupQuery;
 import net.minecraftforge.fml.common.ZipperUtil;
 import net.minecraftforge.fml.common.registry.EntityEntry;
@@ -71,10 +67,8 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
@@ -103,8 +97,6 @@ public class GameData
     public static final ResourceLocation ENTITIES     = new ResourceLocation("minecraft:entities");
     public static final ResourceLocation RECIPES      = new ResourceLocation("minecraft:recipes");
     public static final ResourceLocation PROFESSIONS  = new ResourceLocation("minecraft:villagerprofessions");
-    public static final ResourceLocation SERIALIZERS  = new ResourceLocation("minecraft:dataserializers");
-
     private static final int MAX_BLOCK_ID = 4095;
     private static final int MIN_ITEM_ID = MAX_BLOCK_ID + 1;
     private static final int MAX_ITEM_ID = 31999;
@@ -116,14 +108,9 @@ public class GameData
     private static final int MAX_ENTITY_ID = Integer.MAX_VALUE >> 5; // Varint (SPacketSpawnMob)
     private static final int MAX_RECIPE_ID = Integer.MAX_VALUE >> 5; // Varint CPacketRecipeInfo/SPacketRecipeBook
     private static final int MAX_PROFESSION_ID = 1024; //TODO: Is this serialized anywhere anymore?
-    private static final int MIN_SERIALIZER_ID = 256; // Leave room for vanilla entries
-    private static final int MAX_SERIALIZER_ID = Integer.MAX_VALUE >> 5; // Varint (EntityDataManager)
 
-    private static final ResourceLocation BLOCK_TO_ITEM         = new ResourceLocation("minecraft:blocktoitemmap");
-    private static final ResourceLocation BLOCKSTATE_TO_ID      = new ResourceLocation("minecraft:blockstatetoid");
-    private static final ResourceLocation ENTITY_CLASS_TO_ENTRY = new ResourceLocation("forge:entity_class_to_entry");
-    private static final ResourceLocation SERIALIZER_TO_ENTRY   = new ResourceLocation("forge:serializer_to_entry");
-
+    private static final ResourceLocation BLOCK_TO_ITEM    = new ResourceLocation("minecraft:blocktoitemmap");
+    private static final ResourceLocation BLOCKSTATE_TO_ID = new ResourceLocation("minecraft:blockstatetoid");
     private static boolean hasInit = false;
     private static final boolean DISABLE_VANILLA_REGISTRIES = Boolean.parseBoolean(System.getProperty("forge.disableVanillaGameData", "false")); // Use for unit tests/debugging
     private static final BiConsumer<ResourceLocation, ForgeRegistry<?>> LOCK_VANILLA = (name, reg) -> reg.slaves.values().stream().filter(o -> o instanceof ILockableRegistry).forEach(o -> ((ILockableRegistry)o).lock());
@@ -151,7 +138,6 @@ public class GameData
         makeRegistry(ENCHANTMENTS, Enchantment.class, MAX_ENCHANTMENT_ID).create();
         makeRegistry(RECIPES,      IRecipe.class,     MAX_RECIPE_ID).disableSaving().allowModification().addCallback(RecipeCallbacks.INSTANCE).create();
         makeRegistry(PROFESSIONS,  VillagerProfession.class, MAX_PROFESSION_ID).create();
-        makeRegistry(SERIALIZERS,  DataSerializerEntry.class, MIN_SERIALIZER_ID, MAX_SERIALIZER_ID).disableSaving().disableOverrides().addCallback(SerializerCallbacks.INSTANCE).create();
         entityRegistry = (ForgeRegistry<EntityEntry>)makeRegistry(ENTITIES, EntityEntry.class, MAX_ENTITY_ID).addCallback(EntityCallbacks.INSTANCE).create();
     }
 
@@ -174,7 +160,7 @@ public class GameData
         Validate.notNull(reg, "Attempted to get vanilla wrapper for unknown registry: " + cls.toString());
         @SuppressWarnings("unchecked")
         RegistryNamespacedDefaultedByKey<ResourceLocation, V> ret = reg.getSlaveMap(NamespacedDefaultedWrapper.Factory.ID, NamespacedDefaultedWrapper.class);
-        Validate.notNull(ret, "Attempted to get vanilla wrapper for registry created incorrectly: " + cls.toString());
+        Validate.notNull(reg, "Attempted to get vanilla wrapper for registry created incorrectly: " + cls.toString());
         return ret;
     }
 
@@ -184,7 +170,7 @@ public class GameData
         Validate.notNull(reg, "Attempted to get vanilla wrapper for unknown registry: " + cls.toString());
         @SuppressWarnings("unchecked")
         RegistryNamespaced<ResourceLocation, V> ret = reg.getSlaveMap(NamespacedWrapper.Factory.ID, NamespacedWrapper.class);
-        Validate.notNull(ret, "Attempted to get vanilla wrapper for registry created incorrectly: " + cls.toString());
+        Validate.notNull(reg, "Attempted to get vanilla wrapper for registry created incorrectly: " + cls.toString());
         return ret;
     }
 
@@ -198,18 +184,6 @@ public class GameData
     public static ObjectIntIdentityMap<IBlockState> getBlockStateIDMap()
     {
         return GameRegistry.findRegistry(Block.class).getSlaveMap(BLOCKSTATE_TO_ID, ObjectIntIdentityMap.class);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static Map<Class<? extends Entity>, EntityEntry> getEntityClassMap()
-    {
-        return GameRegistry.findRegistry(EntityEntry.class).getSlaveMap(ENTITY_CLASS_TO_ENTRY, Map.class);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static Map<DataSerializer<?>, DataSerializerEntry> getSerializerMap()
-    {
-        return GameRegistry.findRegistry(DataSerializerEntry.class).getSlaveMap(SERIALIZER_TO_ENTRY, Map.class);
     }
 
     public static <K extends IForgeRegistryEntry<K>> K register_impl(K value)
@@ -304,15 +278,6 @@ public class GameData
             this.identityMap.clear();
             this.objectList.clear();
         }
-
-        void remove(I key)
-        {
-            Integer prev = this.identityMap.remove(key);
-            if (prev != null)
-            {
-                this.objectList.set(prev, null);
-            }
-        }
     }
 
 
@@ -326,14 +291,6 @@ public class GameData
         {
             @SuppressWarnings("unchecked")
             ClearableObjectIntIdentityMap<IBlockState> blockstateMap = owner.getSlaveMap(BLOCKSTATE_TO_ID, ClearableObjectIntIdentityMap.class);
-
-            if (oldBlock != null)
-            {
-                for (IBlockState state : oldBlock.getBlockState().getValidStates())
-                {
-                    blockstateMap.remove(state);
-                }
-            }
 
             if ("minecraft:tripwire".equals(block.getRegistryName().toString())) //Tripwire is crap so we have to special case whee!
             {
@@ -401,7 +358,7 @@ public class GameData
         @Override
         public Block createDummy(ResourceLocation key)
         {
-            Block ret = new BlockDummyAir().setUnlocalizedName("air");
+            Block ret = new BlockDummyAir().setTranslationKey("air");
             GameData.forceRegistryName(ret, key);
             return ret;
         }
@@ -420,12 +377,6 @@ public class GameData
         @Override
         public void onAdd(IForgeRegistryInternal<Item> owner, RegistryManager stage, int id, Item item, @Nullable Item oldItem)
         {
-            if (oldItem instanceof ItemBlock)
-            {
-                @SuppressWarnings("unchecked")
-                BiMap<Block, Item> blockToItem = owner.getSlaveMap(BLOCK_TO_ITEM, BiMap.class);
-                blockToItem.remove(((ItemBlock)oldItem).getBlock());
-            }
             if (item instanceof ItemBlock)
             {
                 @SuppressWarnings("unchecked")
@@ -449,21 +400,9 @@ public class GameData
         }
     }
 
-    private static class RecipeCallbacks implements IForgeRegistry.ValidateCallback<IRecipe>, IForgeRegistry.MissingFactory<IRecipe>
+    private static class RecipeCallbacks implements IForgeRegistry.MissingFactory<IRecipe>
     {
         static final RecipeCallbacks INSTANCE = new RecipeCallbacks();
-
-        @Override
-        public void onValidate(IForgeRegistryInternal<IRecipe> owner, RegistryManager stage, int id, ResourceLocation key, IRecipe obj)
-        {
-            if (stage != RegistryManager.ACTIVE) return;
-            // verify the recipe output yields a registered item
-            Item item = obj.getRecipeOutput().getItem();
-            if (!stage.getRegistry(Item.class).containsValue(item))
-            {
-                throw new IllegalStateException(String.format("Recipe %s (%s) produces unregistered item %s (%s)", key, obj, item.getRegistryName(), item));
-            }
-        }
 
         @Override
         public IRecipe createMissing(ResourceLocation key, boolean isNetwork)
@@ -499,7 +438,7 @@ public class GameData
         reg.register(id, key, new EntityEntry(clazz, oldName));
     }
 
-    private static class EntityCallbacks implements IForgeRegistry.AddCallback<EntityEntry>, IForgeRegistry.ClearCallback<EntityEntry>, IForgeRegistry.CreateCallback<EntityEntry>
+    private static class EntityCallbacks implements IForgeRegistry.AddCallback<EntityEntry>
     {
         static final EntityCallbacks INSTANCE = new EntityCallbacks();
 
@@ -511,54 +450,7 @@ public class GameData
                 ((EntityEntryBuilder.BuiltEntityEntry) entry).addedToRegistry();
             }
             if (entry.getEgg() != null)
-            {
                 EntityList.ENTITY_EGGS.put(entry.getRegistryName(), entry.getEgg());
-            }
-            @SuppressWarnings("unchecked")
-            Map<Class<? extends Entity>, EntityEntry> map = owner.getSlaveMap(ENTITY_CLASS_TO_ENTRY, Map.class);
-            if (oldEntry != null)
-            {
-                map.remove(oldEntry.getEntityClass());
-            }
-            map.put(entry.getEntityClass(), entry);
-        }
-
-        @Override
-        public void onClear(IForgeRegistryInternal<EntityEntry> owner, RegistryManager stage)
-        {
-            owner.getSlaveMap(ENTITY_CLASS_TO_ENTRY, Map.class).clear();
-        }
-
-        @Override
-        public void onCreate(IForgeRegistryInternal<EntityEntry> owner, RegistryManager stage)
-        {
-            owner.setSlaveMap(ENTITY_CLASS_TO_ENTRY, new IdentityHashMap<>());
-        }
-    }
-
-    private static class SerializerCallbacks implements IForgeRegistry.AddCallback<DataSerializerEntry>, IForgeRegistry.ClearCallback<DataSerializerEntry>, IForgeRegistry.CreateCallback<DataSerializerEntry>
-    {
-        static final SerializerCallbacks INSTANCE = new SerializerCallbacks();
-
-        @Override
-        public void onAdd(IForgeRegistryInternal<DataSerializerEntry> owner, RegistryManager stage, int id, DataSerializerEntry entry, @Nullable DataSerializerEntry oldEntry)
-        {
-            @SuppressWarnings("unchecked")
-            Map<DataSerializer<?>, DataSerializerEntry> map = owner.getSlaveMap(SERIALIZER_TO_ENTRY, Map.class);
-            if (oldEntry != null) map.remove(oldEntry.getSerializer());
-            map.put(entry.getSerializer(), entry);
-        }
-
-        @Override
-        public void onClear(IForgeRegistryInternal<DataSerializerEntry> owner, RegistryManager stage)
-        {
-            owner.getSlaveMap(SERIALIZER_TO_ENTRY, Map.class).clear();
-        }
-
-        @Override
-        public void onCreate(IForgeRegistryInternal<DataSerializerEntry> owner, RegistryManager stage)
-        {
-            owner.setSlaveMap(SERIALIZER_TO_ENTRY, new IdentityHashMap<>());
         }
     }
 
@@ -610,23 +502,20 @@ public class GameData
         RegistryManager.ACTIVE.registries.forEach((name, reg) -> reg.dump(name));
         RegistryManager.ACTIVE.registries.forEach((name, reg) -> reg.resetDelegates());
 
-        if (isLocalWorld)
+        List<ResourceLocation> missingRegs = snapshot.keySet().stream().filter(name -> !RegistryManager.ACTIVE.registries.containsKey(name)).collect(Collectors.toList());
+        if (missingRegs.size() > 0)
         {
-            List<ResourceLocation> missingRegs = snapshot.keySet().stream().filter(name -> !RegistryManager.ACTIVE.registries.containsKey(name)).collect(Collectors.toList());
-            if (missingRegs.size() > 0)
-            {
-                String text = "Forge Mod Loader detected missing/unknown registrie(s).\n\n" +
-                        "There are " + missingRegs.size() + " missing registries in this save.\n" +
-                        "If you continue the missing registries will get removed.\n" +
-                        "This may cause issues, it is advised that you create a world backup before continuing.\n\n" +
-                        "Missing Registries:\n";
+            String text = "Forge Mod Loader detected missing/unknown registrie(s).\n\n" +
+                    "There are " + missingRegs.size() + " missing registries in this save.\n" +
+                    "If you continue the missing registries will get removed.\n" +
+                    "This may cause issues, it is advised that you create a world backup before continuing.\n\n" +
+                    "Missing Registries:\n";
 
-                for (ResourceLocation s : missingRegs)
-                    text += s.toString() + "\n";
+            for (ResourceLocation s : missingRegs)
+                text += s.toString() + "\n";
 
-                if (!StartupQuery.confirm(text))
-                    StartupQuery.abort();
-            }
+            if (!StartupQuery.confirm(text))
+                StartupQuery.abort();
         }
 
         RegistryManager STAGING = new RegistryManager("STAGING");
@@ -867,40 +756,6 @@ public class GameData
                 ((ForgeRegistry<?>)reg).freeze();
         });
         */
-    }
-
-    /**
-     * @deprecated Use {@link #checkPrefix(String, boolean)}.
-     */
-    @Deprecated
-    public static ResourceLocation checkPrefix(String name)
-    {
-        return checkPrefix(name, true);
-    }
-
-    /**
-     * Check a name for a domain prefix, and if not present infer it from the
-     * current active mod container.
-     * 
-     * @param name          The name or resource location
-     * @param warnOverrides If true, logs a warning if domain differs from that of
-     *                      the currently currently active mod container
-     * 
-     * @return The {@link ResourceLocation} with given or inferred domain
-     */
-    public static ResourceLocation checkPrefix(String name, boolean warnOverrides)
-    {
-        int index = name.lastIndexOf(':');
-        String oldPrefix = index == -1 ? "" : name.substring(0, index).toLowerCase(Locale.ROOT);
-        name = index == -1 ? name : name.substring(index + 1);
-        ModContainer mc = Loader.instance().activeModContainer();
-        String prefix = mc == null || (mc instanceof InjectedModContainer && ((InjectedModContainer)mc).wrappedContainer instanceof FMLContainer) ? "minecraft" : mc.getModId().toLowerCase(Locale.ROOT);
-        if (warnOverrides && !oldPrefix.equals(prefix) && oldPrefix.length() > 0)
-        {
-            FMLLog.log.warn("Potentially Dangerous alternative prefix `{}` for name `{}`, expected `{}`. This could be a intended override, but in most cases indicates a broken mod.", oldPrefix, name, prefix);
-            prefix = oldPrefix;
-        }
-        return new ResourceLocation(prefix, name);
     }
 
     private static Field regName;

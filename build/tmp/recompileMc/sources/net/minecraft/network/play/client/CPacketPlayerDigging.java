@@ -35,7 +35,7 @@ public class CPacketPlayerDigging implements Packet<INetHandlerPlayServer>
     {
         this.action = (CPacketPlayerDigging.Action)buf.readEnumValue(CPacketPlayerDigging.Action.class);
         this.position = buf.readBlockPos();
-        this.facing = EnumFacing.getFront(buf.readUnsignedByte());
+        this.facing = EnumFacing.byIndex(buf.readUnsignedByte());
     }
 
     /**

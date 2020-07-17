@@ -30,6 +30,8 @@ public class BlockDirt extends Block
 
     /**
      * Get the MapColor for this Block and the given BlockState
+     * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
@@ -112,7 +114,7 @@ public class BlockDirt extends Block
         private static final BlockDirt.DirtType[] METADATA_LOOKUP = new BlockDirt.DirtType[values().length];
         private final int metadata;
         private final String name;
-        private final String unlocalizedName;
+        private final String translationKey;
         private final MapColor color;
 
         private DirtType(int metadataIn, String nameIn, MapColor color)
@@ -124,7 +126,7 @@ public class BlockDirt extends Block
         {
             this.metadata = metadataIn;
             this.name = nameIn;
-            this.unlocalizedName = unlocalizedNameIn;
+            this.translationKey = unlocalizedNameIn;
             this.color = color;
         }
 
@@ -133,9 +135,9 @@ public class BlockDirt extends Block
             return this.metadata;
         }
 
-        public String getUnlocalizedName()
+        public String getTranslationKey()
         {
-            return this.unlocalizedName;
+            return this.translationKey;
         }
 
         public MapColor getColor()

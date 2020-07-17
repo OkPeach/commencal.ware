@@ -10,15 +10,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class Path
 {
     /** The actual points in the path */
-    private final PathPoint[] points;
-    private PathPoint[] openSet = new PathPoint[0];
-    private PathPoint[] closedSet = new PathPoint[0];
+    public final PathPoint[] points;
+    public PathPoint[] openSet = new PathPoint[0];
+    public PathPoint[] closedSet = new PathPoint[0];
     @SideOnly(Side.CLIENT)
-    private PathPoint target;
+    public PathPoint target;
     /** PathEntity Array Index the Entity is currently targeting */
-    private int currentPathIndex;
+    public int currentPathIndex;
     /** The total length of the path */
-    private int pathLength;
+    public int pathLength;
 
     public Path(PathPoint[] pathpoints)
     {

@@ -55,7 +55,6 @@ public enum HorseArmorType
         return this.textureName;
     }
 
-    @Deprecated /**Forge: Use getByName. Ordinals of mod-added enum constants are dependent on load order, unlike names.**/
     public static HorseArmorType getByOrdinal(int ordinal)
     {
         return values()[ordinal];
@@ -63,10 +62,9 @@ public enum HorseArmorType
 
     public static HorseArmorType getByItemStack(ItemStack stack)
     {
-        return stack.getItem().getHorseArmorType(stack);
+        return stack.isEmpty() ? NONE : getByItem(stack.getItem());
     }
 
-    @Deprecated //Forge: Use getByItemStack
     public static HorseArmorType getByItem(Item itemIn)
     {
         if (itemIn == Items.IRON_HORSE_ARMOR)
@@ -83,30 +81,8 @@ public enum HorseArmorType
         }
     }
 
-    @Deprecated //Forge: Use ItemStack sensitive overload
     public static boolean isHorseArmor(Item itemIn)
     {
         return getByItem(itemIn) != NONE;
     }
-    
-    /* ======================================== FORGE START ======================================== */
-    //Allows for textures located outside the vanilla horse armor folder
-    private HorseArmorType(String defaultTextureLocation, int armorStrengthIn)
-    {
-        this.protection = armorStrengthIn;
-        this.textureName = defaultTextureLocation;
-        this.hash = "forge";
-    }
-    
-    public static HorseArmorType getByName(String name)
-    {
-        HorseArmorType type = HorseArmorType.valueOf(name);
-        return type != null ? type : NONE;
-    }
-    
-    public static boolean isHorseArmor(ItemStack stack)
-    {
-        return getByItemStack(stack) != NONE;
-    }
-    /* ======================================== FORGE END ======================================== */
 }
